@@ -19,7 +19,6 @@ class FormsList(Route):
         forms = []
 
         for form in request.state.db.forms.find():
-            form["_id"] = str(form["_id"])
             forms.append(form)
 
         return JSONResponse(
