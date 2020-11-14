@@ -24,6 +24,10 @@ class AuthorizeRoute(Route):
         bearer_token = await fetch_bearer_token(data["token"])
         user_details = await fetch_user_details(bearer_token["access_token"])
 
+        user_details["admin"] = request.state.db.admins.find_one(
+            {"_id": user_details["id"]}
+        ) is not None
+
         token = jwt.encode(user_details, SECRET_KEY, algorithm="HS256")
 
         return JSONResponse({
