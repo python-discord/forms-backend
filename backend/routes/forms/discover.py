@@ -19,9 +19,8 @@ class DiscoverableFormsList(Route):
         forms = []
 
         for form in request.state.db.forms.find({
-            "discoverable": True
+            "features": "DISCOVERABLE"
         }):
-            form["_id"] = str(form["_id"])
             forms.append(form)
 
         return JSONResponse(
