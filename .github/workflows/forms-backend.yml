@@ -41,9 +41,16 @@ jobs:
         run: |
           poetry install
 
-      # This implemention allows showing linting errors in PRs under Files tab.
+      # This allows GitHub to detect errors and relay them to PR Files tab
+      - name: Add flake8 matchers
+        run: echo "::add-matcher::./github/flake8-matchers.json"
+
       - name: Run flake8
-        run: "poetry run flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s' --verbose"
+        run: "poetry run flake8"
+
+      # There may some bad behaviours, so remove them
+      - name: Remove flake8 matchers
+        run: echo "::remove-matcher owner=flake8-error::" && echo "::remove-matcher owner=flake8-warning::"
 
   build:
     name: Build & Push
