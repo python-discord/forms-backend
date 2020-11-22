@@ -1,3 +1,5 @@
+import os
+
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
@@ -9,7 +11,7 @@ middleware = [
     Middleware(
         CORSMiddleware,
         allow_origins=[
-            "https://forms.pythondiscord.com"
+            os.getenv("ALLOWED_URL", "https://forms.pythondiscord.com"),
         ],
         allow_headers=[
             "Authorization",
