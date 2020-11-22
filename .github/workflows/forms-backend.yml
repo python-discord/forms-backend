@@ -43,7 +43,7 @@ jobs:
 
       # This allows GitHub to detect errors and relay them to PR Files tab
       - name: Add flake8 matchers
-        run: echo "::add-matcher::./github/flake8-matchers.json"
+        run: echo "::add-matcher::./.github/flake8-matchers.json"
 
       - name: Run flake8
         run: "poetry run flake8"
