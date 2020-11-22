@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Add custom PYTHONUSERBASE to PATH
-        run: echo '${{ env.PYTHONUSERBASE }}/bin/' >> $GITHUB_PATH
-
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -46,7 +43,7 @@ jobs:
 
       # This implemention allows showing linting errors in PRs under Files tab.
       - name: Run flake8
-        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s''"
+        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s'"
 
   build:
     name: Build & Push
