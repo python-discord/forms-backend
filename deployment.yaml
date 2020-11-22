@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forms-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forms-backend
+  template:
+    metadata:
+      labels:
+        app: forms-backend
+    spec:
+      containers:
+        - name: forms-backend
+          image: ghcr.io/python-discord/forms-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
