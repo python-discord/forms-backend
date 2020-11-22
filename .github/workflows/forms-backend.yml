@@ -40,18 +40,13 @@ jobs:
         if: steps.python_cache.outputs.cache-hit != 'true'
         run: |
           poetry install
+          
+      - name: Activate Poetry virtualenv
+        run: "poetry shell"
 
-      # Commented out during testing other ways
       # This implemention allows showing linting errors in PRs under Files tab.
-      # - name: Run flake8
-      #   run: "poetry run flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s' --verbose"
-
       - name: Run flake8
-        uses: suo/flake8-github-action@releases/v1
-        with:
-          checkName: 'lint'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s' --verbose"
 
   build:
     name: Build & Push
