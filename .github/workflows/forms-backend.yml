@@ -1,1 +1,62 @@
+name: Forms Backend
 
+on:
+  push:
+    branches: 
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+
+    env:
+      # Configure pip to cache dependencies and do a user install
+      PIP_NO_CACHE_DIR: false
+      PIP_USER: 1
+
+      # Hide the graphical elements from pipenv's output
+      PIPENV_HIDE_EMOJIS: 1
+      PIPENV_NOSPIN: 1
+
+      # Make sure pipenv does not try reuse an environment it's running in
+      PIPENV_IGNORE_VIRTUALENVS: 1
+
+      # Specify explicit paths for python dependencies and the pre-commit
+      # environment so we know which directories to cache
+      PYTHONUSERBASE: ${{ github.workspace }}/.cache/py-user-base
+
+    steps:
+      - name: Add custom PYTHONUSERBASE to PATH
+        run: echo '${{ env.PYTHONUSERBASE }}/bin/' >> $GITHUB_PATH
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        id: python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      # When same context exists in cache already, restore this environment.
+      - name: Python Dependency Caching
+        uses: actions/cache@v2
+        id: python_cache
+        with:
+          path: ${{ env.PYTHONUSERBASE }}
+          key: "python-0-${{ runner.os }}-${{ env.PYTHONUSERBASE }}-\
+          ${{ steps.python.outputs.python-version }}-\
+          ${{ hashFiles('./pyproject.toml', './poetry.lock') }}"
+
+      # Only install dependencies when cache didn't hit.
+      - name: Install dependencies
+        if: steps.python_cache.outputs.cache-hit != 'true'
+        run: |
+          pip install poetry
+          poetry install
+
+      # This implemention allows showing linting errors in PRs under Files tab.
+      - name: Run flake8
+        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s''"
