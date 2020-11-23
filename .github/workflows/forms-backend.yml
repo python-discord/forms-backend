@@ -48,7 +48,7 @@ jobs:
       - name: Run flake8
         run: "poetry run flake8"
 
-      # There may some bad behaviours, so remove them
+      # We don't want that this catch any other errors than flake8 ones.
       - name: Remove flake8 matchers
         if: ${{ always() }}
         run: echo "::remove-matcher owner=flake8-error::" && echo "::remove-matcher owner=flake8-warning::"
