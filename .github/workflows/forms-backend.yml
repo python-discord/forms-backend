@@ -50,6 +50,7 @@ jobs:
 
       # There may some bad behaviours, so remove them
       - name: Remove flake8 matchers
+        if: ${{ always() }}
         run: echo "::remove-matcher owner=flake8-error::" && echo "::remove-matcher owner=flake8-warning::"
 
   build:
