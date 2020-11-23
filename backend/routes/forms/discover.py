@@ -1,7 +1,7 @@
 """
 Return a list of all publicly discoverable forms to unauthenticated users.
 """
-
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.route import Route
@@ -15,7 +15,7 @@ class DiscoverableFormsList(Route):
     name = "discoverable_forms_list"
     path = "/discoverable"
 
-    async def get(self, request):
+    async def get(self, request: Request) -> JSONResponse:
         forms = []
 
         for form in request.state.db.forms.find({
