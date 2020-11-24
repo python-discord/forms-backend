@@ -87,6 +87,7 @@ jobs:
           file: ./Dockerfile
           push: true
           cache-from: type=registry,ref=ghcr.io/python-discord/forms-backend:latest
+          cache-to: type=inline
           tags: |
             ghcr.io/python-discord/forms-backend:latest
             ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}
