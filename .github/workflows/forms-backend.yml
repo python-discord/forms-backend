@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: [lint]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
       - name: Create SHA Container Tag
