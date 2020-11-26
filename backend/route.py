@@ -9,7 +9,7 @@ class Route(HTTPEndpoint):
     path: str = None
 
     @classmethod
-    def check_parameters(cls):
+    def check_parameters(cls) -> "Route":
         if cls.name is None:
             raise ValueError(f"Route {cls.__name__} has not defined a name")
 

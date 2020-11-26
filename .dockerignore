@@ -1,0 +1,11 @@
+Dockerfile
+docker-compose.yml
+*.egg-info/
+LICENSE
+README.md
+SCHEMA.md
+.venv
+__pycache__
+.github
+.gitlab
+.gitignore

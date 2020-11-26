@@ -1,7 +1,7 @@
 """
 Index route for the forms API.
 """
-
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.route import Route
@@ -17,7 +17,7 @@ class IndexRoute(Route):
     name = "index"
     path = "/"
 
-    def get(self, request):
+    def get(self, request: Request) -> JSONResponse:
         return JSONResponse({
             "message": "Hello, world!",
             "client": request.client.host

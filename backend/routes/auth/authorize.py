@@ -3,6 +3,7 @@ Use a token received from the Discord OAuth2 system to fetch user information.
 """
 
 import jwt
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.constants import SECRET_KEY
@@ -18,7 +19,7 @@ class AuthorizeRoute(Route):
     name = "authorize"
     path = "/authorize"
 
-    async def post(self, request):
+    async def post(self, request: Request) -> JSONResponse:
         data = await request.json()
 
         bearer_token = await fetch_bearer_token(data["token"])

@@ -6,14 +6,15 @@ authors = ["Joe Banks <joseph@josephbanks.me>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 starlette = "^0.13.8"
 nested_dict = "^1.61"
-uvicorn = "^0.12.2"
+uvicorn = {extras = ["standard"], version = "^0.12.2"}
 pymongo = "^3.11.0"
 python-dotenv = "^0.14.0"
 pyjwt = "^1.7.1"
 httpx = "^0.16.1"
+gunicorn = "^20.0.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

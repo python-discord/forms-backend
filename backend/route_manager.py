@@ -12,7 +12,7 @@ from nested_dict import nested_dict
 from backend.route import Route
 
 
-def construct_route_map_from_dict(route_dict: dict):
+def construct_route_map_from_dict(route_dict: dict) -> list:
     route_map = []
     for mount, item in route_dict.items():
         if inspect.isclass(item):
@@ -23,7 +23,7 @@ def construct_route_map_from_dict(route_dict: dict):
     return route_map
 
 
-def create_route_map():
+def create_route_map() -> list:
     routes_directory = Path("backend") / "routes"
 
     route_dict = nested_dict()

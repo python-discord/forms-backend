@@ -1,0 +1,30 @@
+version: "3.6"
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: forms-backend
+      MONGO_INITDB_ROOT_PASSWORD: forms-backend
+      MONGO_INITDB_DATABASE: pydis_forms
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["uvicorn", "--reload", "--host", "0.0.0.0", "--debug", "backend:app"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - mongo
+    tty: true
+    volumes:
+      - .:/app:ro
+    environment:
+      - DATABASE_URL=mongodb://forms-backend:forms-backend@mongo:27017
+      - OAUTH2_CLIENT_ID
+      - OAUTH2_CLIENT_SECRET
+      - ALLOWED_URL
+      - DEBUG=true

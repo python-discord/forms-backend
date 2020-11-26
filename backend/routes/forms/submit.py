@@ -6,6 +6,7 @@ import binascii
 import hashlib
 
 import jwt
+from starlette.requests import Request
 
 from starlette.responses import JSONResponse
 
@@ -21,7 +22,7 @@ class SubmitForm(Route):
     name = "submit_form"
     path = "/submit/{form_id:str}"
 
-    async def post(self, request):
+    async def post(self, request: Request) -> JSONResponse:
         data = await request.json()
 
         if form := request.state.db.forms.find_one(
