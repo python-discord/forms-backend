@@ -41,17 +41,9 @@ jobs:
         run: |
           poetry install
 
-      # This allows GitHub to detect errors and relay them to PR Files tab
-      - name: Add flake8 matchers
-        run: echo "::add-matcher::./.github/flake8-matchers.json"
-
+      # Use this formatting to show them as GH Actions annotations.
       - name: Run flake8
-        run: "poetry run flake8"
-
-      # We don't want that this catch any other errors than flake8 ones.
-      - name: Remove flake8 matchers
-        if: ${{ always() }}
-        run: echo "::remove-matcher owner=flake8-error::" && echo "::remove-matcher owner=flake8-warning::"
+        run: "poetry run flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s'"
 
   build:
     name: Build & Push
