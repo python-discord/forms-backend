@@ -21,7 +21,7 @@ Create a `.env` file in the root with the following values inside it (each varia
 #### Running
 To start using the application, simply run `docker-compose up` in the repository root. You'll be able to access the application by visiting http://localhost:8000/
 
-### Running on host
+### Running on the host
 You can also run forms-backend manually on the host.
 
 #### Environment variables
