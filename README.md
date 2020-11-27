@@ -32,4 +32,4 @@ Create a `.env` file with the same contents as the Docker section above and the 
 #### Running
 Simply run: `$ uvicorn --reload --host 0.0.0.0 --debug backend:app`.
 
-Once this is running the API will live-reload on any changes.
+Once this is running the API is accessible via http://localhost:8000/ and will reload on any changes to code.
