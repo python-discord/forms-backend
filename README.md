@@ -13,7 +13,7 @@ To start working on forms-backend, you'll need few things:
 The easiest way to run forms-backend is using Docker (and docker-compose).
 
 #### Environment variables
-Create a `.env` file in the root with the following values inside it:
+Create a `.env` file in the root with the following values inside it (each variable should be a line like `VARIABLE=value`):
 - `OAUTH2_CLIENT_ID`: Client ID of Discord OAuth2 Application (see prerequisites).
 - `OAUTH2_CLIENT_SECRET`: Client Secret of Discord OAuth2 Application (see prerequisites).
 - `ALLOWED_URL`: Allowed origin for CORS middleware.
