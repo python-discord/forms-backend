@@ -15,3 +15,14 @@ OAUTH2_REDIRECT_URI = os.getenv(
 )
 
 SECRET_KEY = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(30)).decode())
+
+QUESTION_TYPES = [
+    "radio",
+    "checkbox",
+    "select",
+    "short_text",
+    "textarea",
+    "code",
+    "range",
+    "section",
+]
