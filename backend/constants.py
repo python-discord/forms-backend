@@ -26,3 +26,21 @@ QUESTION_TYPES = [
     "range",
     "section",
 ]
+
+REQUIRED_QUESTION_TYPE_DATA = {
+    "radio": {
+        "options": list,
+    },
+    "select": {
+        "options": list,
+    },
+    "code": {
+        "language": str,
+    },
+    "range": {
+        "options": list,
+    },
+    "section": {
+        "text": str,
+    },
+}
