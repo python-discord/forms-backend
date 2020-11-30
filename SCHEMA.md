@@ -3,17 +3,17 @@
 Since MongoDB has no set schema, we document it here to document what our objects should look like. If you add new properties or remove them from objects **make sure to update them here**.
 
 In this document:
-- [Form structure](#Form_structure)
-    - [Form features](#Form_features)
-    - [Form question](#Form_question)
+- [Form structure](#form-structure)
+    - [Form features](#form-features)
+    - [Form question](#form-question)
 
 ## Form structure
 
 | Field       | Type                                     | Description                                                                               | Example                     |
 | ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
 | `id`        | Unique identifier                        | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)        | `"ban-appeals"`             |
-| `features`  | List of [form features](#Form_features)  | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]` |
-| `questions` | List of [form questions](#Form_question) | The list of questions to render on a specific form                                        | Too long! See below         |
+| `features`  | List of [form features](#form-features)  | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]` |
+| `questions` | List of [form questions](#form-question) | The list of questions to render on a specific form                                        | Too long! See below         |
 |             |                                          |                                                                                           |                             |
 
 ### Form features
@@ -32,8 +32,8 @@ In this document:
 | ------ | ---------------------------------------- | ------------------------------------------------ | -------------------- |
 | `id`   | string                                   | Unique identifier of the question                | `"aabbcc"`           |
 | `name` | string                                   | Name of the question                             | `"What's the time?"` |
-| `type` | one of [Question types](#Question_types) | The type of input for this question              | `"radio"`            |
-| `data` | [Question specific data](#Question_data) | Any specific data for the question type selected | Documented below     |
+| `type` | one of [Question types](#question-types) | The type of input for this question              | `"radio"`            |
+| `data` | [Question specific data](#question-data) | Any specific data for the question type selected | Documented below     |
 
 #### Question types
 
