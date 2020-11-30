@@ -54,7 +54,7 @@ Different questions require different input data to render. All data is in an ob
 
 ##### `radio`
 
-```json
+```js
 {
     // Option list for radio buttons
     "options": [
@@ -71,7 +71,7 @@ Checkboxes require no additional configuration
 
 ##### `select`
 
-```json
+```js
 {
     // Option list for select dropdown
     "options": [
@@ -91,7 +91,7 @@ Textareas require no additional configuration.
 
 ##### `code`
 
-```json
+```js
 {
     // A supported language from https://prismjs.com/#supported-languages
     "language": "python"
@@ -100,7 +100,7 @@ Textareas require no additional configuration.
 
 ##### `range`
 
-```json
+```js
 {
     // A list of options to put on the range, from left to right
     "options": [
@@ -114,7 +114,7 @@ Textareas require no additional configuration.
 
 ##### `section`
 
-```json
+```js
 {
     // OPTIONAL: Additional text to place below the section header
     "text": "This section will quiz you on A, B and C"
