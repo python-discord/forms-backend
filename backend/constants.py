@@ -3,6 +3,8 @@ load_dotenv()
 
 import os  # noqa
 import binascii  # noqa
+from enum import Enum  # noqa
+
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
@@ -44,3 +46,13 @@ REQUIRED_QUESTION_TYPE_DATA = {
         "text": str,
     },
 }
+
+
+class FormFeatures(Enum):
+    """Lists form features. Read more in SCHEMA.md."""
+
+    DISCOVERABLE = "DISCOVERABLE"
+    REQUIRES_LOGIN = "REQUIRES_LOGIN"
+    OPEN = "OPEN"
+    COLLECT_EMAIL = "COLLECT_EMAIL"
+    DISABLE_ANTISPAM = "DISABLE_ANTISPAM"
