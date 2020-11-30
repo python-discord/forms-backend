@@ -65,7 +65,7 @@ Different questions require different input data to render. All data is in an ob
 }
 ```
 
-##### `checkbox`
+##### `checkbox`
 
 Checkboxes require no additional configuration
 
