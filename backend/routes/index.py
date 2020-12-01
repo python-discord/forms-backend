@@ -18,7 +18,19 @@ class IndexRoute(Route):
     path = "/"
 
     def get(self, request: Request) -> JSONResponse:
-        return JSONResponse({
+        response_data = {
             "message": "Hello, world!",
-            "client": request.client.host
-        })
+            "client": request.client.host,
+            "user": {
+                "authenticated": False
+            }
+        }
+
+        if request.user.is_authenticated:
+            response_data["user"] = {
+                "authenticated": True,
+                "user": request.user.payload,
+                "scopes": request.auth.scopes
+            }
+
+        return JSONResponse(response_data)
