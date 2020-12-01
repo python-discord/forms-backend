@@ -15,6 +15,7 @@ python-dotenv = "^0.14.0"
 pyjwt = "^1.7.1"
 httpx = "^0.16.1"
 gunicorn = "^20.0.4"
+pydantic = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
