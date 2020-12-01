@@ -3,13 +3,12 @@ import typing as t
 from pydantic import BaseModel, Field, validator
 
 from backend.constants import QUESTION_TYPES, REQUIRED_QUESTION_TYPE_DATA
-from backend.models.types import ObjectId
 
 
 class Question(BaseModel):
     """Schema model for form question."""
 
-    id: ObjectId = Field(alias="_id")
+    id: str = Field(alias="_id")
     name: str
     type: str
     data: t.Dict[str, t.Any]
