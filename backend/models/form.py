@@ -4,13 +4,12 @@ from pydantic import BaseModel, Field, validator
 
 from backend.constants import FormFeatures
 from backend.models import Question
-from backend.models.types import ObjectId
 
 
 class Form(BaseModel):
     """Schema model for form."""
 
-    id: ObjectId = Field(alias="_id")
+    id: str = Field(alias="_id")
     features: t.List[str]
     questions: t.List[Question]
 
