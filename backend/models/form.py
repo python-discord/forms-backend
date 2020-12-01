@@ -21,10 +21,7 @@ class Form(BaseModel):
         if not all(v in FormFeatures.__members__.values() for v in value):
             raise ValueError("Form features list contains one or more invalid values.")
 
-        if (
-            FormFeatures.COLLECT_EMAIL in value and
-            FormFeatures.REQUIRES_LOGIN not in value
-        ):
+        if FormFeatures.COLLECT_EMAIL in value and FormFeatures.REQUIRES_LOGIN not in value:  # noqa
             raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
 
         return value
