@@ -6,7 +6,8 @@ from starlette import authentication
 from starlette.requests import Request
 
 from backend import constants
-from backend.authentication import User
+# We must import user such way here to avoid circular imports
+from .user import User
 
 
 class JWTAuthenticationBackend(authentication.AuthenticationBackend, ABC):
