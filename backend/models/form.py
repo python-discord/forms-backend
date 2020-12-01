@@ -22,8 +22,8 @@ class Form(BaseModel):
             raise ValueError("Form features list contains one or more invalid values.")
 
         if (
-            FormFeatures.COLLECT_EMAIL in value
-            and FormFeatures.REQUIRES_LOGIN not in value
+            FormFeatures.COLLECT_EMAIL in value and
+            FormFeatures.REQUIRES_LOGIN not in value
         ):
             raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
 
