@@ -1,6 +1,6 @@
 import typing as t
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from backend.constants import QUESTION_TYPES, REQUIRED_QUESTION_TYPE_DATA
 
@@ -12,6 +12,9 @@ class Question(BaseModel):
     name: str
     type: str
     data: t.Dict[str, t.Any]
+
+    class Config:
+        allow_population_by_field_name = True
 
     @validator("type", pre=True)
     def validate_question_type(cls, value: str) -> t.Optional[str]:
@@ -25,30 +28,30 @@ class Question(BaseModel):
 
         return value
 
-    @validator("data")
+    @root_validator
     def validate_question_data(
             cls,
             value: t.Dict[str, t.Any]
     ) -> t.Optional[t.Dict[str, t.Any]]:
         """Check does required data exists for question type and remove other data."""
         # When question type don't need data, don't add anything to keep DB clean.
-        if cls.type not in REQUIRED_QUESTION_TYPE_DATA:
+        if value.get("type") not in REQUIRED_QUESTION_TYPE_DATA:
             return {}
 
         # Required keys (and values) will be stored to here
         # to remove all unnecessary stuff
         result = {}
 
-        for key, data_type in REQUIRED_QUESTION_TYPE_DATA[cls.type].items():
-            if key not in value:
+        for key, data_type in REQUIRED_QUESTION_TYPE_DATA[value.get("type")].items():
+            if key not in value.get("data", {}):
                 raise ValueError(f"Required question data key '{key}' not provided.")
 
-            if not isinstance(value[key], data_type):
+            if not isinstance(value["data"][key], data_type):
                 raise ValueError(
                     f"Question data key '{key}' expects {data_type.__name__}, "
-                    f"got {type(value[key]).__name__} instead."
+                    f"got {type(value['data'][key]).__name__} instead."
                 )
 
-            result[key] = value[key]
+            result[key] = value["data"][key]
 
         return result
