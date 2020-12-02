@@ -14,7 +14,7 @@ class Question(BaseModel):
     data: t.Dict[str, t.Any]
 
     @validator("type", pre=True)
-    def validate_question_type(self, value: str) -> t.Optional[str]:
+    def validate_question_type(cls, value: str) -> t.Optional[str]:
         """Checks if question type in currently allowed types list."""
         value = value.lower()
         if value not in QUESTION_TYPES:
@@ -27,19 +27,19 @@ class Question(BaseModel):
 
     @validator("data")
     def validate_question_data(
-            self,
+            cls,
             value: t.Dict[str, t.Any]
     ) -> t.Optional[t.Dict[str, t.Any]]:
         """Check does required data exists for question type and remove other data."""
         # When question type don't need data, don't add anything to keep DB clean.
-        if self.type not in REQUIRED_QUESTION_TYPE_DATA:
+        if cls.type not in REQUIRED_QUESTION_TYPE_DATA:
             return {}
 
         # Required keys (and values) will be stored to here
         # to remove all unnecessary stuff
         result = {}
 
-        for key, data_type in REQUIRED_QUESTION_TYPE_DATA[self.type].items():
+        for key, data_type in REQUIRED_QUESTION_TYPE_DATA[cls.type].items():
             if key not in value:
                 raise ValueError(f"Required question data key '{key}' not provided.")
 
