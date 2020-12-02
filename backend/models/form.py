@@ -3,7 +3,7 @@ import typing as t
 from pydantic import BaseModel, Field, validator
 
 from backend.constants import FormFeatures
-from backend.models import Question
+from .question import Question
 
 
 class Form(BaseModel):
@@ -14,7 +14,7 @@ class Form(BaseModel):
     questions: t.List[Question]
 
     @validator("features")
-    def validate_features(self, value: t.List[str]) -> t.Optional[t.List[str]]:
+    def validate_features(cls, value: t.List[str]) -> t.Optional[t.List[str]]:
         """Validates is all features in allowed list."""
         # Uppercase everything to avoid mixed case in DB
         value = [v.upper() for v in value]
