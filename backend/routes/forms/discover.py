@@ -17,10 +17,9 @@ class DiscoverableFormsList(Route):
 
     async def get(self, request: Request) -> JSONResponse:
         forms = []
+        cursor = request.state.db.forms.find({"features": "DISCOVERABLE"})
 
-        for form in request.state.db.forms.find({
-            "features": "DISCOVERABLE"
-        }):
+        for form in await cursor.to_list(None):
             forms.append(form)
 
         return JSONResponse(

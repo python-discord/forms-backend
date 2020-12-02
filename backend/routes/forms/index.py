@@ -17,8 +17,9 @@ class FormsList(Route):
 
     async def get(self, request: Request) -> JSONResponse:
         forms = []
+        cursor = request.state.db.forms.find()
 
-        for form in request.state.db.forms.find():
+        for form in await cursor.to_list(None):
             forms.append(form)
 
         return JSONResponse(
