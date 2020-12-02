@@ -1,6 +1,7 @@
 """
 Return a list of all forms to authenticated users.
 """
+from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -15,6 +16,7 @@ class FormsList(Route):
     name = "forms_list"
     path = "/"
 
+    @requires(["authenticated", "admin"])
     async def get(self, request: Request) -> JSONResponse:
         forms = []
         cursor = request.state.db.forms.find()
