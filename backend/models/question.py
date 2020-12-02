@@ -36,11 +36,7 @@ class Question(BaseModel):
         """Check does required data exists for question type and remove other data."""
         # When question type don't need data, don't add anything to keep DB clean.
         if value.get("type") not in REQUIRED_QUESTION_TYPE_DATA:
-            return {}
-
-        # Required keys (and values) will be stored to here
-        # to remove all unnecessary stuff
-        result = {}
+            return value
 
         for key, data_type in REQUIRED_QUESTION_TYPE_DATA[value.get("type")].items():
             if key not in value.get("data", {}):
@@ -52,6 +48,4 @@ class Question(BaseModel):
                     f"got {type(value['data'][key]).__name__} instead."
                 )
 
-            result[key] = value["data"][key]
-
-        return result
+        return value
