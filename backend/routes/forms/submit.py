@@ -25,7 +25,7 @@ class SubmitForm(Route):
     async def post(self, request: Request) -> JSONResponse:
         data = await request.json()
 
-        if form := request.state.db.forms.find_one(
+        if form := await request.state.db.forms.find_one(
             {"_id": request.path_params["form_id"], "features": "OPEN"}
         ):
             response_obj = {}

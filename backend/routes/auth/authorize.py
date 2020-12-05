@@ -25,7 +25,7 @@ class AuthorizeRoute(Route):
         bearer_token = await fetch_bearer_token(data["token"])
         user_details = await fetch_user_details(bearer_token["access_token"])
 
-        user_details["admin"] = request.state.db.admins.find_one(
+        user_details["admin"] = await request.state.db.admins.find_one(
             {"_id": user_details["id"]}
         ) is not None
 
