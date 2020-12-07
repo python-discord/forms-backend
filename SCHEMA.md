@@ -3,12 +3,14 @@
 Since MongoDB has no set schema, we document it here to document what our objects should look like. If you add new properties or remove them from objects **make sure to update them here**.
 
 In this document:
-- [Form structure](#form-structure)
+- [Form](#form)
     - [Form features](#form-features)
     - [Form question](#form-question)
-- [Form response structure](#form-response-structure)
+- [Form response](#form-response)
+    - [User details object](#user-details-object)
+    - [Anti-spam object](#anti-spam-object)
 
-## Form structure
+## Form
 
 | Field       | Type                                     | Description                                                                               | Example                     |
 | ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
