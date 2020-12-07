@@ -6,6 +6,7 @@ In this document:
 - [Form structure](#form-structure)
     - [Form features](#form-features)
     - [Form question](#form-question)
+- [Form response structure](#form-response-structure)
 
 ## Form structure
 
@@ -120,3 +121,28 @@ Textareas require no additional configuration.
     "text": "This section will quiz you on A, B and C"
 }
 ```
+
+## Form response
+
+| Field      | Type                                                 | Description                                                                 |
+| ---------- | ---------------------------------------------------- | --------------------------------------------------------------------------- |
+| `_id`/`id` | MongoDB ObjectID                                     | Random identifier used for the response                                     |
+| `user`     | Optional [user details object](#user-details-object) | An object describing the user that submitted if the form is not anonymous   |
+| `antispam` | Optional [anti spam object](#anti-spam-object)       | An object containing information about the anti-spam on the form submission |
+| `response` | Object                                               | Object containing question IDs mapping to the users answer                  |
+| `form_id`  | String                                               | ID of the form that the user is submitting to                               |
+
+### User details object
+
+The user details contains the information returned by Discord alongside an `admin` boolean key representing that the user has admin privileges. The information returned from Discord can be found in the [Discord Developer portal](https://discord.com/developers/docs/resources/user#user-object).
+
+### Anti-spam object
+
+The anti-spam object contains information about the source of the form submission.
+
+| Field             | Type    | Description                                     |
+| ----------------- | ------- | ----------------------------------------------- |
+| `ip_hash`         | String  | hash of the submitting users IP address         |
+| `user_agent_hash` | String  | hash of the submitting users user agent         |
+| `captcha_pass`    | Boolean | Whether the user passsed the hCaptcha           |
+| `dns_blacklisted` | Boolean | Whether the submitting IP is on a DNS blacklist |
