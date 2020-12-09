@@ -1,6 +1,6 @@
 import typing as t
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 
 
 class DiscordUser(BaseModel):
@@ -22,12 +22,3 @@ class DiscordUser(BaseModel):
 
     # Custom fields
     admin: bool
-
-    @root_validator
-    def validate_data(cls, values: t.Dict[str, t.Any]) -> t.Dict[str, t.Any]:
-        """Validates email data when email collection is required."""
-        if values.get("require_email", False) is True:
-            if values.get("email") is None or values.get("verified") is None:
-                raise ValueError("Email information about user is required.")
-
-        return values
