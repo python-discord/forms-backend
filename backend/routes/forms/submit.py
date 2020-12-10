@@ -79,12 +79,12 @@ class SubmitForm(Route):
 
                     if FormFeatures.COLLECT_EMAIL.value in form.features and "email" not in response["user"]:  # noqa
                         return JSONResponse({
-                            "error": "User data doesn't include email."
-                        })
+                            "error": "email_required"
+                        }, status_code=400)
                 else:
                     return JSONResponse({
-                        "error": "Missing Discord user data"
-                    })
+                        "error": "missing_discord_data"
+                    }, status_code=400)
 
             missing_fields = []
             for question in form.questions:
@@ -93,8 +93,9 @@ class SubmitForm(Route):
 
             if missing_fields:
                 return JSONResponse({
-                    "error": f"Following missing fields: {', '.join(missing_fields)}."
-                })
+                    "error": "missing_fields",
+                    "fields": missing_fields
+                }, status_code=400)
 
             try:
                 response_obj = FormResponse(**response)
