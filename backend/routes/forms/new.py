@@ -26,5 +26,10 @@ class FormCreate(Route):
         except ValidationError as e:
             return JSONResponse(e.errors())
 
+        if await request.state.db.forms.find_one({"_id": form.id}):
+            return JSONResponse({
+                "error": "Form with same ID already exists."
+            }, status_code=400)
+
         await request.state.db.forms.insert_one(form.dict(by_alias=True))
         return JSONResponse(form.dict())

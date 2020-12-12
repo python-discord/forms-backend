@@ -18,6 +18,8 @@ OAUTH2_REDIRECT_URI = os.getenv(
 
 SECRET_KEY = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(30)).decode())
 
+HCAPTCHA_API_SECRET = os.getenv("HCAPTCHA_API_SECRET")
+
 QUESTION_TYPES = [
     "radio",
     "checkbox",
