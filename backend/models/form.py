@@ -12,6 +12,8 @@ class Form(BaseModel):
     id: str = Field(alias="_id")
     features: t.List[str]
     questions: t.List[Question]
+    name: str
+    description: str
 
     class Config:
         allow_population_by_field_name = True
