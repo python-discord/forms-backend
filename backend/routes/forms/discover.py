@@ -25,7 +25,7 @@ class DiscoverableFormsList(Route):
         for form in await cursor.to_list(None):
             forms.append(Form(**form))
 
-        forms = [form.dict() for form in forms]
+        forms = [form.dict(admin=False) for form in forms]
 
         return JSONResponse(
             forms

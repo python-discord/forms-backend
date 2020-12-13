@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, validator
 from backend.constants import FormFeatures
 from .question import Question
 
+PUBLIC_FIELDS = ["id", "features", "questions", "name", "description"]
+
 
 class Form(BaseModel):
     """Schema model for form."""
@@ -31,3 +33,8 @@ class Form(BaseModel):
             raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
 
         return value
+
+    def dict(self, admin: bool = True, **kwargs: t.Dict) -> t.Dict[str, t.Any]:
+        """Wrapper for original function to exclude private data for public access."""
+        data = super().dict(**kwargs)
+        return {field: data[field] for field in PUBLIC_FIELDS} if admin else data
