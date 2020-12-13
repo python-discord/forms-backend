@@ -16,7 +16,7 @@ class FormCreate(Route):
     """
 
     name = "forms_create"
-    path = "/new"
+    path = "/"
 
     @requires(["authenticated", "admin"])
     async def post(self, request: Request) -> JSONResponse:
