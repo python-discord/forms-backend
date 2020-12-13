@@ -20,6 +20,9 @@ def construct_route_map_from_dict(route_dict: dict) -> list:
         else:
             route_map.append(Mount(mount, routes=construct_route_map_from_dict(item)))
 
+    # Order non-capturing routes before capturing routes
+    route_map.sort(key=lambda route: "{" in route.path)
+
     return route_map
 
 
