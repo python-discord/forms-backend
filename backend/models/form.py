@@ -37,4 +37,18 @@ class Form(BaseModel):
     def dict(self, admin: bool = True, **kwargs: t.Dict) -> t.Dict[str, t.Any]:
         """Wrapper for original function to exclude private data for public access."""
         data = super().dict(**kwargs)
-        return {field: data[field] for field in PUBLIC_FIELDS} if admin else data
+
+        returned_data = {}
+
+        if not admin:
+            for field in PUBLIC_FIELDS:
+                if field == "id" and kwargs.get("by_alias"):
+                    fetch_field = "_id"
+                else:
+                    fetch_field = field
+
+                returned_data[field] = data[fetch_field]
+        else:
+            returned_data = data
+
+        return returned_data
