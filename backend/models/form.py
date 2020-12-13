@@ -42,12 +42,12 @@ class Form(BaseModel):
         
         if not admin:
             for field in PUBLIC_FIELDS:
-                if field == "_id" and kwargs.get("by_alias"):
+                if field == "id" and kwargs.get("by_alias"):
                     fetch_field = "_id"
                 else:
                     fetch_field = field
                     
-                 returned_data[field] = data[fetch_field]
+                returned_data[field] = data[fetch_field]
         else:
             returned_data = data
 
