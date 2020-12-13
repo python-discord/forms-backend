@@ -43,7 +43,7 @@ class FormsList(Route):
 
         if await request.state.db.forms.find_one({"_id": form.id}):
             return JSONResponse({
-                "error": "Form with same ID already exists."
+                "error": "id_taken"
             }, status_code=400)
 
         await request.state.db.forms.insert_one(form.dict(by_alias=True))
