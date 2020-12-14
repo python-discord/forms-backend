@@ -9,13 +9,14 @@ from backend.authentication import JWTAuthenticationBackend
 from backend.route_manager import create_route_map
 from backend.middleware import DatabaseMiddleware
 
+HOSTS_REGEX = r"https://(?:(?:(?:.*--)?pydis-forms\.netlify\.app)|forms\.pythondiscord\.com)"
+HAS_CUSTOM_HOST = os.getenv("ALLOWED_URL") is not None
+
 middleware = [
     Middleware(
         CORSMiddleware,
-        allow_origins=[
-            os.getenv("ALLOWED_URL", "https://forms.pythondiscord.com"),
-        ],
-        allow_origin_regex=r"https://(?:.*--)?pydis-forms\.netlify\.app/",
+        allow_origins=[os.getenv("ALLOWED_URL")] if HAS_CUSTOM_HOST else None,
+        allow_origin_regex=HOSTS_REGEX if not HAS_CUSTOM_HOST else None,
         allow_headers=[
             "Authorization",
             "Content-Type"
