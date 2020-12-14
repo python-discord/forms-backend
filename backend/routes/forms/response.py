@@ -13,13 +13,16 @@ class Response(Route):
     """Get single form response by ID."""
 
     name = "response"
-    path = "/responses/{response_id:str}"
+    path = "/{form_id:str}/responses/{response_id:str}"
 
     @requires(["authenticated", "admin"])
     async def get(self, request: Request) -> JSONResponse:
         """Returns single form response by ID."""
         if raw_response := await request.state.db.responses.find_one(
-            {"_id": request.path_params["response_id"]}
+            {
+                "_id": request.path_params["response_id"],
+                "form_id": request.path_params["form_id"]
+            }
         ):
             response = FormResponse(**raw_response)
             return JSONResponse(response.dict())
