@@ -20,11 +20,15 @@ class Responses(Route):
     @requires(["authenticated", "admin"])
     async def get(self, request: Request) -> JSONResponse:
         """Returns all form responses by form ID."""
+        if not await request.state.db.forms.find_one(
+            {"_id": request.path_params["form_id"]}
+        ):
+            return JSONResponse({"error": "not_found"}, 404)
+
         cursor = request.state.db.responses.find(
             {"form_id": request.path_params["form_id"]}
         )
-        if raw_responses := await cursor.to_list(None):
-            responses = [FormResponse(**response) for response in raw_responses]
-            return JSONResponse([response.dict() for response in responses])
-        else:
-            return JSONResponse({"error": "not_found"}, 404)
+        responses = [
+            FormResponse(**response) for response in await cursor.to_list(None)
+        ]
+        return JSONResponse([response.dict() for response in responses])
