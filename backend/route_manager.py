@@ -37,24 +37,25 @@ def create_route_map() -> list:
         route = importlib.import_module(import_name)
 
         for _member_name, member in inspect.getmembers(route):
-            if inspect.isclass(member):
-                if issubclass(member, Route) and member != Route:
-                    member.check_parameters()
+            if (
+                inspect.isclass(member)
+                and issubclass(member, Route)
+                and member != Route
+            ):
+                member.check_parameters()
 
-                    levels = str(file.parent).split("/")[2:]
+                levels = str(file.parent).split("/")[2:]
 
-                    current_level = None
-                    for level in levels:
-                        if current_level is None:
-                            current_level = route_dict[f"/{level}"]
-                        else:
-                            current_level = current_level[f"/{level}"]
-
-                    if current_level is not None:
-                        current_level[member.path] = member
+                current_level = None
+                for level in levels:
+                    if current_level is None:
+                        current_level = route_dict[f"/{level}"]
                     else:
-                        route_dict[member.path] = member
+                        current_level = current_level[f"/{level}"]
 
-    route_map = construct_route_map_from_dict(route_dict.to_dict())
+                if current_level is not None:
+                    current_level[member.path] = member
+                else:
+                    route_dict[member.path] = member
 
-    return route_map
+    return construct_route_map_from_dict(route_dict.to_dict())
