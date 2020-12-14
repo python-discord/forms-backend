@@ -15,9 +15,7 @@ middleware = [
         allow_origins=[
             os.getenv("ALLOWED_URL", "https://forms.pythondiscord.com"),
         ],
-        allow_origin_regex=[
-            r"https://(?:.*--)?pydis-forms\.netlify\.app/",
-        ],
+        allow_origin_regex=r"https://(?:.*--)?pydis-forms\.netlify\.app/",
         allow_headers=[
             "Authorization",
             "Content-Type"
