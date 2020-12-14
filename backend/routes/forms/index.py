@@ -1,6 +1,7 @@
 """
 Return a list of all forms to authenticated users.
 """
+from pydantic import ValidationError
 from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -14,7 +15,7 @@ class FormsList(Route):
     List all available forms for administrator viewing.
     """
 
-    name = "forms_list"
+    name = "forms_list_create"
     path = "/"
 
     @requires(["authenticated", "admin"])
@@ -31,3 +32,19 @@ class FormsList(Route):
         return JSONResponse(
             forms
         )
+
+    @requires(["authenticated", "admin"])
+    async def post(self, request: Request) -> JSONResponse:
+        form_data = await request.json()
+        try:
+            form = Form(**form_data)
+        except ValidationError as e:
+            return JSONResponse(e.errors())
+
+        if await request.state.db.forms.find_one({"_id": form.id}):
+            return JSONResponse({
+                "error": "id_taken"
+            }, status_code=400)
+
+        await request.state.db.forms.insert_one(form.dict(by_alias=True))
+        return JSONResponse(form.dict())
