@@ -32,7 +32,7 @@ def create_route_map() -> list:
     route_dict = nested_dict()
 
     for file in routes_directory.rglob("*.py"):
-        import_name = f"{str(file.parent).replace('/', '.')}.{file.stem}"
+        import_name = f"{'.'.join(file.parent.parts)}.{file.stem}"
 
         route = importlib.import_module(import_name)
 
