@@ -36,7 +36,7 @@ def route_classes() -> t.Iterator[tuple[Path, type[Route]]]:
     routes_directory = Path("backend") / "routes"
 
     for module_path in routes_directory.rglob("*.py"):
-        import_name = f"{str(module_path.parent).replace('/', '.')}.{module_path.stem}"
+        import_name = f"{'.'.join(file.parent.parts)}.{file.stem}"
         route_module = importlib.import_module(import_name)
         for _member_name, member in inspect.getmembers(route_module):
             if is_route_class(member):
@@ -50,7 +50,7 @@ def create_route_map() -> list[BaseRoute]:
     for module_path, member in route_classes():
         #    module_path == Path("backend/routes/foo/bar/baz/bin.py")
         # => levels == ["foo", "bar", "baz"]
-        levels = str(module_path.parent).split("/")[2:]
+        levels = file.parent.parts[2:]
         current_level = None
         for level in levels:
             if current_level is None:
