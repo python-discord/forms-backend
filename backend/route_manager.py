@@ -17,7 +17,6 @@ from backend.route import Route
 def construct_route_map_from_dict(route_dict: dict) -> list[BaseRoute]:
     route_map = []
     for mount, item in route_dict.items():
-        print(mount, item)
         if inspect.isclass(item):
             route_map.append(StarletteRoute(mount, item))
         else:
