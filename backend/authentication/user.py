@@ -1,10 +1,9 @@
 import typing as t
-from abc import ABC
 
 from starlette.authentication import BaseUser
 
 
-class User(BaseUser, ABC):
+class User(BaseUser):
     """Starlette BaseUser implementation for JWT authentication."""
 
     def __init__(self, token: str, payload: dict[str, t.Any]) -> None:

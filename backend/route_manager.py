@@ -4,6 +4,8 @@ Module to dynamically generate a Starlette routing map based on a directory tree
 
 import importlib
 import inspect
+import typing as t
+
 from pathlib import Path
 
 from starlette.routing import Route as StarletteRoute, BaseRoute, Mount
@@ -26,6 +28,10 @@ def construct_route_map_from_dict(route_dict: dict) -> list[BaseRoute]:
     return route_map
 
 
+def is_route_class(member: t.Any) -> bool:
+    return inspect.isclass(member) and issubclass(member, Route) and member != Route
+
+
 def create_route_map() -> list[BaseRoute]:
     routes_directory = Path("backend") / "routes"
 
@@ -37,24 +43,21 @@ def create_route_map() -> list[BaseRoute]:
         route = importlib.import_module(import_name)
 
         for _member_name, member in inspect.getmembers(route):
-            if inspect.isclass(member):
-                if issubclass(member, Route) and member != Route:
-                    member.check_parameters()
+            if is_route_class(member):
+                member.check_parameters()
 
-                    levels = str(file.parent).split("/")[2:]
+                levels = str(file.parent).split("/")[2:]
 
-                    current_level = None
-                    for level in levels:
-                        if current_level is None:
-                            current_level = route_dict[f"/{level}"]
-                        else:
-                            current_level = current_level[f"/{level}"]
-
-                    if current_level is not None:
-                        current_level[member.path] = member
+                current_level = None
+                for level in levels:
+                    if current_level is None:
+                        current_level = route_dict[f"/{level}"]
                     else:
-                        route_dict[member.path] = member
+                        current_level = current_level[f"/{level}"]
 
-    route_map = construct_route_map_from_dict(route_dict.to_dict())
+                if current_level is not None:
+                    current_level[member.path] = member
+                else:
+                    route_dict[member.path] = member
 
-    return route_map
+    return construct_route_map_from_dict(route_dict.to_dict())

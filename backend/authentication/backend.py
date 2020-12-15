@@ -1,6 +1,5 @@
 import jwt
 import typing as t
-from abc import ABC
 
 from starlette import authentication
 from starlette.requests import Request
@@ -10,7 +9,7 @@ from backend import constants
 from .user import User
 
 
-class JWTAuthenticationBackend(authentication.AuthenticationBackend, ABC):
+class JWTAuthenticationBackend(authentication.AuthenticationBackend):
     """Custom Starlette authentication backend for JWT."""
 
     @staticmethod
@@ -35,7 +34,7 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend, ABC):
     ) -> t.Optional[tuple[authentication.AuthCredentials, authentication.BaseUser]]:
         """Handles JWT authentication process."""
         if "Authorization" not in request.headers:
-            return
+            return None
 
         auth = request.headers["Authorization"]
         token = self.get_token_from_header(auth)
@@ -47,7 +46,7 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend, ABC):
 
         scopes = ["authenticated"]
 
-        if payload.get("admin", False) is True:
+        if payload.get("admin") is True:
             scopes.append("admin")
 
         return authentication.AuthCredentials(scopes), User(token, payload)
