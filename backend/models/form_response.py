@@ -12,7 +12,7 @@ class FormResponse(BaseModel):
     id: str = Field(alias="_id")
     user: t.Optional[DiscordUser]
     antispam: t.Optional[AntiSpam]
-    response: t.Dict[str, t.Any]
+    response: dict[str, t.Any]
     form_id: str
 
     class Config:

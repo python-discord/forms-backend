@@ -7,7 +7,7 @@ from starlette.authentication import BaseUser
 class User(BaseUser, ABC):
     """Starlette BaseUser implementation for JWT authentication."""
 
-    def __init__(self, token: str, payload: t.Dict) -> None:
+    def __init__(self, token: str, payload: dict[str, t.Any]) -> None:
         self.token = token
         self.payload = payload
 

@@ -5,13 +5,13 @@ from starlette.endpoints import HTTPEndpoint
 
 
 class Route(HTTPEndpoint):
-    name: str = None
-    path: str = None
+    name: str
+    path: str
 
     @classmethod
-    def check_parameters(cls) -> "Route":
-        if cls.name is None:
+    def check_parameters(cls):
+        if not hasattr(cls, "name"):
             raise ValueError(f"Route {cls.__name__} has not defined a name")
 
-        if cls.path is None:
+        if not hasattr(cls, "path"):
             raise ValueError(f"Route {cls.__name__} has not defined a path")

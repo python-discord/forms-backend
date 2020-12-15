@@ -6,13 +6,13 @@ import importlib
 import inspect
 from pathlib import Path
 
-from starlette.routing import Route as StarletteRoute, Mount
+from starlette.routing import Route as StarletteRoute, BaseRoute, Mount
 from nested_dict import nested_dict
 
 from backend.route import Route
 
 
-def construct_route_map_from_dict(route_dict: dict) -> list:
+def construct_route_map_from_dict(route_dict: dict) -> list[BaseRoute]:
     route_map = []
     for mount, item in route_dict.items():
         if inspect.isclass(item):
@@ -26,7 +26,7 @@ def construct_route_map_from_dict(route_dict: dict) -> list:
     return route_map
 
 
-def create_route_map() -> list:
+def create_route_map() -> list[BaseRoute]:
     routes_directory = Path("backend") / "routes"
 
     route_dict = nested_dict()

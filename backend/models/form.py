@@ -12,8 +12,8 @@ class Form(BaseModel):
     """Schema model for form."""
 
     id: str = Field(alias="_id")
-    features: t.List[str]
-    questions: t.List[Question]
+    features: list[str]
+    questions: list[Question]
     name: str
     description: str
 
@@ -21,7 +21,7 @@ class Form(BaseModel):
         allow_population_by_field_name = True
 
     @validator("features")
-    def validate_features(cls, value: t.List[str]) -> t.Optional[t.List[str]]:
+    def validate_features(cls, value: list[str]) -> t.Optional[list[str]]:
         """Validates is all features in allowed list."""
         # Uppercase everything to avoid mixed case in DB
         value = [v.upper() for v in value]
@@ -34,7 +34,7 @@ class Form(BaseModel):
 
         return value
 
-    def dict(self, admin: bool = True, **kwargs: t.Dict) -> t.Dict[str, t.Any]:
+    def dict(self, admin: bool = True, **kwargs: t.Any) -> dict[str, t.Any]:
         """Wrapper for original function to exclude private data for public access."""
         data = super().dict(**kwargs)
 

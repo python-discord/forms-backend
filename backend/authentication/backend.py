@@ -14,7 +14,7 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend, ABC):
     """Custom Starlette authentication backend for JWT."""
 
     @staticmethod
-    def get_token_from_header(header: str) -> t.Optional[str]:
+    def get_token_from_header(header: str) -> str:
         """Parse JWT token from header value."""
         try:
             prefix, token = header.split()
@@ -32,7 +32,7 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend, ABC):
 
     async def authenticate(
         self, request: Request
-    ) -> t.Optional[t.Tuple[authentication.AuthCredentials, authentication.BaseUser]]:
+    ) -> t.Optional[tuple[authentication.AuthCredentials, authentication.BaseUser]]:
         """Handles JWT authentication process."""
         if "Authorization" not in request.headers:
             return
