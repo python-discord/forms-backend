@@ -41,7 +41,7 @@ def create_route_map() -> list:
                 if issubclass(member, Route) and member != Route:
                     member.check_parameters()
 
-                    levels = str(file.parent).split("/")[2:]
+                    levels = file.parent.parts[2:]
 
                     current_level = None
                     for level in levels:
