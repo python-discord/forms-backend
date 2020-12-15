@@ -17,6 +17,7 @@ from backend.route import Route
 def construct_route_map_from_dict(route_dict: dict) -> list[BaseRoute]:
     route_map = []
     for mount, item in route_dict.items():
+        print(mount, item)
         if inspect.isclass(item):
             route_map.append(StarletteRoute(mount, item))
         else:
@@ -32,32 +33,35 @@ def is_route_class(member: t.Any) -> bool:
     return inspect.isclass(member) and issubclass(member, Route) and member != Route
 
 
-def create_route_map() -> list[BaseRoute]:
+def route_classes() -> t.Iterator[tuple[Path, type[Route]]]:
     routes_directory = Path("backend") / "routes"
 
-    route_dict = nested_dict()
-
-    for file in routes_directory.rglob("*.py"):
-        import_name = f"{str(file.parent).replace('/', '.')}.{file.stem}"
-
-        route = importlib.import_module(import_name)
-
-        for _member_name, member in inspect.getmembers(route):
+    for module_path in routes_directory.rglob("*.py"):
+        import_name = f"{str(module_path.parent).replace('/', '.')}.{module_path.stem}"
+        route_module = importlib.import_module(import_name)
+        for _member_name, member in inspect.getmembers(route_module):
             if is_route_class(member):
                 member.check_parameters()
+                yield (module_path, member)
 
-                levels = str(file.parent).split("/")[2:]
 
-                current_level = None
-                for level in levels:
-                    if current_level is None:
-                        current_level = route_dict[f"/{level}"]
-                    else:
-                        current_level = current_level[f"/{level}"]
+def create_route_map() -> list[BaseRoute]:
+    route_dict = nested_dict()
 
-                if current_level is not None:
-                    current_level[member.path] = member
-                else:
-                    route_dict[member.path] = member
+    for module_path, member in route_classes():
+        #    module_path == Path("backend/routes/foo/bar/baz/bin.py")
+        # => levels == ["foo", "bar", "baz"]
+        levels = str(module_path.parent).split("/")[2:]
+        current_level = None
+        for level in levels:
+            if current_level is None:
+                current_level = route_dict[f"/{level}"]
+            else:
+                current_level = current_level[f"/{level}"]
+
+        if current_level is not None:
+            current_level[member.path] = member
+        else:
+            route_dict[member.path] = member
 
     return construct_route_map_from_dict(route_dict.to_dict())
