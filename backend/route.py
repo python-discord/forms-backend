@@ -9,7 +9,7 @@ class Route(HTTPEndpoint):
     path: str
 
     @classmethod
-    def check_parameters(cls):
+    def check_parameters(cls) -> None:
         if not hasattr(cls, "name"):
             raise ValueError(f"Route {cls.__name__} has not defined a name")
 
