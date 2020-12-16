@@ -51,4 +51,4 @@ class SingleForm(Route):
             {"form_id": request.path_params["form_id"]}
         )
 
-        return JSONResponse(status_code=204)
+        return JSONResponse({"status": "ok"} status_code=200)
