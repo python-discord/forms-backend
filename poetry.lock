@@ -280,7 +280,7 @@ version = "5.3.1"
 description = "YAML parser and emitter for Python"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "rfc3986"
@@ -303,6 +303,23 @@ description = "Sniff out which async library your code is running under"
 category = "main"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "spectree"
+version = "0.3.16"
+description = "generate OpenAPI document and validate request&response with Python annotations."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+pydantic = ">=1.2"
+
+[package.extras]
+dev = ["pytest (>=6)", "flake8 (>=3.8)", "black (>=20.8b1)", "isort (>=5.6)", "autoflake (>=1.4)"]
+falcon = ["falcon"]
+flask = ["flask"]
+starlette = ["starlette"]
 
 [[package]]
 name = "starlette"
@@ -364,7 +381,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "31df3f6fb5c2739f0ac3158fc73d7ec699bf0b4a228b936e35463f0f977d4beb"
+content-hash = "f0529cd6559892497787a807a6fd3ee7c84b60c04cbc2513bf8caca6b7c3b367"
 
 [metadata.files]
 aiodns = [
@@ -641,6 +658,10 @@ rfc3986 = [
 sniffio = [
     {file = "sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
+]
+spectree = [
+    {file = "spectree-0.3.16-py3-none-any.whl", hash = "sha256:e6cb74ce759361103805dcbd05b311eb46bf11e23486d0787e3f93723d6bab31"},
+    {file = "spectree-0.3.16.tar.gz", hash = "sha256:4d94b79ce2c73acaee5e306c71c7408f5a52e43048e1f7e734a0ce1e75b0c8c8"},
 ]
 starlette = [
     {file = "starlette-0.14.1-py3-none-any.whl", hash = "sha256:d2f55fb835378442b812637ed3e3fcef3d3e22d292fcb8400fa48d2473202411"},
