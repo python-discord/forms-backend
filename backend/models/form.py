@@ -52,3 +52,7 @@ class Form(BaseModel):
             returned_data = data
 
         return returned_data
+
+
+class FormList(BaseModel):
+    __root__: t.List[Form]
