@@ -1,5 +1,5 @@
 """
-Returns or deletes single form information by ID.
+Returns or deletes a single form given an ID.
 """
 from starlette.authentication import requires
 from starlette.requests import Request
@@ -11,7 +11,7 @@ from backend.models import Form
 
 class SingleForm(Route):
     """
-    Returns or deletes single form information by ID.
+    Returns or deletes a single form given an ID.
 
     Returns all fields for admins, otherwise only public fields.
     """
