@@ -1,12 +1,14 @@
 """
 Returns all form responses by form ID.
 """
+from spectree import Response
 from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend.models import FormResponse
+from backend.models import FormResponse, ResponseList
 from backend.route import Route
+from backend.validation import api, ErrorMessage
 
 
 class Responses(Route):
@@ -18,6 +20,10 @@ class Responses(Route):
     path = "/{form_id:str}/responses"
 
     @requires(["authenticated", "admin"])
+    @api.validate(
+        resp=Response(HTTP_200=ResponseList, HTTP_404=ErrorMessage),
+        tags=["forms", "responses"]
+    )
     async def get(self, request: Request) -> JSONResponse:
         """Returns all form responses by form ID."""
         if not await request.state.db.forms.find_one(
