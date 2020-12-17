@@ -59,6 +59,8 @@ class SubmitForm(Route):
         """Submit a response to the form."""
         data = await request.json()
 
+        data["timestamp"] = None
+
         if form := await request.state.db.forms.find_one(
             {"_id": request.path_params["form_id"], "features": "OPEN"}
         ):
