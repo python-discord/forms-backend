@@ -1,11 +1,61 @@
 import typing as t
 
+import httpx
 from pydantic import BaseModel, Field, validator
 
 from backend.constants import FormFeatures
 from .question import Question
 
 PUBLIC_FIELDS = ["id", "features", "questions", "name", "description"]
+
+
+class _WebHook(BaseModel):
+    """Schema model of discord webhooks."""
+    url: str
+    message: str
+
+    @validator("url")
+    def validate_url(cls, url: str) -> str:
+        """Checks if discord webhook urls are valid."""
+        if not isinstance(url, str):
+            raise ValueError("Webhook URL must be a string.")
+
+        if "discord.com/api/webhooks/" not in url:
+            raise ValueError("URL must be a discord webhook.")
+
+        # Attempt to connect to URL
+        try:
+            httpx.get(url).raise_for_status()
+
+        except httpx.RequestError as e:
+            # Catch exceptions in request format
+            raise ValueError(
+                f"Encountered error while trying to connect to url: `{e}`"
+            )
+
+        except httpx.HTTPStatusError as e:
+            # Catch exceptions in response
+            status = e.response.status_code
+
+            if status == 401:
+                raise ValueError(
+                    "Could not authenticate with target. Please check the webhook url."
+                )
+            elif status == 404:
+                raise ValueError(
+                    "Target could not find webhook url. Please check the webhook url."
+                )
+            else:
+                raise ValueError(
+                    f"Unknown error ({status}) while connecting to target: {e}"
+                )
+
+        return url
+
+
+class _FormMeta(BaseModel):
+    """Schema model for form meta data."""
+    webhook: _WebHook
 
 
 class Form(BaseModel):
@@ -16,6 +66,7 @@ class Form(BaseModel):
     questions: list[Question]
     name: str
     description: str
+    meta: _FormMeta
 
     class Config:
         allow_population_by_field_name = True

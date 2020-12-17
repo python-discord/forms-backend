@@ -12,13 +12,14 @@ In this document:
 
 ## Form
 
-| Field       | Type                                     | Description                                                                               | Example                     |
-| ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
-| `id`          | Unique identifier                        | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)        | `"ban-appeals"`             |
-| `features`    | List of [form features](#form-features)  | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]` |
-| `questions`   | List of [form questions](#form-question) | The list of questions to render on a specific form                                        | Too long! See below         |
-| `name`        | String                                   | Name of the form                                                                          | `"Summer Code Jam 2100"` |
-| `description` | String                                   | Form description                                                                          | `"This is my amazing form description."` |
+| Field         | Type                                      | Description                                                                               | Example                                  |
+| ------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `id`          | Unique identifier                         | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)        | `"ban-appeals"`                          |
+| `features`    | List of [form features](#form-features)   | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]`              |
+| `meta`        | Mapping of [meta options](#meta-options)  | Meta properties for the form.                                                             | See meta-options section                 |
+| `questions`   | List of [form questions](#form-question)  | The list of questions to render on a specific form                                        | Too long! See below                      |
+| `name`        | String                                    | Name of the form                                                                          | `"Summer Code Jam 2100"`                 |
+| `description` | String                                    | Form description                                                                          | `"This is my amazing form description."` |
 
 ### Form features
 
@@ -29,6 +30,13 @@ In this document:
 | `OPEN`             | The form is currently accepting responses.                                    |
 | `COLLECT_EMAIL`    | The form should collect the email from submissions. Requires `REQUIRES_LOGIN` |
 | `DISABLE_ANTISPAM` | Disable the anti-spam checks from running on a form submission.               |
+| `WEBHOOK_ENABLED`  | The form should notify the webhook. Has no effect if no webhook is set.       |
+
+### Meta options
+| Field     | Description                         | Example                                                                                    |
+| --------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| `webhook` | Mapping of webhook url and message. | `"webhook": {"url": "https://discord.com/api/webhooks/id/key", "message": "Hello World!"}` |
+
 
 ### Form question
 
