@@ -9,11 +9,11 @@ import uuid
 import httpx
 import pydnsbl
 from pydantic import ValidationError
+from starlette.background import BackgroundTask
 from starlette.requests import Request
-
 from starlette.responses import JSONResponse
 
-from backend.constants import HCAPTCHA_API_SECRET, FormFeatures
+from backend.constants import FRONTEND_URL, FormFeatures, HCAPTCHA_API_SECRET
 from backend.models import Form, FormResponse
 from backend.route import Route
 
@@ -108,11 +108,63 @@ class SubmitForm(Route):
                 response_obj.dict(by_alias=True)
             )
 
+            send_webhook = None
+            if FormFeatures.WEBHOOK_ENABLED.value in form.features:
+                send_webhook = BackgroundTask(
+                    self.send_submission_webhook,
+                    form=form,
+                    response=response_obj
+                )
+
             return JSONResponse({
-                "form": form.dict(),
+                "form": form.dict(admin=False),
                 "response": response_obj.dict()
-            })
+            }, background=send_webhook)
+
         else:
             return JSONResponse({
                 "error": "Open form not found"
             })
+
+    @staticmethod
+    def send_submission_webhook(form: Form, response: FormResponse) -> None:
+        """Helper to send a submission message to a discord webhook."""
+        # Stop if webhook is not available
+        if form.meta.webhook is None:
+            raise ValueError("Got empty webhook.")
+
+        user = response.user
+        username = f"{user.username}#{user.discriminator}" if user else None
+        user_mention = f"<@{user.id}>" if user else f"{username or 'User'}"
+
+        # Build Embed
+        embed = {
+            "title": "New Form Response",
+            "description": f"{user_mention} submitted a response.",
+            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
+            "timestamp": response.timestamp,
+            "color": 7506394,
+        }
+
+        # Add author to embed
+        if user is not None:
+            embed["author"] = {"name": username}
+
+            if user.avatar is not None:
+                url = f"https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png"
+                embed["author"]["icon_url"] = url
+
+        # Build Hook
+        hook = {
+            "embeds": [embed],
+            "allowed_mentions": {"parse": ["users", "roles"]},
+            "username": form.name or "Python Discord Forms"
+        }
+
+        # Set hook message
+        message = form.meta.webhook.message
+        if message:
+            hook["content"] = message.replace("_USER_MENTION_", f"<@{user.id}>")
+
+        # Post hook
+        httpx.post(form.meta.webhook.url, json=hook).raise_for_status()

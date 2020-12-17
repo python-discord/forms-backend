@@ -33,9 +33,9 @@ In this document:
 | `WEBHOOK_ENABLED`  | The form should notify the webhook. Has no effect if no webhook is set.       |
 
 ### Meta options
-| Field     | Description                         | Example                                                                                    |
-| --------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| `webhook` | Mapping of webhook url and message. | `"webhook": {"url": "https://discord.com/api/webhooks/id/key", "message": "Hello World!"}` |
+| Field     | Description                                                                                          | Example                                                                                                   |
+| --------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `webhook` | Mapping of webhook url and message. Message can use `_USER_MENTION_` to mention the submitting user. | `"webhook": {"url": "https://discord.com/api/webhooks/id/key", "message": "Hello World! _USER_MENTION_"}` |
 
 
 ### Form question
