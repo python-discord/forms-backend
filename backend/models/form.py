@@ -12,7 +12,7 @@ PUBLIC_FIELDS = ["id", "features", "questions", "name", "description"]
 class _WebHook(BaseModel):
     """Schema model of discord webhooks."""
     url: str
-    message: str
+    message: t.Optional[str]
 
     @validator("url")
     def validate_url(cls, url: str) -> str:
@@ -55,7 +55,7 @@ class _WebHook(BaseModel):
 
 class _FormMeta(BaseModel):
     """Schema model for form meta data."""
-    webhook: _WebHook
+    webhook: _WebHook = None
 
 
 class Form(BaseModel):
