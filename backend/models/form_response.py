@@ -18,7 +18,7 @@ class FormResponse(BaseModel):
     timestamp: str
 
     @validator("timestamp", pre=True)
-    def set_timestamp(cls, iso_string: str) -> str:
+    def set_timestamp(cls, iso_string: t.Optional[str]) -> t.Optional[str]:
         if iso_string is None:
             return datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
 
