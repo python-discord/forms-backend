@@ -5,7 +5,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from backend.authentication import JWTAuthenticationBackend
 from backend.route_manager import create_route_map
-from backend.middleware import DatabaseMiddleware
+from backend.middleware import DatabaseMiddleware, ProtectedDocsMiddleware
+from backend.validation import api
 
 middleware = [
     Middleware(
@@ -19,7 +20,9 @@ middleware = [
         allow_methods=["*"]
     ),
     Middleware(DatabaseMiddleware),
-    Middleware(AuthenticationMiddleware, backend=JWTAuthenticationBackend())
+    Middleware(AuthenticationMiddleware, backend=JWTAuthenticationBackend()),
+    Middleware(ProtectedDocsMiddleware)
 ]
 
 app = Starlette(routes=create_route_map(), middleware=middleware)
+api.register(app)

@@ -4,11 +4,14 @@ Submit a form.
 
 import binascii
 import hashlib
+from typing import Any, Optional
 import uuid
 
 import httpx
+from pydantic.main import BaseModel
 import pydnsbl
 from pydantic import ValidationError
+from spectree import Response
 from starlette.requests import Request
 
 from starlette.responses import JSONResponse
@@ -16,11 +19,22 @@ from starlette.responses import JSONResponse
 from backend.constants import HCAPTCHA_API_SECRET, FormFeatures
 from backend.models import Form, FormResponse
 from backend.route import Route
+from backend.validation import AuthorizationHeaders, ErrorMessage, api
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded"
 }
+
+
+class SubmissionResponse(BaseModel):
+    form: Form
+    response: FormResponse
+
+
+class PartialSubmission(BaseModel):
+    response: dict[str, Any]
+    captcha: Optional[str]
 
 
 class SubmitForm(Route):
@@ -31,7 +45,18 @@ class SubmitForm(Route):
     name = "submit_form"
     path = "/submit/{form_id:str}"
 
+    @api.validate(
+        json=PartialSubmission,
+        resp=Response(
+            HTTP_200=SubmissionResponse,
+            HTTP_404=ErrorMessage,
+            HTTP_400=ErrorMessage
+        ),
+        headers=AuthorizationHeaders,
+        tags=["forms", "responses"]
+    )
     async def post(self, request: Request) -> JSONResponse:
+        """Submit a response to the form."""
         data = await request.json()
 
         data["timestamp"] = None

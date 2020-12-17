@@ -16,6 +16,8 @@ OAUTH2_REDIRECT_URI = os.getenv(
     "https://forms.pythondiscord.com/callback"
 )
 
+DOCS_PASSWORD = os.getenv("DOCS_PASSWORD")
+
 SECRET_KEY = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(30)).decode())
 
 HCAPTCHA_API_SECRET = os.getenv("HCAPTCHA_API_SECRET")
