@@ -135,13 +135,14 @@ Textareas require no additional configuration.
 
 ## Form response
 
-| Field      | Type                                                 | Description                                                                 |
-| ---------- | ---------------------------------------------------- | --------------------------------------------------------------------------- |
-| `_id`/`id` | MongoDB ObjectID                                     | Random identifier used for the response                                     |
-| `user`     | Optional [user details object](#user-details-object) | An object describing the user that submitted if the form is not anonymous   |
-| `antispam` | Optional [anti spam object](#anti-spam-object)       | An object containing information about the anti-spam on the form submission |
-| `response` | Object                                               | Object containing question IDs mapping to the users answer                  |
-| `form_id`  | String                                               | ID of the form that the user is submitting to                               |
+| Field       | Type                                                 | Description                                                                 |
+| ----------- | ---------------------------------------------------- | --------------------------------------------------------------------------- |
+| `_id`/`id`  | MongoDB ObjectID                                     | Random identifier used for the response                                     |
+| `user`      | Optional [user details object](#user-details-object) | An object describing the user that submitted if the form is not anonymous   |
+| `antispam`  | Optional [anti spam object](#anti-spam-object)       | An object containing information about the anti-spam on the form submission |
+| `response`  | Object                                               | Object containing question IDs mapping to the users answer                  |
+| `form_id`   | String                                               | ID of the form that the user is submitting to                               |
+| `timestamp` | String                                               | ISO formatted string of submission time.                                    |
 
 ### User details object
 
