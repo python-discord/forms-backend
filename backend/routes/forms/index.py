@@ -1,13 +1,14 @@
 """
 Return a list of all forms to authenticated users.
 """
-from pydantic import ValidationError
+from spectree.response import Response
 from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.route import Route
-from backend.models import Form
+from backend.models import Form, FormList
+from backend.validation import ErrorMessage, OkayResponse, api
 
 
 class FormsList(Route):
@@ -19,7 +20,9 @@ class FormsList(Route):
     path = "/"
 
     @requires(["authenticated", "admin"])
+    @api.validate(resp=Response(HTTP_200=FormList), tags=["forms"])
     async def get(self, request: Request) -> JSONResponse:
+        """Return a list of all forms to authenticated users."""
         forms = []
         cursor = request.state.db.forms.find()
 
@@ -34,12 +37,16 @@ class FormsList(Route):
         )
 
     @requires(["authenticated", "admin"])
+    @api.validate(
+        json=Form,
+        resp=Response(HTTP_200=OkayResponse, HTTP_400=ErrorMessage),
+        tags=["forms"]
+    )
     async def post(self, request: Request) -> JSONResponse:
+        """Create a new form."""
         form_data = await request.json()
-        try:
-            form = Form(**form_data)
-        except ValidationError as e:
-            return JSONResponse(e.errors())
+
+        form = Form(**form_data)
 
         if await request.state.db.forms.find_one({"_id": form.id}):
             return JSONResponse({

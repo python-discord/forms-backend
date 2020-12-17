@@ -130,3 +130,6 @@ dmypy.json
 
 # IntelliJ project settings
 .idea/
+
+# VSCode Settings
+.vscode/settings.json
