@@ -15,11 +15,18 @@ class FormResponse(BaseModel):
     antispam: t.Optional[AntiSpam]
     response: dict[str, t.Any]
     form_id: str
-    timestamp: str = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+    timestamp: str
 
-    @validator("timestamp")
-    def set_timestamp(cls, _: str) -> str:
-        return datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+    @validator("timestamp", pre=True)
+    def set_timestamp(cls, iso_string: str) -> str:
+        if iso_string is None:
+            return datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+
+        elif not isinstance(iso_string, str):
+            raise ValueError("Submission timestamp must be a string.")
+
+        # Convert to datetime and back to ensure string is valid
+        return datetime.datetime.fromisoformat(iso_string).isoformat()
 
     class Config:
         allow_population_by_field_name = True
