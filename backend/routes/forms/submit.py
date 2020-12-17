@@ -152,7 +152,7 @@ class SubmitForm(Route):
             })
 
     @staticmethod
-    def send_submission_webhook(form: Form, response: FormResponse) -> None:
+    async def send_submission_webhook(form: Form, response: FormResponse) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
         if form.meta.webhook is None:
@@ -189,7 +189,9 @@ class SubmitForm(Route):
         # Set hook message
         message = form.meta.webhook.message
         if message:
-            hook["content"] = message.replace("_USER_MENTION_", f"<@{user.id}>")
+            hook["content"] = message.replace("_USER_MENTION_", user_mention)
 
         # Post hook
-        httpx.post(form.meta.webhook.url, json=hook).raise_for_status()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(form.meta.webhook.url, json=hook)
+            r.raise_for_status()

@@ -66,7 +66,7 @@ class Form(BaseModel):
     questions: list[Question]
     name: str
     description: str
-    meta: _FormMeta
+    meta: _FormMeta = _FormMeta()
 
     class Config:
         allow_population_by_field_name = True
