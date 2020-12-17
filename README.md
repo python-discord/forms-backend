@@ -26,6 +26,7 @@ You can also run forms-backend manually on the host.
 
 #### Environment variables
 Create a `.env` file with the same contents as the Docker section above and the following new variables:
+- `FRONTEND_URL`: Forms frontend URL.
 - `DATABASE_URL`: MongoDB instance URI, in format `mongodb://(username):(password)@(database IP or domain):(port)`.
 - `MONGO_DB`: MongoDB database name, defaults to `pydis_forms`.
 
