@@ -138,7 +138,8 @@ class SubmitForm(Route):
                 send_webhook = BackgroundTask(
                     self.send_submission_webhook,
                     form=form,
-                    response=response_obj
+                    response=response_obj,
+                    request_user=request.user
                 )
 
             return JSONResponse({
@@ -152,30 +153,37 @@ class SubmitForm(Route):
             }, status_code=404)
 
     @staticmethod
-    async def send_submission_webhook(form: Form, response: FormResponse) -> None:
+    async def send_submission_webhook(
+            form: Form,
+            response: FormResponse,
+            request_user: Request.user
+    ) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
         if form.meta.webhook is None:
             raise ValueError("Got empty webhook.")
 
+        try:
+            mention = request_user.discord_mention
+        except AttributeError:
+            mention = "User"
+
         user = response.user
-        username = f"{user.username}#{user.discriminator}" if user else None
-        user_mention = f"<@{user.id}>" if user else f"{username or 'User'}"
 
         # Build Embed
         embed = {
             "title": "New Form Response",
-            "description": f"{user_mention} submitted a response to `{form.name}`.",
+            "description": f"{mention} submitted a response to `{form.name}`.",
             "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
             "timestamp": response.timestamp,
             "color": 7506394,
         }
 
         # Add author to embed
-        if user is not None:
-            embed["author"] = {"name": username}
+        if request_user.is_authenticated:
+            embed["author"] = {"name": request_user.display_name}
 
-            if user.avatar is not None:
+            if user and user.avatar:
                 url = f"https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png"
                 embed["author"]["icon_url"] = url
 
@@ -189,7 +197,7 @@ class SubmitForm(Route):
         # Set hook message
         message = form.meta.webhook.message
         if message:
-            hook["content"] = message.replace("_USER_MENTION_", user_mention)
+            hook["content"] = message.replace("_USER_MENTION_", mention)
 
         # Post hook
         async with httpx.AsyncClient() as client:
