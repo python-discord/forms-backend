@@ -62,3 +62,12 @@ class FormFeatures(Enum):
     COLLECT_EMAIL = "COLLECT_EMAIL"
     DISABLE_ANTISPAM = "DISABLE_ANTISPAM"
     WEBHOOK_ENABLED = "WEBHOOK_ENABLED"
+
+
+class WebHook(Enum):
+    URL = "url"
+    MESSAGE = "message"
+
+
+class Meta(Enum):
+    WEB_HOOK = WebHook
