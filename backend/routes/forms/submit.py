@@ -122,7 +122,7 @@ class SubmitForm(Route):
             try:
                 response_obj = FormResponse(**response)
             except ValidationError as e:
-                return JSONResponse(e.errors())
+                return JSONResponse(e.errors(), status_code=422)
 
             await request.state.db.responses.insert_one(
                 response_obj.dict(by_alias=True)
@@ -135,4 +135,4 @@ class SubmitForm(Route):
         else:
             return JSONResponse({
                 "error": "Open form not found"
-            })
+            }, status_code=404)
