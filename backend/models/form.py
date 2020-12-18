@@ -82,7 +82,7 @@ class FormList(BaseModel):
 
 async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
     """Validator for discord webhook urls."""
-    async def validate():
+    async def validate() -> t.Optional[str]:
         if not isinstance(url, str):
             raise ValueError("Webhook URL must be a string.")
 
