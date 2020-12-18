@@ -65,6 +65,11 @@ class SingleForm(Route):
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=400)
 
+            await request.state.db.forms.replace_one(
+                {"_id": request.path_params["form_id"]},
+                form.dict()
+            )
+
             return JSONResponse(form.dict())
         else:
             return JSONResponse({"error": "not_found"}, status_code=404)
