@@ -9,7 +9,6 @@ import uuid
 
 import httpx
 from pydantic.main import BaseModel
-import pydnsbl
 from pydantic import ValidationError
 from spectree import Response
 from starlette.requests import Request
@@ -77,9 +76,6 @@ class SubmitForm(Route):
                 user_agent_hash_ctx.update(request.headers["User-Agent"].encode())
                 user_agent_hash = binascii.hexlify(user_agent_hash_ctx.digest())
 
-                dsn_checker = pydnsbl.DNSBLIpChecker()
-                dsn_blacklist = await dsn_checker.check_async(request.client.host)
-
                 async with httpx.AsyncClient() as client:
                     query_params = {
                         "secret": HCAPTCHA_API_SECRET,
@@ -96,8 +92,7 @@ class SubmitForm(Route):
                 response["antispam"] = {
                     "ip_hash": ip_hash.decode(),
                     "user_agent_hash": user_agent_hash.decode(),
-                    "captcha_pass": captcha_data["success"],
-                    "dns_blacklisted": dsn_blacklist.blacklisted,
+                    "captcha_pass": captcha_data["success"]
                 }
 
             if FormFeatures.REQUIRES_LOGIN.value in form.features:
