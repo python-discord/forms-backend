@@ -63,7 +63,7 @@ class SingleForm(Route):
             try:
                 form = Form(**raw_form)
             except ValidationError as e:
-                return JSONResponse(e.errors(), status_code=400)
+                return JSONResponse(e.errors(), status_code=422)
 
             await request.state.db.forms.replace_one(
                 {"_id": request.path_params["form_id"]},
