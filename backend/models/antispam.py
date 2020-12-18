@@ -7,4 +7,3 @@ class AntiSpam(BaseModel):
     ip_hash: str
     user_agent_hash: str
     captcha_pass: bool
-    dns_blacklisted: bool
