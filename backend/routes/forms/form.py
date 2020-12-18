@@ -1,6 +1,7 @@
 """
-Returns or deletes a single form given an ID.
+Returns, updates or deletes a single form given an ID.
 """
+from pydantic import ValidationError
 from spectree.response import Response
 from starlette.authentication import requires
 from starlette.requests import Request
@@ -13,7 +14,7 @@ from backend.validation import OkayResponse, api, ErrorMessage
 
 class SingleForm(Route):
     """
-    Returns or deletes a single form given an ID.
+    Returns, updates or deletes a single form given an ID.
 
     Returns all fields for admins, otherwise only public fields.
     """
@@ -38,6 +39,35 @@ class SingleForm(Route):
             return JSONResponse(form.dict(admin=admin))
 
         return JSONResponse({"error": "not_found"}, status_code=404)
+
+    @requires(["authenticated", "admin"])
+    @api.validate(
+        resp=Response(
+            HTTP_200=OkayResponse,
+            HTTP_400=ErrorMessage,
+            HTTP_404=ErrorMessage
+        ),
+        tags=["forms"]
+    )
+    async def patch(self, request: Request) -> JSONResponse:
+        """Updates form by ID."""
+        data = await request.json()
+
+        if raw_form := await request.state.db.forms.find_one(
+            {"_id": request.path_params["form_id"]}
+        ):
+            if "_id" in data or "id" in data:
+                return JSONResponse({"error": "locked_field"}, status_code=400)
+
+            raw_form.update(data)
+            try:
+                form = Form(**raw_form)
+            except ValidationError as e:
+                return JSONResponse(e.errors(), status_code=400)
+
+            return JSONResponse(form.dict())
+        else:
+            return JSONResponse({"error": "not_found"}, status_code=404)
 
     @requires(["authenticated", "admin"])
     @api.validate(
