@@ -6,8 +6,10 @@ from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend.route import Route
+from backend.constants import Meta, WebHook
 from backend.models import Form, FormList
+from backend.models.form import validate_hook_url
+from backend.route import Route
 from backend.validation import ErrorMessage, OkayResponse, api
 
 
@@ -45,6 +47,20 @@ class FormsList(Route):
     async def post(self, request: Request) -> JSONResponse:
         """Create a new form."""
         form_data = await request.json()
+
+        # Verify Webhook
+        try:
+            # Get url from request
+            path = (Meta.__name__.lower(), WebHook.__name__.lower(), WebHook.URL.value)
+            url = form_data[path[0]][path[1]][path[2]]
+
+            # Validate URL
+            validation = await validate_hook_url(url)
+            if validation:
+                return JSONResponse(validation.errors(), status_code=422)
+
+        except KeyError:
+            pass
 
         form = Form(**form_data)
 
