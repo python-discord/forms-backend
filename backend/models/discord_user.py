@@ -6,9 +6,9 @@ from pydantic import BaseModel
 class DiscordUser(BaseModel):
     """Schema model of Discord user for form response."""
 
-    # Discord default fields
-    id: int  # This is actually snowflake, but we simplify it here
+    # Discord default fields.
     username: str
+    id: str
     discriminator: str
     avatar: t.Optional[str]
     bot: t.Optional[bool]
