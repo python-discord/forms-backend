@@ -22,11 +22,3 @@ class DiscordUser(BaseModel):
 
     # Custom fields
     admin: bool
-
-    @validator("id", pre=True)
-    def validate_id(cls, value: t.Any) -> t.Any:
-        """When ID is integer, convert it to string."""
-        if isinstance(value, int):
-            return str(value)
-
-        return value
