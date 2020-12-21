@@ -197,6 +197,18 @@ class SubmitForm(Route):
         # Set hook message
         message = form.meta.webhook.message
         if message:
+            # Available variables, see SCHEMA.md
+            ctx = {
+                "user": mention,
+                "response_id": response.id,
+                "form": form.name,
+                "form_id": form.id,
+                "time": response.timestamp,
+            }
+
+            for key in ctx:
+                message = message.replace(f"{{{key}}}", str(ctx[key]))
+
             hook["content"] = message.replace("_USER_MENTION_", mention)
 
         # Post hook

@@ -33,9 +33,21 @@ In this document:
 | `WEBHOOK_ENABLED`  | The form should notify the webhook. Has no effect if no webhook is set.       |
 
 ### Meta options
-| Field     | Description                                                                                          | Example                                                                                                   |
-| --------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `webhook` | Mapping of webhook url and message. Message can use `_USER_MENTION_` to mention the submitting user. | `"webhook": {"url": "https://discord.com/api/webhooks/id/key", "message": "Hello World! _USER_MENTION_"}` |
+| Field     | Description                                                                                          | Example                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `webhook` | Mapping of webhook url and message. Message can use certain [context variables](#webhook-variables). | `"webhook": {"url": "https://discord.com/api/webhooks/id/key", "message": "{user} submitted a form."}` |
+
+
+#### Webhook Variables
+The following variables can be used in a webhook's message. The variables must be wrapped by braces (`{}`).
+
+| Name          | Description                                                                  |
+| ------------- | ---------------------------------------------------------------------------- |
+| `user`        | A discord mention of the user submitting the form, or "User" if unavailable. |
+| `response_id` | ID of the submitted response.                                                |
+| `form`        | Name of the submitted form.                                                  |
+| `form_id`     | ID of the submitted form.                                                    |
+| `time`        | ISO submission timestamp.                                                    |
 
 
 ### Form question
