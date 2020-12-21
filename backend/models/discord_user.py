@@ -8,8 +8,6 @@ class DiscordUser(BaseModel):
 
     # Discord default fields.
     username: str
-    # Store ID as str not as int because JavaScript
-    # doesn't work correctly with big ints.
     id: str
     discriminator: str
     avatar: t.Optional[str]
