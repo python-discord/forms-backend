@@ -4,18 +4,18 @@ Submit a form.
 
 import binascii
 import hashlib
-from typing import Any, Optional
 import uuid
+from typing import Any, Optional
 
 import httpx
-from pydantic.main import BaseModel
 from pydantic import ValidationError
+from pydantic.main import BaseModel
 from spectree import Response
+from starlette.background import BackgroundTask
 from starlette.requests import Request
-
 from starlette.responses import JSONResponse
 
-from backend.constants import HCAPTCHA_API_SECRET, FormFeatures
+from backend.constants import FRONTEND_URL, FormFeatures, HCAPTCHA_API_SECRET
 from backend.models import Form, FormResponse
 from backend.route import Route
 from backend.validation import AuthorizationHeaders, ErrorMessage, api
@@ -128,11 +128,85 @@ class SubmitForm(Route):
                 response_obj.dict(by_alias=True)
             )
 
+            send_webhook = None
+            if FormFeatures.WEBHOOK_ENABLED.value in form.features:
+                send_webhook = BackgroundTask(
+                    self.send_submission_webhook,
+                    form=form,
+                    response=response_obj,
+                    request_user=request.user
+                )
+
             return JSONResponse({
-                "form": form.dict(),
+                "form": form.dict(admin=False),
                 "response": response_obj.dict()
-            })
+            }, background=send_webhook)
+
         else:
             return JSONResponse({
                 "error": "Open form not found"
             }, status_code=404)
+
+    @staticmethod
+    async def send_submission_webhook(
+            form: Form,
+            response: FormResponse,
+            request_user: Request.user
+    ) -> None:
+        """Helper to send a submission message to a discord webhook."""
+        # Stop if webhook is not available
+        if form.meta.webhook is None:
+            raise ValueError("Got empty webhook.")
+
+        try:
+            mention = request_user.discord_mention
+        except AttributeError:
+            mention = "User"
+
+        user = response.user
+
+        # Build Embed
+        embed = {
+            "title": "New Form Response",
+            "description": f"{mention} submitted a response to `{form.name}`.",
+            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
+            "timestamp": response.timestamp,
+            "color": 7506394,
+        }
+
+        # Add author to embed
+        if request_user.is_authenticated:
+            embed["author"] = {"name": request_user.display_name}
+
+            if user and user.avatar:
+                url = f"https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png"
+                embed["author"]["icon_url"] = url
+
+        # Build Hook
+        hook = {
+            "embeds": [embed],
+            "allowed_mentions": {"parse": ["users", "roles"]},
+            "username": form.name or "Python Discord Forms"
+        }
+
+        # Set hook message
+        message = form.meta.webhook.message
+        if message:
+            # Available variables, see SCHEMA.md
+            ctx = {
+                "user": mention,
+                "response_id": response.id,
+                "form": form.name,
+                "form_id": form.id,
+                "time": response.timestamp,
+            }
+
+            for key in ctx:
+                message = message.replace(f"{{{key}}}", str(ctx[key]))
+
+            hook["content"] = message.replace("_USER_MENTION_", mention)
+
+        # Post hook
+        async with httpx.AsyncClient() as client:
+            r = await client.post(form.meta.webhook.url, json=hook)
+            r.raise_for_status()

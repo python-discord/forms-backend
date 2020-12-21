@@ -19,3 +19,7 @@ class User(BaseUser):
     def display_name(self) -> str:
         """Return username and discriminator as display name."""
         return f"{self.payload['username']}#{self.payload['discriminator']}"
+
+    @property
+    def discord_mention(self) -> str:
+        return f"<@{self.payload['id']}>"

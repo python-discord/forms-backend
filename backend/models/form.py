@@ -1,11 +1,32 @@
 import typing as t
 
+import httpx
 from pydantic import BaseModel, Field, validator
+from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
-from backend.constants import FormFeatures
+from backend.constants import FormFeatures, Meta, WebHook
 from .question import Question
 
 PUBLIC_FIELDS = ["id", "features", "questions", "name", "description"]
+
+
+class _WebHook(BaseModel):
+    """Schema model of discord webhooks."""
+    url: str
+    message: t.Optional[str]
+
+    @validator("url")
+    def validate_url(cls, url: str) -> str:
+        """Validates URL parameter."""
+        if "discord.com/api/webhooks/" not in url:
+            raise ValueError("URL must be a discord webhook.")
+
+        return url
+
+
+class _FormMeta(BaseModel):
+    """Schema model for form meta data."""
+    webhook: _WebHook = None
 
 
 class Form(BaseModel):
@@ -16,6 +37,7 @@ class Form(BaseModel):
     questions: list[Question]
     name: str
     description: str
+    meta: _FormMeta = _FormMeta()
 
     class Config:
         allow_population_by_field_name = True
@@ -56,3 +78,55 @@ class Form(BaseModel):
 
 class FormList(BaseModel):
     __root__: t.List[Form]
+
+
+async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
+    """Validator for discord webhook urls."""
+    async def validate() -> t.Optional[str]:
+        if not isinstance(url, str):
+            raise ValueError("Webhook URL must be a string.")
+
+        if "discord.com/api/webhooks/" not in url:
+            raise ValueError("URL must be a discord webhook.")
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                response.raise_for_status()
+
+        except httpx.RequestError as error:
+            # Catch exceptions in request format
+            raise ValueError(
+                f"Encountered error while trying to connect to url: `{error}`"
+            )
+
+        except httpx.HTTPStatusError as error:
+            # Catch exceptions in response
+            status = error.response.status_code
+
+            if status == 401:
+                raise ValueError(
+                    "Could not authenticate with target. Please check the webhook url."
+                )
+            elif status == 404:
+                raise ValueError(
+                    "Target could not find webhook url. Please check the webhook url."
+                )
+            else:
+                raise ValueError(
+                    f"Unknown error ({status}) while connecting to target: {error}"
+                )
+
+        return url
+
+    # Validate, and return errors, if any
+    try:
+        await validate()
+    except Exception as e:
+        loc = (
+            Meta.__name__.lower(),
+            WebHook.__name__.lower(),
+            WebHook.URL.value
+        )
+
+        return ValidationError([ErrorWrapper(e, loc=loc)], _WebHook)

@@ -6,6 +6,7 @@ import binascii  # noqa
 from enum import Enum  # noqa
 
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://forms.pythondiscord.com")
 DATABASE_URL = os.getenv("DATABASE_URL")
 MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
 
@@ -60,3 +61,13 @@ class FormFeatures(Enum):
     OPEN = "OPEN"
     COLLECT_EMAIL = "COLLECT_EMAIL"
     DISABLE_ANTISPAM = "DISABLE_ANTISPAM"
+    WEBHOOK_ENABLED = "WEBHOOK_ENABLED"
+
+
+class WebHook(Enum):
+    URL = "url"
+    MESSAGE = "message"
+
+
+class Meta(Enum):
+    WEB_HOOK = WebHook
