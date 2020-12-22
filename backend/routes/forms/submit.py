@@ -155,7 +155,7 @@ class SubmitForm(Route):
     ) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
-        if form.meta.webhook is None:
+        if form.webhook is None:
             raise ValueError("Got empty webhook.")
 
         try:
@@ -190,7 +190,7 @@ class SubmitForm(Route):
         }
 
         # Set hook message
-        message = form.meta.webhook.message
+        message = form.webhook.message
         if message:
             # Available variables, see SCHEMA.md
             ctx = {
@@ -208,5 +208,5 @@ class SubmitForm(Route):
 
         # Post hook
         async with httpx.AsyncClient() as client:
-            r = await client.post(form.meta.webhook.url, json=hook)
+            r = await client.post(form.webhook.url, json=hook)
             r.raise_for_status()

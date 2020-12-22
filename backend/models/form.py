@@ -4,7 +4,7 @@ import httpx
 from pydantic import BaseModel, Field, validator
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
-from backend.constants import FormFeatures, Meta, WebHook
+from backend.constants import FormFeatures, WebHook
 from .question import Question
 
 PUBLIC_FIELDS = ["id", "features", "questions", "name", "description"]
@@ -24,11 +24,6 @@ class _WebHook(BaseModel):
         return url
 
 
-class _FormMeta(BaseModel):
-    """Schema model for form meta data."""
-    webhook: _WebHook = None
-
-
 class Form(BaseModel):
     """Schema model for form."""
 
@@ -37,7 +32,7 @@ class Form(BaseModel):
     questions: list[Question]
     name: str
     description: str
-    meta: _FormMeta = _FormMeta()
+    webhook: _WebHook = None
 
     class Config:
         allow_population_by_field_name = True
@@ -124,7 +119,6 @@ async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
         await validate()
     except Exception as e:
         loc = (
-            Meta.__name__.lower(),
             WebHook.__name__.lower(),
             WebHook.URL.value
         )
