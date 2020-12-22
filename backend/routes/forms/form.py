@@ -1,15 +1,16 @@
 """
 Returns, updates or deletes a single form given an ID.
 """
+import deepmerge
 from pydantic import ValidationError
 from spectree.response import Response
 from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend.route import Route
 from backend.models import Form
-from backend.validation import OkayResponse, api, ErrorMessage
+from backend.route import Route
+from backend.validation import ErrorMessage, OkayResponse, api
 
 
 class SingleForm(Route):
@@ -53,15 +54,22 @@ class SingleForm(Route):
         """Updates form by ID."""
         data = await request.json()
 
-        if raw_form := await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"]}
-        ):
+        form_id = {"_id": request.path_params["form_id"]}
+        if raw_form := await request.state.db.forms.find_one(form_id):
             if "_id" in data or "id" in data:
                 return JSONResponse({"error": "locked_field"}, status_code=400)
 
-            raw_form.update(data)
+            # Build Data Merger
+            merge_strategy = [
+                (dict, ["merge"])
+            ]
+            merger = deepmerge.Merger(merge_strategy, ["override"], ["override"])
+
+            # Merge Form Data
+            updated_form = merger.merge(raw_form, data)
+
             try:
-                form = Form(**raw_form)
+                form = Form(**updated_form)
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
 
