@@ -67,7 +67,3 @@ class FormFeatures(Enum):
 class WebHook(Enum):
     URL = "url"
     MESSAGE = "message"
-
-
-class Meta(Enum):
-    WEB_HOOK = WebHook
