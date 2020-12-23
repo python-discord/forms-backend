@@ -50,6 +50,11 @@ class Responses(Route):
     )
     async def delete(self, request: Request) -> JSONResponse:
         """Bulk deletes form responses by IDs."""
+        if not await request.state.db.forms.find_one(
+            {"_id": request.path_params["form_id"]}
+        ):
+            return JSONResponse({"error": "not_found"}, status_code=404)
+
         data = await request.json()
 
         if "ids" not in data:
@@ -69,7 +74,7 @@ class Responses(Route):
         if len(ids) != len(actual_ids):
             return JSONResponse(
                 {
-                    "error": "not_found",
+                    "error": "responses_not_found",
                     "ids": list(ids - actual_ids)
                 },
                 status_code=404
