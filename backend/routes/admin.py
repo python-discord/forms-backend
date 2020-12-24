@@ -1,6 +1,7 @@
 """
 Adds new admin user.
 """
+from pydantic import BaseModel, Field
 from spectree import Response
 from starlette.authentication import requires
 from starlette.requests import Request
@@ -8,6 +9,10 @@ from starlette.responses import JSONResponse
 
 from backend.route import Route
 from backend.validation import ErrorMessage, OkayResponse, api
+
+
+class AdminModel(BaseModel):
+    id: str = Field(alias="_id")
 
 
 class AdminRoute(Route):
@@ -18,14 +23,14 @@ class AdminRoute(Route):
 
     @requires(["authenticated", "admin"])
     @api.validate(
+        json=AdminModel,
         resp=Response(HTTP_200=OkayResponse, HTTP_400=ErrorMessage),
         tags=["admin"]
     )
     async def post(self, request: Request) -> JSONResponse:
         """Inserts new administrator user to DB."""
         data = await request.json()
-        if "id" not in data:
-            return JSONResponse({"error": "missing_id"}, status_code=400)
+        admin = AdminModel(**data)
 
-        await request.state.db.admins.insert_one({"_id": str(data["id"])})
+        await request.state.db.admins.insert_one(admin.dict(by_alias=True))
         return JSONResponse({"status": "ok"})
