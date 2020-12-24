@@ -32,5 +32,10 @@ class AdminRoute(Route):
         data = await request.json()
         admin = AdminModel(**data)
 
+        if await request.state.db.admins.find_one(
+            {"_id": admin.id}
+        ):
+            return JSONResponse({"error": "already_exists"}, status_code=400)
+
         await request.state.db.admins.insert_one(admin.dict(by_alias=True))
         return JSONResponse({"status": "ok"})
