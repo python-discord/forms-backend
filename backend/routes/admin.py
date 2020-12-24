@@ -28,7 +28,7 @@ class AdminRoute(Route):
         tags=["admin"]
     )
     async def post(self, request: Request) -> JSONResponse:
-        """Inserts new administrator user to DB."""
+        """Grant a user administrator privileges."""
         data = await request.json()
         admin = AdminModel(**data)
 
