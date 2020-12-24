@@ -1,6 +1,7 @@
 """
 Returns all form responses by form ID.
 """
+from pydantic import BaseModel
 from spectree import Response
 from starlette.authentication import requires
 from starlette.requests import Request
@@ -9,6 +10,10 @@ from starlette.responses import JSONResponse
 from backend.models import FormResponse, ResponseList
 from backend.route import Route
 from backend.validation import api, ErrorMessage, OkayResponse
+
+
+class ResponseIdList(BaseModel):
+    ids: list[str]
 
 
 class Responses(Route):
@@ -41,6 +46,7 @@ class Responses(Route):
 
     @requires(["authenticated", "admin"])
     @api.validate(
+        json=ResponseIdList,
         resp=Response(
             HTTP_200=OkayResponse,
             HTTP_404=ErrorMessage,
@@ -56,12 +62,10 @@ class Responses(Route):
             return JSONResponse({"error": "not_found"}, status_code=404)
 
         data = await request.json()
-
-        if "ids" not in data:
-            return JSONResponse({"error": "ids_not_provided"}, status_code=400)
+        response_ids = ResponseIdList(**data)
 
         # Convert IDs to set to remove duplicates
-        ids = set(data["ids"])
+        ids = set(response_ids.ids)
 
         cursor = request.state.db.responses.find(
             {"_id": {"$in": list(ids)}}  # Convert here back to list, may throw error.
