@@ -3,6 +3,12 @@ FROM python:3.9-slim
 # Allow service to handle stops gracefully
 STOPSIGNAL SIGQUIT
 
+# Set Git SHA build argument
+ARG git_sha="development"
+
+# Set Git SHA environment variable
+ENV GIT_SHA=$git_sha
+
 # Install C compiler and make
 RUN apt-get update && \
     apt-get install -y gcc make && \

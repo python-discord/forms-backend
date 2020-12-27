@@ -17,6 +17,9 @@ OAUTH2_REDIRECT_URI = os.getenv(
     "https://forms.pythondiscord.com/callback"
 )
 
+GIT_SHA = os.getenv("GIT_SHA", "dev")
+FORMS_BACKEND_DSN = os.getenv("FORMS_BACKEND_DSN")
+
 DOCS_PASSWORD = os.getenv("DOCS_PASSWORD")
 
 SECRET_KEY = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(30)).decode())
