@@ -7,6 +7,7 @@ from spectree import Response
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from backend.constants import GIT_SHA
 from backend.route import Route
 from backend.validation import api
 
@@ -18,6 +19,9 @@ class IndexResponse(BaseModel):
             "The connecting client, in production this will"
             " be an IP of our internal load balancer"
         )
+    )
+    sha: str = Field(
+        description="Current release Git SHA in production."
     )
 
 
@@ -41,7 +45,8 @@ class IndexRoute(Route):
             "client": request.client.host,
             "user": {
                 "authenticated": False
-            }
+            },
+            "sha": GIT_SHA
         }
 
         if request.user.is_authenticated:
