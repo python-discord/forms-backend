@@ -18,6 +18,7 @@ OAUTH2_REDIRECT_URI = os.getenv(
 )
 
 GIT_SHA = os.getenv("GIT_SHA", "dev")
+FORMS_BACKEND_DSN = os.getenv("FORMS_BACKEND_DSN")
 
 DOCS_PASSWORD = os.getenv("DOCS_PASSWORD")
 
