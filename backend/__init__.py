@@ -30,8 +30,8 @@ middleware = [
     ),
     Middleware(DatabaseMiddleware),
     Middleware(AuthenticationMiddleware, backend=JWTAuthenticationBackend()),
-    Middleware(ProtectedDocsMiddleware),
     Middleware(SentryAsgiMiddleware),
+    Middleware(ProtectedDocsMiddleware),
 ]
 
 app = Starlette(routes=create_route_map(), middleware=middleware)
