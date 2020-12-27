@@ -105,6 +105,8 @@ jobs:
           tags: |
             ghcr.io/python-discord/forms-backend:latest
             ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}
+          build-args: |
+            git_sha=${{ github.sha }}
 
   deploy:
     name: Deployment
