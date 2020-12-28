@@ -111,7 +111,10 @@ class SubmitForm(Route):
             missing_fields = []
             for question in form.questions:
                 if question.id not in response["response"]:
-                    missing_fields.append(question.id)
+                    if not question.required:
+                        response["response"][question.id] = None
+                    else:
+                        missing_fields.append(question.id)
 
             if missing_fields:
                 return JSONResponse({
