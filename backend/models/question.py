@@ -12,6 +12,7 @@ class Question(BaseModel):
     name: str
     type: str
     data: dict[str, t.Any]
+    required: bool
 
     class Config:
         allow_population_by_field_name = True
