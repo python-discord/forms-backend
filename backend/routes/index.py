@@ -1,6 +1,8 @@
 """
 Index route for the forms API.
 """
+import platform
+
 from pydantic import BaseModel
 from pydantic.fields import Field
 from spectree import Response
@@ -22,6 +24,9 @@ class IndexResponse(BaseModel):
     )
     sha: str = Field(
         description="Current release Git SHA in production."
+    )
+    node: str = Field(
+        description="The node that processed the request."
     )
 
 
@@ -46,7 +51,8 @@ class IndexRoute(Route):
             "user": {
                 "authenticated": False
             },
-            "sha": GIT_SHA
+            "sha": GIT_SHA,
+            "node": platform.uname().node
         }
 
         if request.user.is_authenticated:
