@@ -56,6 +56,8 @@ REQUIRED_QUESTION_TYPE_DATA = {
     },
 }
 
+DISCORD_API_BASE_URL = "https://discord.com/api/v8"
+
 
 class FormFeatures(Enum):
     """Lists form features. Read more in SCHEMA.md."""
