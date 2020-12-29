@@ -49,7 +49,9 @@ class Form(BaseModel):
 
         if FormFeatures.REQUIRES_LOGIN not in value:
             if FormFeatures.COLLECT_EMAIL in value:
-                raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
+                raise ValueError(
+                    "COLLECT_EMAIL feature require REQUIRES_LOGIN feature."
+                )
 
             if FormFeatures.ASSIGN_ROLE in value:
                 raise ValueError("ASSIGN_ROLE feature require REQUIRES_LOGIN feature.")
