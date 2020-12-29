@@ -2,6 +2,7 @@
 Submit a form.
 """
 
+import asyncio
 import binascii
 import hashlib
 import uuid
@@ -24,6 +25,10 @@ from backend.validation import AuthorizationHeaders, ErrorMessage, api
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded"
+}
+
+DISCORD_HEADERS = {
+    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"
 }
 
 
@@ -234,10 +239,17 @@ class SubmitForm(Route):
         )
 
         async with httpx.AsyncClient() as client:
-            resp = await client.put(
-                url,
-                headers={
-                    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"
-                }
-            )
-            resp.raise_for_status()
+            resp = await client.put(url, headers=DISCORD_HEADERS)
+            if resp.status_code == 429:  # We are rate limited
+                status = resp.status_code
+                retry_after = float(resp.headers["X-Ratelimit-Reset-After"])
+                while status == 429:
+                    await asyncio.sleep(retry_after)
+                    r = await client.put(url, headers=DISCORD_HEADERS)
+                    status = r.status_code
+                    if status == 429:
+                        retry_after = float(r.headers["X-Ratelimit-Reset-After"])
+                    else:
+                        r.raise_for_status()
+            else:  # For any other unexpected status, raise error.
+                resp.raise_for_status()
