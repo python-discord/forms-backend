@@ -1,7 +1,7 @@
 import typing as t
 
 import httpx
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
 from backend.constants import FormFeatures, WebHook
@@ -51,6 +51,16 @@ class Form(BaseModel):
             raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
 
         return value
+
+    @root_validator
+    def validate_role(cls, values: dict[str, t.Any]) -> t.Optional[dict[str, t.Any]]:
+        """Validates does Discord role provided when flag provided."""
+        if FormFeatures.ASSIGN_ROLE.value in values.get("features", []) and not values.get("discord_role"):  # noqa
+            raise ValueError(
+                "discord_role field is required when ASSIGN_ROLE flag provided."
+            )
+
+        return values
 
     def dict(self, admin: bool = True, **kwargs: t.Any) -> dict[str, t.Any]:
         """Wrapper for original function to exclude private data for public access."""
