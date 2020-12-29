@@ -14,12 +14,13 @@ In this document:
 
 | Field         | Type                                      | Description                                                                               | Example                                  |
 | ------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `id`          | Unique identifier                         | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)        | `"ban-appeals"`                          |
-| `features`    | List of [form features](#form-features)   | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]`              |
-| `questions`   | List of [form questions](#form-question)  | The list of questions to render on a specific form                                        | Too long! See below                      |
-| `name`        | String                                    | Name of the form                                                                          | `"Summer Code Jam 2100"`                 |
-| `description` | String                                    | Form description                                                                          | `"This is my amazing form description."` |
-| `webhook`     | [Webhook object](#webhooks)               | An optional discord webhook.                                                              | See webhook documentation.               |
+| `id`           | Unique identifier                         | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)        | `"ban-appeals"`                          |
+| `features`     | List of [form features](#form-features)   | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]`              |
+| `questions`    | List of [form questions](#form-question)  | The list of questions to render on a specific form                                        | Too long! See below                      |
+| `name`         | String                                    | Name of the form                                                                          | `"Summer Code Jam 2100"`                 |
+| `description`  | String                                    | Form description                                                                          | `"This is my amazing form description."` |
+| `webhook`      | [Webhook object](#webhooks)               | An optional discord webhook.                                                              | See webhook documentation.               |
+| `discord_role` | String (optional)                         | Discord role ID what will be assigned, required when `ASSIGN_ROLE` flag provided. | `784467518298259466` |
 
 ### Form features
 
