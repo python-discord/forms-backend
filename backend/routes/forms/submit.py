@@ -11,11 +11,12 @@ import httpx
 from pydantic import ValidationError
 from pydantic.main import BaseModel
 from spectree import Response
-from starlette.background import BackgroundTask
+from starlette.background import BackgroundTasks
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend.constants import FRONTEND_URL, FormFeatures, HCAPTCHA_API_SECRET
+from backend import constants
+from backend.authentication import User
 from backend.models import Form, FormResponse
 from backend.route import Route
 from backend.validation import AuthorizationHeaders, ErrorMessage, api
@@ -68,7 +69,7 @@ class SubmitForm(Route):
             response["id"] = str(uuid.uuid4())
             response["form_id"] = form.id
 
-            if FormFeatures.DISABLE_ANTISPAM.value not in form.features:
+            if constants.FormFeatures.DISABLE_ANTISPAM.value not in form.features:
                 ip_hash_ctx = hashlib.md5()
                 ip_hash_ctx.update(request.client.host.encode())
                 ip_hash = binascii.hexlify(ip_hash_ctx.digest())
@@ -78,7 +79,7 @@ class SubmitForm(Route):
 
                 async with httpx.AsyncClient() as client:
                     query_params = {
-                        "secret": HCAPTCHA_API_SECRET,
+                        "secret": constants.HCAPTCHA_API_SECRET,
                         "response": data.get("captcha")
                     }
                     r = await client.post(
@@ -95,11 +96,11 @@ class SubmitForm(Route):
                     "captcha_pass": captcha_data["success"]
                 }
 
-            if FormFeatures.REQUIRES_LOGIN.value in form.features:
+            if constants.FormFeatures.REQUIRES_LOGIN.value in form.features:
                 if request.user.is_authenticated:
                     response["user"] = request.user.payload
 
-                    if FormFeatures.COLLECT_EMAIL.value in form.features and "email" not in response["user"]:  # noqa
+                    if constants.FormFeatures.COLLECT_EMAIL.value in form.features and "email" not in response["user"]:  # noqa
                         return JSONResponse({
                             "error": "email_required"
                         }, status_code=400)
@@ -131,19 +132,26 @@ class SubmitForm(Route):
                 response_obj.dict(by_alias=True)
             )
 
-            send_webhook = None
-            if FormFeatures.WEBHOOK_ENABLED.value in form.features:
-                send_webhook = BackgroundTask(
+            tasks = BackgroundTasks()
+            if constants.FormFeatures.WEBHOOK_ENABLED.value in form.features:
+                tasks.add_task(
                     self.send_submission_webhook,
                     form=form,
                     response=response_obj,
                     request_user=request.user
                 )
 
+            if constants.FormFeatures.ASSIGN_ROLE.value in form.features:
+                tasks.add_task(
+                    self.assign_role,
+                    form=form,
+                    request_user=request.user
+                )
+
             return JSONResponse({
                 "form": form.dict(admin=False),
                 "response": response_obj.dict()
-            }, background=send_webhook)
+            }, background=tasks)
 
         else:
             return JSONResponse({
@@ -154,7 +162,7 @@ class SubmitForm(Route):
     async def send_submission_webhook(
             form: Form,
             response: FormResponse,
-            request_user: Request.user
+            request_user: User
     ) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
@@ -172,7 +180,7 @@ class SubmitForm(Route):
         embed = {
             "title": "New Form Response",
             "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
+            "url": f"{constants.FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
             "timestamp": response.timestamp,
             "color": 7506394,
         }
@@ -213,3 +221,23 @@ class SubmitForm(Route):
         async with httpx.AsyncClient() as client:
             r = await client.post(form.webhook.url, json=hook)
             r.raise_for_status()
+
+    @staticmethod
+    async def assign_role(form: Form, request_user: User) -> None:
+        """Assigns Discord role to user when user submitted response."""
+        if not form.discord_role:
+            raise ValueError("Got empty Discord role ID.")
+
+        url = (
+            f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
+            f"/members/{request_user.payload['id']}/roles/{form.discord_role}"
+        )
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.put(
+                url,
+                headers={
+                    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"
+                }
+            )
+            resp.raise_for_status()
