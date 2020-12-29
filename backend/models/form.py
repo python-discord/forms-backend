@@ -47,8 +47,12 @@ class Form(BaseModel):
         if any(v not in allowed_values for v in value):
             raise ValueError("Form features list contains one or more invalid values.")
 
-        if FormFeatures.COLLECT_EMAIL in value and FormFeatures.REQUIRES_LOGIN not in value:  # noqa
-            raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
+        if FormFeatures.REQUIRES_LOGIN not in value:
+            if FormFeatures.COLLECT_EMAIL in value:
+                raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
+
+            if FormFeatures.ASSIGN_ROLE in value:
+                raise ValueError("ASSIGN_ROLE feature require REQUIRES_LOGIN feature.")
 
         return value
 
