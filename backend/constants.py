@@ -24,6 +24,7 @@ DOCS_PASSWORD = os.getenv("DOCS_PASSWORD")
 
 SECRET_KEY = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(30)).decode())
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+DISCORD_GUILD = os.getenv("DISCORD_GUILD")
 
 HCAPTCHA_API_SECRET = os.getenv("HCAPTCHA_API_SECRET")
 
