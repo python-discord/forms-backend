@@ -55,6 +55,4 @@ class AuthorizeRoute(Route):
 
         token = jwt.encode(user_details, SECRET_KEY, algorithm="HS256")
 
-        return JSONResponse({
-            "token": token.decode()
-        })
+        return JSONResponse({"token": token})
