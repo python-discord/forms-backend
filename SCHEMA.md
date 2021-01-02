@@ -55,12 +55,13 @@ The following variables can be used in a webhook's message. The variables must b
 
 ### Form question
 
-| Field  | Type                                     | Description                                      | Example              |
-| ------ | ---------------------------------------- | ------------------------------------------------ | -------------------- |
-| `id`   | string                                   | Unique identifier of the question                | `"aabbcc"`           |
-| `name` | string                                   | Name of the question                             | `"What's the time?"` |
-| `type` | one of [Question types](#question-types) | The type of input for this question              | `"radio"`            |
-| `data` | [Question specific data](#question-data) | Any specific data for the question type selected | Documented below     |
+| Field      | Type                                     | Description                                      | Example              |
+| ---------- | ---------------------------------------- | ------------------------------------------------ | -------------------- |
+| `id`       | string                                   | Unique identifier of the question                | `"aabbcc"`           |
+| `name`     | string                                   | Name of the question                             | `"What's the time?"` |
+| `type`     | one of [Question types](#question-types) | The type of input for this question              | `"radio"`            |
+| `data`     | [Question specific data](#question-data) | Any specific data for the question type selected | Documented below     |
+| `required` | Boolean                                  | Indicates whether the field must be filled       | `True`               |
 
 #### Question types
 
