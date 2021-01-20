@@ -20,6 +20,7 @@ In this document:
 | `name`        | String                                    | Name of the form                                                                          | `"Summer Code Jam 2100"`                 |
 | `description` | String                                    | Form description                                                                          | `"This is my amazing form description."` |
 | `webhook`     | [Webhook object](#webhooks)               | An optional discord webhook.                                                              | See webhook documentation.               |
+| `response`    | Optional[String]                          | An optional string for the response upon submitting.                                      | `"This is my amazing form response."`    |
 
 ### Form features
 
