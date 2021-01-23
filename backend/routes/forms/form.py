@@ -33,7 +33,7 @@ class SingleForm(Route):
         }
 
         if not admin:
-            filters["features"] = "OPEN"
+            filters["features"] = {"$in": ["OPEN", "DISCOVERABLE"]}
 
         if raw_form := await request.state.db.forms.find_one(filters):
             form = Form(**raw_form)

@@ -22,7 +22,7 @@ class DiscoverableFormsList(Route):
     async def get(self, request: Request) -> JSONResponse:
         """List all discoverable forms that should be shown on the homepage."""
         forms = []
-        cursor = request.state.db.forms.find({"features": "DISCOVERABLE"})
+        cursor = request.state.db.forms.find({"features": "DISCOVERABLE"}).sort("name")
 
         # Parse it to Form and then back to dictionary
         # to replace _id with id
