@@ -10,6 +10,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "https://forms.pythondiscord.com")
 DATABASE_URL = os.getenv("DATABASE_URL")
 MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
 
+PRODUCTION = os.getenv("PRODUCTION", "True").lower() != "false"
+
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
 OAUTH2_REDIRECT_URI = os.getenv(
