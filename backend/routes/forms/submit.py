@@ -20,7 +20,7 @@ from backend import constants
 from backend.authentication.user import User
 from backend.models import Form, FormResponse
 from backend.route import Route
-from backend.validation import AuthorizationHeaders, ErrorMessage, api
+from backend.validation import ErrorMessage, api
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
@@ -53,7 +53,6 @@ class SubmitForm(Route):
             HTTP_404=ErrorMessage,
             HTTP_400=ErrorMessage
         ),
-        headers=AuthorizationHeaders,
         tags=["forms", "responses"]
     )
     async def post(self, request: Request) -> JSONResponse:
