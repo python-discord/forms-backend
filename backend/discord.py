@@ -8,15 +8,20 @@ from backend.constants import (
 API_BASE_URL = "https://discord.com/api/v8"
 
 
-async def fetch_bearer_token(access_code: str) -> dict:
+async def fetch_bearer_token(code: str, *, refresh: bool) -> dict:
     async with httpx.AsyncClient() as client:
         data = {
             "client_id": OAUTH2_CLIENT_ID,
             "client_secret": OAUTH2_CLIENT_SECRET,
-            "grant_type": "authorization_code",
-            "code": access_code,
             "redirect_uri": OAUTH2_REDIRECT_URI
         }
+
+        if refresh:
+            data["grant_type"] = "refresh_token"
+            data["refresh_token"] = code
+        else:
+            data["grant_type"] = "authorization_code"
+            data["code"] = code
 
         r = await client.post(f"{API_BASE_URL}/oauth2/token", headers={
             "Content-Type": "application/x-www-form-urlencoded"

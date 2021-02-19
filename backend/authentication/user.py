@@ -1,6 +1,10 @@
 import typing as t
 
+import jwt
 from starlette.authentication import BaseUser
+
+from backend.constants import SECRET_KEY
+from backend.discord import fetch_user_details
 
 
 class User(BaseUser):
@@ -23,3 +27,16 @@ class User(BaseUser):
     @property
     def discord_mention(self) -> str:
         return f"<@{self.payload['id']}>"
+
+    @property
+    def decoded_token(self) -> dict[str, any]:
+        return jwt.decode(self.token, SECRET_KEY, algorithms=["HS256"])
+
+    async def refresh_data(self) -> None:
+        """Fetches user data from discord, and updates the instance."""
+        self.payload = await fetch_user_details(self.decoded_token.get("token"))
+
+        updated_info = self.decoded_token
+        updated_info["user_details"] = self.payload
+
+        self.token = jwt.encode(updated_info, SECRET_KEY, algorithm="HS256")
