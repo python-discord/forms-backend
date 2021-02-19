@@ -28,6 +28,7 @@ class AuthorizeRequest(BaseModel):
 
 class AuthorizeResponse(BaseModel):
     username: str = Field("Discord display name.")
+    expiry: str = Field("ISO formatted timestamp of expiry.")
 
 
 AUTH_FAILURE = JSONResponse({"error": "auth_failure"}, status_code=400)
@@ -56,7 +57,11 @@ async def process_token(bearer_token: dict) -> Union[AuthorizeResponse, AUTH_FAI
     token = jwt.encode(data, SECRET_KEY, algorithm="HS256")
     user = User(token, user_details)
 
-    response = JSONResponse({"username": user.display_name})
+    response = JSONResponse({
+        "username": user.display_name,
+        "expiry": token_expiry.isoformat()
+    })
+
     response.set_cookie(
         "BackendToken", f"JWT {token}",
         secure=constants.PRODUCTION, httponly=True, samesite="strict",
