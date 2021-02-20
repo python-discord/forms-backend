@@ -87,7 +87,8 @@ class AuthorizeRoute(Route):
         """Generate an authorization token."""
         data = await request.json()
         try:
-            bearer_token = await fetch_bearer_token(data["token"], refresh=False)
+            url = request.headers.get("origin")
+            bearer_token = await fetch_bearer_token(data["token"], url, refresh=False)
         except httpx.HTTPStatusError:
             return AUTH_FAILURE
 
@@ -111,7 +112,8 @@ class TokenRefreshRoute(Route):
         """Refresh an authorization token."""
         try:
             token = request.user.decoded_token.get("refresh")
-            bearer_token = await fetch_bearer_token(token, refresh=True)
+            url = request.headers.get("origin")
+            bearer_token = await fetch_bearer_token(token, url, refresh=True)
         except httpx.HTTPStatusError:
             return AUTH_FAILURE
 

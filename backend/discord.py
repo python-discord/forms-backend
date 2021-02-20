@@ -2,18 +2,18 @@
 import httpx
 
 from backend.constants import (
-    OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, OAUTH2_REDIRECT_URI
+    OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET
 )
 
 API_BASE_URL = "https://discord.com/api/v8"
 
 
-async def fetch_bearer_token(code: str, *, refresh: bool) -> dict:
+async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict:
     async with httpx.AsyncClient() as client:
         data = {
             "client_id": OAUTH2_CLIENT_ID,
             "client_secret": OAUTH2_CLIENT_SECRET,
-            "redirect_uri": OAUTH2_REDIRECT_URI
+            "redirect_uri": f"{redirect}/callback"
         }
 
         if refresh:
