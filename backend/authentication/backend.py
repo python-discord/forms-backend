@@ -60,13 +60,8 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         except Exception:
             raise authentication.AuthenticationError("Could not parse user details.")
 
-        admin = await request.state.db.admins.find_one(
-            {"_id": user_details["id"]}
-        ) is not None
-
-        if admin:
-            scopes.append("admin")
-
         user = User(token, user_details)
+        if user.fetch_admin_status(request):
+            scopes.append("admin")
 
         return authentication.AuthCredentials(scopes), user

@@ -127,6 +127,7 @@ class SubmitForm(Route):
             if constants.FormFeatures.REQUIRES_LOGIN.value in form.features:
                 if request.user.is_authenticated:
                     response["user"] = request.user.payload
+                    response["user"]["admin"] = request.user.admin
 
                     if constants.FormFeatures.COLLECT_EMAIL.value in form.features and "email" not in response["user"]:  # noqa
                         return JSONResponse({

@@ -2,6 +2,7 @@ import typing as t
 
 import jwt
 from starlette.authentication import BaseUser
+from starlette.requests import Request
 
 from backend.constants import SECRET_KEY
 from backend.discord import fetch_user_details
@@ -13,6 +14,7 @@ class User(BaseUser):
     def __init__(self, token: str, payload: dict[str, t.Any]) -> None:
         self.token = token
         self.payload = payload
+        self.admin = False
 
     @property
     def is_authenticated(self) -> bool:
@@ -31,6 +33,13 @@ class User(BaseUser):
     @property
     def decoded_token(self) -> dict[str, any]:
         return jwt.decode(self.token, SECRET_KEY, algorithms=["HS256"])
+
+    def fetch_admin_status(self, request: Request) -> bool:
+        self.admin = request.state.db.admins.find_one(
+            {"_id": self.payload["id"]}
+        ) is not None
+
+        return self.admin
 
     async def refresh_data(self) -> None:
         """Fetches user data from discord, and updates the instance."""

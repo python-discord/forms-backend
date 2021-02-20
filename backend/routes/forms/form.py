@@ -26,7 +26,7 @@ class SingleForm(Route):
     @api.validate(resp=Response(HTTP_200=Form, HTTP_404=ErrorMessage), tags=["forms"])
     async def get(self, request: Request) -> JSONResponse:
         """Returns single form information by ID."""
-        admin = request.user.payload["admin"] if request.user.is_authenticated else False  # noqa
+        admin = request.user.admin if request.user.is_authenticated else False
 
         filters = {
             "_id": request.path_params["form_id"]
