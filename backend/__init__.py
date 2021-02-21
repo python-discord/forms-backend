@@ -7,14 +7,16 @@ from starlette.middleware.cors import CORSMiddleware
 
 from backend import constants
 from backend.authentication import JWTAuthenticationBackend
-from backend.route_manager import create_route_map
 from backend.middleware import DatabaseMiddleware, ProtectedDocsMiddleware
+from backend.route_manager import create_route_map
 from backend.validation import api
 
+SENTRY_RELEASE = f"forms-backend@{constants.GIT_SHA}"
 sentry_sdk.init(
     dsn=constants.FORMS_BACKEND_DSN,
     send_default_pii=True,
-    release=f"forms-backend@{constants.GIT_SHA}"
+    release=SENTRY_RELEASE,
+    environment=SENTRY_RELEASE
 )
 
 middleware = [
