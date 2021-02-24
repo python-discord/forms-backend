@@ -1,5 +1,6 @@
 import ast
 from collections import namedtuple
+from itertools import count
 from textwrap import indent
 from typing import Optional
 
@@ -19,7 +20,7 @@ def _make_unit_code(units: dict[str, str]) -> str:
     result = ""
 
     for unit_name, unit_code in units.items():
-        result += f"\ndef test_{unit_name}(unit):\n{indent(unit_code, '    ')}"
+        result += f"\ndef test_{unit_name.lstrip('#')}(unit):\n{indent(unit_code, '    ')}"
 
     return indent(result, "    ")
 
@@ -47,6 +48,13 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
     for question in form.questions:
         if question.type == "code" and "unittests" in question.data:
             passed = False
+
+            hidden_test_counter = count(1)
+            hidden_tests = {
+                test.lstrip("#"): next(hidden_test_counter)
+                for test in question.data["unittests"].keys()
+                if test.startswith("#")
+            }
 
             unit_code = _make_unit_code(question.data["unittests"])
             user_code = _make_user_code(form_response.response[question.id])
@@ -78,7 +86,14 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
                         passed = bool(int(stdout[0]))
 
                         if not passed:
-                            result = stdout[1:].strip()
+                            failed_tests = stdout[1:].strip().split(";")
+
+                            # Redact failed hidden tests
+                            for i, failed_test in enumerate(failed_tests[:]):
+                                if failed_test in hidden_tests:
+                                    failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
+
+                            result = ";".join(failed_tests)
                         else:
                             result = ""
 
