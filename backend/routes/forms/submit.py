@@ -139,7 +139,7 @@ class SubmitForm(Route):
                 if not was_successful:
                     status_code = 500 if any(
                         test.return_code == 99 for test in unittest_results
-                    ) else 200
+                    ) else 403
 
                     return JSONResponse({
                         "error": "failed_tests",
