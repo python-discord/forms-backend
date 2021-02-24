@@ -18,17 +18,6 @@ class RunnerTestCase(unittest.TestCase):
 ### UNIT CODE
 
 
-# Fake file object not writing anything
-DEVNULL = SimpleNamespace(write=lambda *_: None, flush=lambda *_: None)
-
-RESULT = io.StringIO()
-ORIGINAL_STDOUT = sys.stdout
-
-# stdout/err is patched in order to control what is outputted by the runner
-sys.stdout = DEVNULL
-sys.stderr = DEVNULL
-
-
 def _exit_sandbox(code: int) -> NoReturn:
     """
     Exit the sandbox by printing the result to the actual stdout and exit with the provided code.
@@ -74,6 +63,16 @@ def _main() -> None:
 
 
 try:
+    # Fake file object not writing anything
+    DEVNULL = SimpleNamespace(write=lambda *_: None, flush=lambda *_: None)
+
+    RESULT = io.StringIO()
+    ORIGINAL_STDOUT = sys.stdout
+
+    # stdout/err is patched in order to control what is outputted by the runner
+    sys.stdout = DEVNULL
+    sys.stderr = DEVNULL
+    
     # Load the user code as a global module variable
     module = _load_user_module()
     _main()
