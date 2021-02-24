@@ -77,6 +77,5 @@ try:
     module = _load_user_module()
     _main()
 except Exception:
-    print("Uncaught exception:\n", file=RESULT)
-    traceback.print_exc(file=RESULT)
+    print("Uncaught exception inside runner.", file=RESULT)
     _exit_sandbox(99)
