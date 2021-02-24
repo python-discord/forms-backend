@@ -102,21 +102,25 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
                         return_code = 99
                         result = "Internal error."
                     else:
-                        stdout = response["stdout"]
-                        passed = bool(int(stdout[0]))
+                        # Parse the stdout if the tests ran successfully
+                        if return_code == 0:
+                            stdout = response["stdout"]
+                            passed = bool(int(stdout[0]))
 
-                        # If the test failed, we have to populate the result string.
-                        if not passed:
-                            failed_tests = stdout[1:].strip().split(";")
+                            # If the test failed, we have to populate the result string.
+                            if not passed:
+                                failed_tests = stdout[1:].strip().split(";")
 
-                            # Redact failed hidden tests
-                            for i, failed_test in enumerate(failed_tests[:]):
-                                if failed_test in hidden_tests:
-                                    failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
+                                # Redact failed hidden tests
+                                for i, failed_test in enumerate(failed_tests[:]):
+                                    if failed_test in hidden_tests:
+                                        failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
 
-                            result = ";".join(failed_tests)
+                                result = ";".join(failed_tests)
+                            else:
+                                result = ""
                         else:
-                            result = ""
+                            result = response["stdout"]
 
             unittest_results.append(UnittestResult(
                 question_id=question.id,
