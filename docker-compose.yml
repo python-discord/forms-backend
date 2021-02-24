@@ -10,6 +10,13 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: forms-backend
       MONGO_INITDB_DATABASE: pydis_forms
 
+  snekbox:
+    image: ghcr.io/python-discord/snekbox:latest
+    ipc: none
+    ports:
+      - "127.0.0.1:8060:8060"
+    privileged: true
+
   backend:
     build:
       context: .
@@ -19,6 +26,7 @@ services:
       - "127.0.0.1:8000:8000"
     depends_on:
       - mongo
+      - snekbox
     tty: true
     volumes:
       - .:/app:ro
