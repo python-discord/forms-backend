@@ -131,12 +131,14 @@ class SubmitForm(Route):
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
 
+            # Run unittests if needed
             has_unittests = any("unittests" in question.data for question in form.questions)
             if has_unittests:
                 unittest_results = await execute_unittest(response_obj, form)
 
                 was_successful = all(test.passed for test in unittest_results)
                 if not was_successful:
+                    # Return 500 if we encountered an internal error (code 99).
                     status_code = 500 if any(
                         test.return_code == 99 for test in unittest_results
                     ) else 403

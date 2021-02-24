@@ -1,4 +1,5 @@
 # flake8: noqa
+"""This template is used inside snekbox to evaluate and test user code."""
 import ast
 import io
 import os
@@ -23,27 +24,26 @@ DEVNULL = SimpleNamespace(write=lambda *_: None, flush=lambda *_: None)
 RESULT = io.StringIO()
 ORIGINAL_STDOUT = sys.stdout
 
+# stdout/err is patched in order to control what is outputted by the runner
 sys.stdout = DEVNULL
 sys.stderr = DEVNULL
 
 
 def _exit_sandbox(code: int) -> NoReturn:
     """
+    Exit the sandbox by printing the result to the actual stdout and exit with the provided code.
+
     Codes:
     - 0: Executed with success
     - 5: Syntax error while parsing user code
     - 99: Internal error
     """
-    result_content = RESULT.getvalue()
-
-    print(
-        f"{result_content}",
-        file=ORIGINAL_STDOUT
-    )
+    print(RESULT.getvalue(), file=ORIGINAL_STDOUT, end="")
     sys.exit(code)
 
 
 def _load_user_module() -> ModuleType:
+    """Load the user code into a new module and return it."""
     try:
         ast.parse(USER_CODE, "<input>")
     except SyntaxError:
@@ -74,6 +74,7 @@ def _main() -> None:
 
 
 try:
+    # Load the user code as a global module variable
     module = _load_user_module()
     _main()
 except Exception:
