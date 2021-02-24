@@ -18,6 +18,7 @@ from starlette.responses import JSONResponse
 from backend.constants import FRONTEND_URL, FormFeatures, HCAPTCHA_API_SECRET
 from backend.models import Form, FormResponse
 from backend.route import Route
+from backend.routes.forms.unittesting import execute_unittest
 from backend.validation import AuthorizationHeaders, ErrorMessage, api
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
@@ -126,6 +127,19 @@ class SubmitForm(Route):
                 response_obj = FormResponse(**response)
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
+
+            has_unittests = any("unittests" in question.data for question in form.questions)
+            if has_unittests:
+                unittest_results = await execute_unittest(response_obj, form)
+
+                was_successful = all(test.passed for test in unittest_results)
+                if not was_successful:
+                    status_code = 500 if any(test.return_code == 99 for test in unittest_results) else 200
+
+                    return JSONResponse({
+                        "error": "failed_tests",
+                        "test_results": [test._asdict() for test in unittest_results if not test.passed]
+                    }, status_code=status_code)
 
             await request.state.db.responses.insert_one(
                 response_obj.dict(by_alias=True)
