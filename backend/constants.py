@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
-load_dotenv()
+import os
+import binascii
+from enum import Enum
 
-import os  # noqa
-import binascii  # noqa
-from enum import Enum  # noqa
+load_dotenv()
 
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://forms.pythondiscord.com")

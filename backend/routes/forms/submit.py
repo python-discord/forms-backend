@@ -100,7 +100,10 @@ class SubmitForm(Route):
                 if request.user.is_authenticated:
                     response["user"] = request.user.payload
 
-                    if FormFeatures.COLLECT_EMAIL.value in form.features and "email" not in response["user"]:  # noqa
+                    if (
+                            FormFeatures.COLLECT_EMAIL.value in form.features
+                            and "email" not in response["user"]
+                    ):
                         return JSONResponse({
                             "error": "email_required"
                         }, status_code=400)
@@ -134,11 +137,15 @@ class SubmitForm(Route):
 
                 was_successful = all(test.passed for test in unittest_results)
                 if not was_successful:
-                    status_code = 500 if any(test.return_code == 99 for test in unittest_results) else 200
+                    status_code = 500 if any(
+                        test.return_code == 99 for test in unittest_results
+                    ) else 200
 
                     return JSONResponse({
                         "error": "failed_tests",
-                        "test_results": [test._asdict() for test in unittest_results if not test.passed]
+                        "test_results": [
+                            test._asdict() for test in unittest_results if not test.passed
+                        ]
                     }, status_code=status_code)
 
             await request.state.db.responses.insert_one(
@@ -186,7 +193,7 @@ class SubmitForm(Route):
         embed = {
             "title": "New Form Response",
             "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
+            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # TODO: Enter Form View URL
             "timestamp": response.timestamp,
             "color": 7506394,
         }

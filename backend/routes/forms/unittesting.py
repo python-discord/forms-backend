@@ -51,7 +51,8 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
             unit_code = _make_unit_code(question.data["unittests"])
             user_code = _make_user_code(form_response.response[question.id])
 
-            code = TEST_TEMPLATE.replace("### USER CODE", user_code).replace("### UNIT CODE", unit_code)
+            code = TEST_TEMPLATE.replace("### USER CODE", user_code)
+            code = code.replace("### UNIT CODE", unit_code)
 
             # Make sure that the code is well formatted (we don't check for the user code)
             try:
