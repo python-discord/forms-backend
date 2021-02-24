@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 
 from backend.models import Form
 from backend.route import Route
+from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
 
@@ -37,6 +38,8 @@ class SingleForm(Route):
 
         if raw_form := await request.state.db.forms.find_one(filters):
             form = Form(**raw_form)
+            form = filter_unittests(form)
+
             return JSONResponse(form.dict(admin=admin))
 
         return JSONResponse({"error": "not_found"}, status_code=404)

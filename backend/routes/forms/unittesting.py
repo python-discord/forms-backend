@@ -16,6 +16,19 @@ with open("resources/unittest_template.py") as file:
 UnittestResult = namedtuple("UnittestResult", "question_id return_code passed result")
 
 
+def filter_unittests(form: Form) -> Form:
+    """
+    Replace the unittest data section of code questions with the number of test cases.
+
+    This is used to redact the exact tests when sending the form back to the frontend.
+    """
+    for question in form.questions:
+        if question.type == "code" and "unittests" in question.data:
+            question.data["unittests"] = len(question.data["unittests"])
+
+    return form
+
+
 def _make_unit_code(units: dict[str, str]) -> str:
     result = ""
 
