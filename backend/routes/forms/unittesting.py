@@ -78,7 +78,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
 
             code = TEST_TEMPLATE.replace("### USER CODE", user_code)
             code = code.replace("### UNIT CODE", unit_code)
-            
+
             try:
                 response = await _post_eval(code)
             except HTTPStatusError:
@@ -97,7 +97,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
                         failed_tests = stdout[1:].strip().split(";")
 
                         # Redact failed hidden tests
-                        for i, failed_test in enumerate(failed_tests[:]):
+                        for i, failed_test in enumerate(failed_tests.copy()):
                             if failed_test in hidden_tests:
                                 failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
 
