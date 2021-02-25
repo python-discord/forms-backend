@@ -25,6 +25,7 @@ def _exit_sandbox(code: int) -> NoReturn:
     Codes:
     - 0: Executed with success
     - 5: Syntax error while parsing user code
+    - 6: Uncaught exception while loading user code
     - 99: Internal error
     """
     print(RESULT.getvalue(), file=ORIGINAL_STDOUT, end="")
@@ -74,8 +75,12 @@ try:
     sys.stderr = DEVNULL
     
     # Load the user code as a global module variable
-    module = _load_user_module()
+    try:
+        module = _load_user_module()
+    except Exception:
+        RESULT.write("Uncaught exception while loading user code.")
+        _exit_sandbox(6)
     _main()
 except Exception:
-    print("Uncaught exception inside runner.", file=RESULT)
+    RESULT.write("Uncaught exception inside runner.")
     _exit_sandbox(99)

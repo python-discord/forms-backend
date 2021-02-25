@@ -98,7 +98,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
                     return_code = int(response["returncode"])
 
                     # Another code has been returned by CPython because of another failure.
-                    if return_code not in (0, 5, 99):
+                    if return_code not in (0, 5, 6, 99):
                         return_code = 99
                         result = "Internal error."
                     else:
