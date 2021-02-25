@@ -32,6 +32,7 @@ services:
       - .:/app:ro
     environment:
       - DATABASE_URL=mongodb://forms-backend:forms-backend@mongo:27017
+      - SNEKBOX_URL=http://snekbox:8060/eval
       - OAUTH2_CLIENT_ID
       - OAUTH2_CLIENT_SECRET
       - ALLOWED_URL
