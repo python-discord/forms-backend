@@ -78,50 +78,42 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
 
             code = TEST_TEMPLATE.replace("### USER CODE", user_code)
             code = code.replace("### UNIT CODE", unit_code)
-
-            # Make sure that the code is well formatted (we don't check for the user code).
+            
             try:
-                ast.parse(code)
-            except SyntaxError:
+                response = await _post_eval(code)
+            except HTTPStatusError:
                 return_code = 99
-                result = "Invalid generated unit code."
-            # The runner is correctly formatted, we can run it.
+                result = "Unable to contact code runner."
             else:
-                try:
-                    response = await _post_eval(code)
-                except HTTPStatusError:
-                    return_code = 99
-                    result = "Unable to contact code runner."
-                else:
-                    return_code = int(response["returncode"])
+                return_code = int(response["returncode"])
 
-                    # Parse the stdout if the tests ran successfully
-                    if return_code == 0:
-                        stdout = response["stdout"]
-                        passed = bool(int(stdout[0]))
+                # Parse the stdout if the tests ran successfully
+                if return_code == 0:
+                    stdout = response["stdout"]
+                    passed = bool(int(stdout[0]))
 
-                        # If the test failed, we have to populate the result string.
-                        if not passed:
-                            failed_tests = stdout[1:].strip().split(";")
+                    # If the test failed, we have to populate the result string.
+                    if not passed:
+                        failed_tests = stdout[1:].strip().split(";")
 
-                            # Redact failed hidden tests
-                            for i, failed_test in enumerate(failed_tests[:]):
-                                if failed_test in hidden_tests:
-                                    failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
+                        # Redact failed hidden tests
+                        for i, failed_test in enumerate(failed_tests[:]):
+                            if failed_test in hidden_tests:
+                                failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
 
-                            result = ";".join(failed_tests)
-                        else:
-                            result = ""
-                    elif return_code in (5, 6, 99):
-                        result = response["stdout"]
-                    # Killed by NsJail
-                    elif return_code == 137:
-                        return_code = 7
-                        result = "Timed out or ran out of memory."
-                    # Another code has been returned by CPython because of another failure.
+                        result = ";".join(failed_tests)
                     else:
-                        return_code = 99
-                        result = "Internal error."
+                        result = ""
+                elif return_code in (5, 6, 99):
+                    result = response["stdout"]
+                # Killed by NsJail
+                elif return_code == 137:
+                    return_code = 7
+                    result = "Timed out or ran out of memory."
+                # Another code has been returned by CPython because of another failure.
+                else:
+                    return_code = 99
+                    result = "Internal error."
 
             unittest_results.append(UnittestResult(
                 question_id=question.id,
