@@ -50,7 +50,7 @@ async def _post_eval(code: str) -> Optional[dict[str, str]]:
     """Post the eval to snekbox and return the response."""
     async with httpx.AsyncClient() as client:
         data = {"input": code}
-        response = await client.post(SNEKBOX_URL, json=data)
+        response = await client.post(SNEKBOX_URL, json=data, timeout=10)
 
         if not response.status_code == 200:
             return
@@ -97,30 +97,33 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
                 else:
                     return_code = int(response["returncode"])
 
+                    # Parse the stdout if the tests ran successfully
+                    if return_code == 0:
+                        stdout = response["stdout"]
+                        passed = bool(int(stdout[0]))
+
+                        # If the test failed, we have to populate the result string.
+                        if not passed:
+                            failed_tests = stdout[1:].strip().split(";")
+
+                            # Redact failed hidden tests
+                            for i, failed_test in enumerate(failed_tests[:]):
+                                if failed_test in hidden_tests:
+                                    failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
+
+                            result = ";".join(failed_tests)
+                        else:
+                            result = ""
+                    elif return_code in (5, 6, 99):
+                        result = response["stdout"]
+                    # Killed by NsJail
+                    elif return_code == 137:
+                        return_code = 7
+                        result = "Timed out or ran out of memory."
                     # Another code has been returned by CPython because of another failure.
-                    if return_code not in (0, 5, 6, 99):
+                    else:
                         return_code = 99
                         result = "Internal error."
-                    else:
-                        # Parse the stdout if the tests ran successfully
-                        if return_code == 0:
-                            stdout = response["stdout"]
-                            passed = bool(int(stdout[0]))
-
-                            # If the test failed, we have to populate the result string.
-                            if not passed:
-                                failed_tests = stdout[1:].strip().split(";")
-
-                                # Redact failed hidden tests
-                                for i, failed_test in enumerate(failed_tests[:]):
-                                    if failed_test in hidden_tests:
-                                        failed_tests[i] = f"hidden_test_{hidden_tests[failed_test]}"
-
-                                result = ";".join(failed_tests)
-                            else:
-                                result = ""
-                        else:
-                            result = response["stdout"]
 
             unittest_results.append(UnittestResult(
                 question_id=question.id,
