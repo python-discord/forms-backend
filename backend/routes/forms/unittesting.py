@@ -2,9 +2,9 @@ import ast
 from collections import namedtuple
 from itertools import count
 from textwrap import indent
-from typing import Optional
 
 import httpx
+from httpx import HTTPStatusError
 
 from backend.constants import SNEKBOX_URL
 from backend.models import FormResponse, Form
@@ -46,15 +46,13 @@ def _make_user_code(code: str) -> str:
     return f'USER_CODE = r"""{code}"""'
 
 
-async def _post_eval(code: str) -> Optional[dict[str, str]]:
+async def _post_eval(code: str) -> dict[str, str]:
     """Post the eval to snekbox and return the response."""
     async with httpx.AsyncClient() as client:
         data = {"input": code}
         response = await client.post(SNEKBOX_URL, json=data, timeout=10)
 
-        if not response.status_code == 200:
-            return
-
+        response.raise_for_status()
         return response.json()
 
 
@@ -89,9 +87,9 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
                 result = "Invalid generated unit code."
             # The runner is correctly formatted, we can run it.
             else:
-                response = await _post_eval(code)
-
-                if not response:
+                try:
+                    response = await _post_eval(code)
+                except HTTPStatusError:
                     return_code = 99
                     result = "Unable to contact code runner."
                 else:
