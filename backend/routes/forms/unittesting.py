@@ -1,4 +1,3 @@
-import ast
 from collections import namedtuple
 from itertools import count
 from textwrap import indent
@@ -14,6 +13,9 @@ with open("resources/unittest_template.py") as file:
 
 
 UnittestResult = namedtuple("UnittestResult", "question_id return_code passed result")
+
+# Mapping of questions to their generated
+_unit_cache: dict[str, str] = {}
 
 
 def filter_unittests(form: Form) -> Form:
@@ -35,7 +37,7 @@ def _make_unit_code(units: dict[str, str]) -> str:
 
     for unit_name, unit_code in units.items():
         result += (
-            f"\ndef test_{unit_name.lstrip('#')}(unit):"  # Function definition 
+            f"\ndef test_{unit_name.lstrip('#')}(unit):"  # Function definition
             f"\n{indent(unit_code, '    ')}"  # Unit code
         )
 
