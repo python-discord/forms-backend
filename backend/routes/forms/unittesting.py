@@ -72,7 +72,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
             # Tests starting with an hashtag should have censored names.
             hidden_test_counter = count(1)
             hidden_tests = {
-                test.lstrip("#"): next(hidden_test_counter)
+                test.lstrip("#").lstrip("test_"): next(hidden_test_counter)
                 for test in question.data["unittests"].keys()
                 if test.startswith("#")
             }
