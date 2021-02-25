@@ -38,7 +38,8 @@ class SingleForm(Route):
 
         if raw_form := await request.state.db.forms.find_one(filters):
             form = Form(**raw_form)
-            form = filter_unittests(form)
+            if not admin:
+                form = filter_unittests(form)
 
             return JSONResponse(form.dict(admin=admin))
 
