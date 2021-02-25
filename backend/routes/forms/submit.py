@@ -132,12 +132,10 @@ class SubmitForm(Route):
                 return JSONResponse(e.errors(), status_code=422)
 
             # Run unittests if needed
-            has_unittests = any("unittests" in question.data for question in form.questions)
-            if has_unittests:
+            if any("unittests" in question.data for question in form.questions):
                 unittest_results = await execute_unittest(response_obj, form)
 
-                was_successful = all(test.passed for test in unittest_results)
-                if not was_successful:
+                if not all(test.passed for test in unittest_results):
                     # Return 500 if we encountered an internal error (code 99).
                     status_code = 500 if any(
                         test.return_code == 99 for test in unittest_results
