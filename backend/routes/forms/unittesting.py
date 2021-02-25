@@ -34,7 +34,10 @@ def _make_unit_code(units: dict[str, str]) -> str:
     result = ""
 
     for unit_name, unit_code in units.items():
-        result += f"\ndef test_{unit_name.lstrip('#')}(unit):\n{indent(unit_code, '    ')}"
+        result += (
+            f"\ndef test_{unit_name.lstrip('#')}(unit):"  # Function definition 
+            f"\n{indent(unit_code, '    ')}"  # Unit code
+        )
 
     return indent(result, "    ")
 
