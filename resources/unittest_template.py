@@ -1,6 +1,7 @@
 # flake8: noqa
 """This template is used inside snekbox to evaluate and test user code."""
 import ast
+import base64
 import io
 import os
 import sys
@@ -36,14 +37,15 @@ def _exit_sandbox(code: int) -> NoReturn:
 
 def _load_user_module() -> ModuleType:
     """Load the user code into a new module and return it."""
+    code = base64.b64decode(USER_CODE).decode("utf8")
     try:
-        ast.parse(USER_CODE, "<input>")
+        ast.parse(code, "<input>")
     except SyntaxError:
         RESULT.write("".join(traceback.format_exception(*sys.exc_info(), limit=0)))
         _exit_sandbox(5)
 
     _module = ModuleType("module")
-    exec(USER_CODE, _module.__dict__)
+    exec(code, _module.__dict__)
 
     return _module
 

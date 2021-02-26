@@ -1,3 +1,4 @@
+import base64
 from collections import namedtuple
 from itertools import count
 from textwrap import indent
@@ -45,10 +46,9 @@ def _make_unit_code(units: dict[str, str]) -> str:
 
 
 def _make_user_code(code: str) -> str:
-    """Compose the user code into an actual string variable."""
-    # Make sure that we we escape triple quotes in the user code
-    code = code.replace('"""', '\\"""')
-    return f'USER_CODE = r"""{code}"""'
+    """Compose the user code into an actual base64-encoded string variable."""
+    code = base64.b64encode(code.encode("utf8")).decode("utf8")
+    return f'USER_CODE = b"{code}"'
 
 
 async def _post_eval(code: str) -> dict[str, str]:
