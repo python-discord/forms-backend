@@ -15,9 +15,6 @@ with open("resources/unittest_template.py") as file:
 
 UnittestResult = namedtuple("UnittestResult", "question_id return_code passed result")
 
-# Mapping of questions to their generated
-_unit_cache: dict[str, str] = {}
-
 
 def filter_unittests(form: Form) -> Form:
     """
