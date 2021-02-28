@@ -10,6 +10,13 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: forms-backend
       MONGO_INITDB_DATABASE: pydis_forms
 
+  snekbox:
+    image: ghcr.io/python-discord/snekbox:latest
+    ipc: none
+    ports:
+      - "127.0.0.1:8060:8060"
+    privileged: true
+
   backend:
     build:
       context: .
@@ -19,11 +26,13 @@ services:
       - "127.0.0.1:8000:8000"
     depends_on:
       - mongo
+      - snekbox
     tty: true
     volumes:
       - .:/app:ro
     environment:
       - DATABASE_URL=mongodb://forms-backend:forms-backend@mongo:27017
+      - SNEKBOX_URL=http://snekbox:8060/eval
       - OAUTH2_CLIENT_ID
       - OAUTH2_CLIENT_SECRET
       - ALLOWED_URL
