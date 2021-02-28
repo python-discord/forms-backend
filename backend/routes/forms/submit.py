@@ -18,6 +18,7 @@ from starlette.responses import JSONResponse
 from backend.constants import FRONTEND_URL, FormFeatures, HCAPTCHA_API_SECRET
 from backend.models import Form, FormResponse
 from backend.route import Route
+from backend.routes.forms.unittesting import execute_unittest
 from backend.validation import AuthorizationHeaders, ErrorMessage, api
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
@@ -99,7 +100,10 @@ class SubmitForm(Route):
                 if request.user.is_authenticated:
                     response["user"] = request.user.payload
 
-                    if FormFeatures.COLLECT_EMAIL.value in form.features and "email" not in response["user"]:  # noqa
+                    if (
+                            FormFeatures.COLLECT_EMAIL.value in form.features
+                            and "email" not in response["user"]
+                    ):
                         return JSONResponse({
                             "error": "email_required"
                         }, status_code=400)
@@ -126,6 +130,23 @@ class SubmitForm(Route):
                 response_obj = FormResponse(**response)
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
+
+            # Run unittests if needed
+            if any("unittests" in question.data for question in form.questions):
+                unittest_results = await execute_unittest(response_obj, form)
+
+                if not all(test.passed for test in unittest_results):
+                    # Return 500 if we encountered an internal error (code 99).
+                    status_code = 500 if any(
+                        test.return_code == 99 for test in unittest_results
+                    ) else 403
+
+                    return JSONResponse({
+                        "error": "failed_tests",
+                        "test_results": [
+                            test._asdict() for test in unittest_results if not test.passed
+                        ]
+                    }, status_code=status_code)
 
             await request.state.db.responses.insert_one(
                 response_obj.dict(by_alias=True)
@@ -172,7 +193,7 @@ class SubmitForm(Route):
         embed = {
             "title": "New Form Response",
             "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
+            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # TODO: Enter Form View URL
             "timestamp": response.timestamp,
             "color": 7506394,
         }
