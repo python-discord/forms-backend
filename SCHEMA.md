@@ -123,7 +123,12 @@ Textareas require no additional configuration.
 ```js
 {
     // A supported language from https://prismjs.com/#supported-languages
-    "language": "python"
+    "language": "python",
+    // An optinal mapping of unit tests
+    "unittests": {
+        "unit_1": "unit_code()",
+        ...
+    }
 }
 ```
 
