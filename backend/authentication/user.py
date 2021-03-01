@@ -34,8 +34,8 @@ class User(BaseUser):
     def decoded_token(self) -> dict[str, any]:
         return jwt.decode(self.token, SECRET_KEY, algorithms=["HS256"])
 
-    def fetch_admin_status(self, request: Request) -> bool:
-        self.admin = request.state.db.admins.find_one(
+    async def fetch_admin_status(self, request: Request) -> bool:
+        self.admin = await request.state.db.admins.find_one(
             {"_id": self.payload["id"]}
         ) is not None
 
