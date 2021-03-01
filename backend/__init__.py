@@ -16,8 +16,8 @@ ORIGINS = [
     r"(https?://[^.?#]*.forms-frontend.pages.dev)",  # Cloudflare Previews
 ]
 if not constants.PRODUCTION:
-    # Add localhost to allowed origins on non-production deployments
-    ORIGINS.append(r"(https?://localhost:\d{0,4})")
+    # Allow all hosts on non-production deployments
+    ORIGINS.append(r"(.*)")
 
 ALLOW_ORIGIN_REGEX = "|".join(ORIGINS)
 
