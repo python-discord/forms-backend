@@ -20,6 +20,7 @@ from backend import constants
 from backend.authentication.user import User
 from backend.models import Form, FormResponse
 from backend.route import Route
+from backend.routes.auth.authorize import set_response_token
 from backend.routes.forms.unittesting import execute_unittest
 from backend.validation import ErrorMessage, api
 
@@ -74,11 +75,9 @@ class SubmitForm(Route):
                     except ValueError:
                         expiry = None
 
-                    response.set_cookie(
-                        "token", f"JWT {request.user.token}",
-                        secure=constants.PRODUCTION, httponly=True, samesite="strict",
-                        max_age=(expiry - datetime.datetime.now()).seconds
-                    )
+                    origin = request.headers.get("origin")
+                    expiry_seconds = (expiry - datetime.datetime.now()).seconds
+                    await set_response_token(response, origin, request.user.token, expiry_seconds)
 
         except httpx.HTTPStatusError:
             pass
