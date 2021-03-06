@@ -35,8 +35,7 @@ class AuthorizeResponse(BaseModel):
 
 async def process_token(
         bearer_token: dict,
-        origin_url: str,
-        request_url: Request.url
+        request: Request
 ) -> Union[AuthorizeResponse, AUTH_FAILURE]:
     """Post a bearer token to Discord, and return a JWT and username."""
     interaction_start = datetime.datetime.now()
@@ -65,19 +64,20 @@ async def process_token(
         "expiry": token_expiry.isoformat()
     })
 
-    await set_response_token(response, origin_url, request_url, token, bearer_token["expires_in"])
+    await set_response_token(response, request, token, bearer_token["expires_in"])
     return response
 
 
 async def set_response_token(
         response: responses.Response,
-        origin_url: str,
-        request_url: Request.url,
+        request: Request,
         new_token: str,
         expiry: int
 ) -> None:
     """Helper that handles logic for updating a token in a set-cookie response."""
-    stripped_domain = f"{request_url.scheme}://{request_url.netloc}/"
+    origin_url = request.headers.get("origin")
+    protocol = request.headers.get("X-Forwarded-Proto") or "https"
+    stripped_domain = f"{protocol}://{request.url.netloc}/"
 
     if origin_url == constants.PRODUCTION_URL:
         domain = stripped_domain
@@ -123,7 +123,7 @@ class AuthorizeRoute(Route):
         except httpx.HTTPStatusError:
             return AUTH_FAILURE
 
-        return await process_token(bearer_token, url, request.url)
+        return await process_token(bearer_token, request)
 
 
 class TokenRefreshRoute(Route):
@@ -148,4 +148,4 @@ class TokenRefreshRoute(Route):
         except httpx.HTTPStatusError:
             return AUTH_FAILURE
 
-        return await process_token(bearer_token, url, request.url)
+        return await process_token(bearer_token, request)
