@@ -33,7 +33,7 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         self, request: Request
     ) -> t.Optional[tuple[authentication.AuthCredentials, authentication.BaseUser]]:
         """Handles JWT authentication process."""
-        cookie = request.cookies.get("BackendToken")
+        cookie = request.cookies.get("token")
         if not cookie:
             return None
 

@@ -75,7 +75,7 @@ class SubmitForm(Route):
                         expiry = None
 
                     response.set_cookie(
-                        "BackendToken", f"JWT {request.user.token}",
+                        "token", f"JWT {request.user.token}",
                         secure=constants.PRODUCTION, httponly=True, samesite="strict",
                         max_age=(expiry - datetime.datetime.now()).seconds
                     )

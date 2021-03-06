@@ -41,7 +41,7 @@ async def process_token(bearer_token: dict) -> Union[AuthorizeResponse, AUTH_FAI
     try:
         user_details = await fetch_user_details(bearer_token["access_token"])
     except httpx.HTTPStatusError:
-        AUTH_FAILURE.delete_cookie("BackendToken")
+        AUTH_FAILURE.delete_cookie("token")
         return AUTH_FAILURE
 
     max_age = datetime.timedelta(seconds=int(bearer_token["expires_in"]))
@@ -63,7 +63,7 @@ async def process_token(bearer_token: dict) -> Union[AuthorizeResponse, AUTH_FAI
     })
 
     response.set_cookie(
-        "BackendToken", f"JWT {token}",
+        "token", f"JWT {token}",
         secure=constants.PRODUCTION, httponly=True, samesite="strict",
         max_age=bearer_token["expires_in"]
     )
