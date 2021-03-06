@@ -21,6 +21,8 @@ from backend.discord import fetch_bearer_token, fetch_user_details
 from backend.route import Route
 from backend.validation import ErrorMessage, api
 
+AUTH_FAILURE = JSONResponse({"error": "auth_failure"}, status_code=400)
+
 
 class AuthorizeRequest(BaseModel):
     token: str = Field(description="The access token received from Discord.")
@@ -29,9 +31,6 @@ class AuthorizeRequest(BaseModel):
 class AuthorizeResponse(BaseModel):
     username: str = Field("Discord display name.")
     expiry: str = Field("ISO formatted timestamp of expiry.")
-
-
-AUTH_FAILURE = JSONResponse({"error": "auth_failure"}, status_code=400)
 
 
 async def process_token(bearer_token: dict) -> Union[AuthorizeResponse, AUTH_FAILURE]:

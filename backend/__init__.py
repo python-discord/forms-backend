@@ -15,6 +15,7 @@ ORIGINS = [
     r"(https://[^.?#]*--pydis-forms\.netlify\.app)",  # Netlify Previews
     r"(https?://[^.?#]*.forms-frontend.pages.dev)",  # Cloudflare Previews
 ]
+
 if not constants.PRODUCTION:
     # Allow all hosts on non-production deployments
     ORIGINS.append(r"(.*)")
