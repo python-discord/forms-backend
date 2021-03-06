@@ -77,7 +77,9 @@ class SubmitForm(Route):
 
                     origin = request.headers.get("origin")
                     expiry_seconds = (expiry - datetime.datetime.now()).seconds
-                    await set_response_token(response, origin, request.user.token, expiry_seconds)
+                    await set_response_token(
+                        response, origin, request.url, request.user.token, expiry_seconds
+                    )
 
         except httpx.HTTPStatusError:
             pass

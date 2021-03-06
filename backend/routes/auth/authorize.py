@@ -33,7 +33,11 @@ class AuthorizeResponse(BaseModel):
     expiry: str = Field("ISO formatted timestamp of expiry.")
 
 
-async def process_token(bearer_token: dict, origin: str) -> Union[AuthorizeResponse, AUTH_FAILURE]:
+async def process_token(
+        bearer_token: dict,
+        origin_url: str,
+        request_url: Request.url
+) -> Union[AuthorizeResponse, AUTH_FAILURE]:
     """Post a bearer token to Discord, and return a JWT and username."""
     interaction_start = datetime.datetime.now()
 
@@ -61,19 +65,20 @@ async def process_token(bearer_token: dict, origin: str) -> Union[AuthorizeRespo
         "expiry": token_expiry.isoformat()
     })
 
-    await set_response_token(response, origin, token, bearer_token["expires_in"])
+    await set_response_token(response, origin_url, request_url, token, bearer_token["expires_in"])
     return response
 
 
 async def set_response_token(
-    response: responses.Response,
-    origin_url: str,
-    new_token: str,
-    expiry: int
+        response: responses.Response,
+        origin_url: str,
+        request_url: Request.url,
+        new_token: str,
+        expiry: int
 ) -> None:
     """Helper that handles logic for updating a token in a set-cookie response."""
     if origin_url == constants.PRODUCTION_URL:
-        domain = constants.PRODUCTION_URL
+        domain = request_url
         samesite = "strict"
 
     elif not constants.PRODUCTION:
@@ -81,7 +86,7 @@ async def set_response_token(
         samesite = "strict"
 
     else:
-        domain = origin_url
+        domain = request_url
         samesite = "None"
 
     response.set_cookie(
@@ -116,7 +121,7 @@ class AuthorizeRoute(Route):
         except httpx.HTTPStatusError:
             return AUTH_FAILURE
 
-        return await process_token(bearer_token, url)
+        return await process_token(bearer_token, url, request.url)
 
 
 class TokenRefreshRoute(Route):
@@ -141,4 +146,4 @@ class TokenRefreshRoute(Route):
         except httpx.HTTPStatusError:
             return AUTH_FAILURE
 
-        return await process_token(bearer_token, url)
+        return await process_token(bearer_token, url, request.url)
