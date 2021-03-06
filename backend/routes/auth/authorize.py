@@ -77,8 +77,9 @@ async def set_response_token(
         expiry: int
 ) -> None:
     """Helper that handles logic for updating a token in a set-cookie response."""
+    stripped_domain = request_url.scheme + request_url.netloc
     if origin_url == constants.PRODUCTION_URL:
-        domain = request_url
+        domain = stripped_domain
         samesite = "strict"
 
     elif not constants.PRODUCTION:
@@ -86,7 +87,7 @@ async def set_response_token(
         samesite = "strict"
 
     else:
-        domain = request_url
+        domain = stripped_domain
         samesite = "None"
 
     response.set_cookie(
