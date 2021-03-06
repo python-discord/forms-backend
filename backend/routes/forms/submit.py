@@ -3,6 +3,7 @@ Submit a form.
 """
 
 import binascii
+import datetime
 import hashlib
 import uuid
 from typing import Any, Optional
@@ -15,11 +16,12 @@ from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend.constants import FRONTEND_URL, FormFeatures, HCAPTCHA_API_SECRET
+from backend import constants
+from backend.authentication.user import User
 from backend.models import Form, FormResponse
 from backend.route import Route
 from backend.routes.forms.unittesting import execute_unittest
-from backend.validation import AuthorizationHeaders, ErrorMessage, api
+from backend.validation import ErrorMessage, api
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
@@ -52,13 +54,40 @@ class SubmitForm(Route):
             HTTP_404=ErrorMessage,
             HTTP_400=ErrorMessage
         ),
-        headers=AuthorizationHeaders,
         tags=["forms", "responses"]
     )
     async def post(self, request: Request) -> JSONResponse:
         """Submit a response to the form."""
-        data = await request.json()
+        response = await self.submit(request)
 
+        # Silently try to update user data
+        try:
+            if hasattr(request.user, User.refresh_data.__name__):
+                old = request.user.token
+                await request.user.refresh_data()
+
+                if old != request.user.token:
+                    try:
+                        expiry = datetime.datetime.fromisoformat(
+                            request.user.decoded_token.get("expiry")
+                        )
+                    except ValueError:
+                        expiry = None
+
+                    response.set_cookie(
+                        "token", f"JWT {request.user.token}",
+                        secure=constants.PRODUCTION, httponly=True, samesite="strict",
+                        max_age=(expiry - datetime.datetime.now()).seconds
+                    )
+
+        except httpx.HTTPStatusError:
+            pass
+
+        return response
+
+    async def submit(self, request: Request) -> JSONResponse:
+        """Helper method for handling submission logic."""
+        data = await request.json()
         data["timestamp"] = None
 
         if form := await request.state.db.forms.find_one(
@@ -69,7 +98,7 @@ class SubmitForm(Route):
             response["id"] = str(uuid.uuid4())
             response["form_id"] = form.id
 
-            if FormFeatures.DISABLE_ANTISPAM.value not in form.features:
+            if constants.FormFeatures.DISABLE_ANTISPAM.value not in form.features:
                 ip_hash_ctx = hashlib.md5()
                 ip_hash_ctx.update(request.client.host.encode())
                 ip_hash = binascii.hexlify(ip_hash_ctx.digest())
@@ -79,7 +108,7 @@ class SubmitForm(Route):
 
                 async with httpx.AsyncClient() as client:
                     query_params = {
-                        "secret": HCAPTCHA_API_SECRET,
+                        "secret": constants.HCAPTCHA_API_SECRET,
                         "response": data.get("captcha")
                     }
                     r = await client.post(
@@ -96,12 +125,13 @@ class SubmitForm(Route):
                     "captcha_pass": captcha_data["success"]
                 }
 
-            if FormFeatures.REQUIRES_LOGIN.value in form.features:
+            if constants.FormFeatures.REQUIRES_LOGIN.value in form.features:
                 if request.user.is_authenticated:
                     response["user"] = request.user.payload
+                    response["user"]["admin"] = request.user.admin
 
                     if (
-                            FormFeatures.COLLECT_EMAIL.value in form.features
+                            constants.FormFeatures.COLLECT_EMAIL.value in form.features
                             and "email" not in response["user"]
                     ):
                         return JSONResponse({
@@ -153,7 +183,7 @@ class SubmitForm(Route):
             )
 
             send_webhook = None
-            if FormFeatures.WEBHOOK_ENABLED.value in form.features:
+            if constants.FormFeatures.WEBHOOK_ENABLED.value in form.features:
                 send_webhook = BackgroundTask(
                     self.send_submission_webhook,
                     form=form,
@@ -193,7 +223,7 @@ class SubmitForm(Route):
         embed = {
             "title": "New Form Response",
             "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{FRONTEND_URL}/path_to_view_form/{response.id}",  # TODO: Enter Form View URL
+            "url": f"{constants.FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
             "timestamp": response.timestamp,
             "color": 7506394,
         }

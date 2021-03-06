@@ -18,6 +18,7 @@ Create a `.env` file in the root with the following values inside it (each varia
 - `OAUTH2_CLIENT_ID`: Client ID of Discord OAuth2 Application (see prerequisites).
 - `OAUTH2_CLIENT_SECRET`: Client Secret of Discord OAuth2 Application (see prerequisites).
 - `ALLOWED_URL`: Allowed origin for CORS middleware.
+- `PRODUCTION`: Set to False if running on localhost. Defaults to true.
 
 #### Running
 To start using the application, simply run `docker-compose up` in the repository root. You'll be able to access the application by visiting http://localhost:8000/

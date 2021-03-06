@@ -7,9 +7,20 @@ from starlette.middleware.cors import CORSMiddleware
 
 from backend import constants
 from backend.authentication import JWTAuthenticationBackend
-from backend.route_manager import create_route_map
 from backend.middleware import DatabaseMiddleware, ProtectedDocsMiddleware
+from backend.route_manager import create_route_map
 from backend.validation import api
+
+ORIGINS = [
+    r"(https://[^.?#]*--pydis-forms\.netlify\.app)",  # Netlify Previews
+    r"(https?://[^.?#]*.forms-frontend.pages.dev)",  # Cloudflare Previews
+]
+
+if not constants.PRODUCTION:
+    # Allow all hosts on non-production deployments
+    ORIGINS.append(r"(.*)")
+
+ALLOW_ORIGIN_REGEX = "|".join(ORIGINS)
 
 sentry_sdk.init(
     dsn=constants.FORMS_BACKEND_DSN,
@@ -20,13 +31,13 @@ sentry_sdk.init(
 middleware = [
     Middleware(
         CORSMiddleware,
-        # TODO: Convert this into a RegEx that works for prod, netlify & previews
-        allow_origins=["*"],
+        allow_origins=["https://forms.pythondiscord.com"],
+        allow_origin_regex=ALLOW_ORIGIN_REGEX,
         allow_headers=[
-            "Authorization",
             "Content-Type"
         ],
-        allow_methods=["*"]
+        allow_methods=["*"],
+        allow_credentials=True
     ),
     Middleware(DatabaseMiddleware),
     Middleware(AuthenticationMiddleware, backend=JWTAuthenticationBackend()),

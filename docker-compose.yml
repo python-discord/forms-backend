@@ -37,3 +37,4 @@ services:
       - OAUTH2_CLIENT_SECRET
       - ALLOWED_URL
       - DEBUG=true
+      - PRODUCTION=false
