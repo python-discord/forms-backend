@@ -63,7 +63,7 @@ async def process_token(bearer_token: dict) -> Union[AuthorizeResponse, AUTH_FAI
 
     response.set_cookie(
         "token", f"JWT {token}",
-        secure=constants.PRODUCTION, httponly=True, samesite="lax",
+        secure=constants.PRODUCTION, httponly=True, samesite="strict",
         max_age=bearer_token["expires_in"]
     )
     return response
