@@ -76,11 +76,9 @@ async def set_response_token(
 ) -> None:
     """Helper that handles logic for updating a token in a set-cookie response."""
     origin_url = request.headers.get("origin")
-    protocol = request.headers.get("X-Forwarded-Proto") or "https"
-    stripped_domain = f"{protocol}://{request.url.netloc}/"
 
     if origin_url == constants.PRODUCTION_URL:
-        domain = stripped_domain
+        domain = request.url.netloc
         samesite = "strict"
 
     elif not constants.PRODUCTION:
@@ -88,7 +86,7 @@ async def set_response_token(
         samesite = "strict"
 
     else:
-        domain = stripped_domain
+        domain = request.url.netloc
         samesite = "None"
 
     response.set_cookie(
