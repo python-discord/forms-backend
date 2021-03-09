@@ -64,7 +64,7 @@ class Form(BaseModel):
         """Validates does Discord role provided when flag provided."""
         if FormFeatures.ASSIGN_ROLE.value in values.get("features", []) and not values.get("discord_role"):  # noqa
             raise ValueError(
-                "discord_role field is required when ASSIGN_ROLE flag provided."
+                "discord_role field is required when ASSIGN_ROLE flag is provided."
             )
 
         return values
