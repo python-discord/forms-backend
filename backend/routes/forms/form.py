@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 
 from backend.models import Form
 from backend.route import Route
+from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
 
@@ -26,7 +27,7 @@ class SingleForm(Route):
     @api.validate(resp=Response(HTTP_200=Form, HTTP_404=ErrorMessage), tags=["forms"])
     async def get(self, request: Request) -> JSONResponse:
         """Returns single form information by ID."""
-        admin = request.user.payload["admin"] if request.user.is_authenticated else False  # noqa
+        admin = request.user.admin if request.user.is_authenticated else False
 
         filters = {
             "_id": request.path_params["form_id"]
@@ -37,6 +38,9 @@ class SingleForm(Route):
 
         if raw_form := await request.state.db.forms.find_one(filters):
             form = Form(**raw_form)
+            if not admin:
+                form = filter_unittests(form)
+
             return JSONResponse(form.dict(admin=admin))
 
         return JSONResponse({"error": "not_found"}, status_code=404)

@@ -2,19 +2,24 @@
 import httpx
 
 from backend.constants import (
-    DISCORD_API_BASE_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, OAUTH2_REDIRECT_URI
+    DISCORD_API_BASE_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET
 )
 
 
-async def fetch_bearer_token(access_code: str) -> dict:
+async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict:
     async with httpx.AsyncClient() as client:
         data = {
             "client_id": OAUTH2_CLIENT_ID,
             "client_secret": OAUTH2_CLIENT_SECRET,
-            "grant_type": "authorization_code",
-            "code": access_code,
-            "redirect_uri": OAUTH2_REDIRECT_URI
+            "redirect_uri": f"{redirect}/callback"
         }
+
+        if refresh:
+            data["grant_type"] = "refresh_token"
+            data["refresh_token"] = code
+        else:
+            data["grant_type"] = "authorization_code"
+            data["code"] = code
 
         r = await client.post(f"{DISCORD_API_BASE_URL}/oauth2/token", headers={
             "Content-Type": "application/x-www-form-urlencoded"

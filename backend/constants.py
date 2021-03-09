@@ -1,14 +1,19 @@
-from dotenv import load_dotenv
-load_dotenv()
+import binascii
+import os
+from enum import Enum
 
-import os  # noqa
-import binascii  # noqa
-from enum import Enum  # noqa
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://forms.pythondiscord.com")
 DATABASE_URL = os.getenv("DATABASE_URL")
 MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
+SNEKBOX_URL = os.getenv("SNEKBOX_URL", "http://snekbox.default.svc.cluster.local/eval")
+
+PRODUCTION = os.getenv("PRODUCTION", "True").lower() != "false"
+PRODUCTION_URL = "https://forms.pythondiscord.com"
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
