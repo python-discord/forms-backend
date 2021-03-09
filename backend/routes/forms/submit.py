@@ -288,16 +288,10 @@ class SubmitForm(Route):
 
         async with httpx.AsyncClient() as client:
             resp = await client.put(url, headers=DISCORD_HEADERS)
-            if resp.status_code == 429:  # We are rate limited
-                status = resp.status_code
+            # Handle Rate Limits
+            while resp.status_code == 429:
                 retry_after = float(resp.headers["X-Ratelimit-Reset-After"])
-                while status == 429:
-                    await asyncio.sleep(retry_after)
-                    r = await client.put(url, headers=DISCORD_HEADERS)
-                    status = r.status_code
-                    if status == 429:
-                        retry_after = float(r.headers["X-Ratelimit-Reset-After"])
-                    else:
-                        r.raise_for_status()
-            else:  # For any other unexpected status, raise error.
-                resp.raise_for_status()
+                await asyncio.sleep(retry_after)
+                resp = await client.put(url, headers=DISCORD_HEADERS)
+
+            resp.raise_for_status()
