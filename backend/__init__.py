@@ -22,10 +22,12 @@ if not constants.PRODUCTION:
 
 ALLOW_ORIGIN_REGEX = "|".join(ORIGINS)
 
+SENTRY_RELEASE = f"forms-backend@{constants.GIT_SHA}"
 sentry_sdk.init(
     dsn=constants.FORMS_BACKEND_DSN,
     send_default_pii=True,
-    release=f"forms-backend@{constants.GIT_SHA}"
+    release=SENTRY_RELEASE,
+    environment=SENTRY_RELEASE
 )
 
 middleware = [
