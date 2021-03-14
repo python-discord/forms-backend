@@ -24,7 +24,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "deepmerge"
-version = "0.1.1"
+version = "0.2.1"
 description = "a toolset to deeply merge python dictionaries."
 category = "main"
 optional = false
@@ -70,15 +70,15 @@ tornado = ["tornado (>=0.2)"]
 
 [[package]]
 name = "h11"
-version = "0.11.0"
+version = "0.12.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [[package]]
 name = "httpcore"
-version = "0.12.2"
+version = "0.12.3"
 description = "A minimal low-level HTTP client."
 category = "main"
 optional = false
@@ -390,7 +390,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "cba71873f66411d6632caf6ddfdf63eae694594ab9e991bf8806ccee6fca477a"
+content-hash = "d0626fd229fe456b415413f0ace77aae277df1f46b3864b66e616f486a9463b7"
 
 [metadata.files]
 certifi = [
@@ -406,8 +406,8 @@ colorama = [
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
 deepmerge = [
-    {file = "deepmerge-0.1.1-py2.py3-none-any.whl", hash = "sha256:190e133a6657303db37f9bb302aa853d8d2b15a0e055d41b99a362598e79206a"},
-    {file = "deepmerge-0.1.1.tar.gz", hash = "sha256:fa1d44269786bcc12d30a7471b0b39478aa37a43703b134d7f12649792f92c1f"},
+    {file = "deepmerge-0.2.1-py2.py3-none-any.whl", hash = "sha256:8270901f85fbe249686236cb18bf4bccc69775da2c2e1fa35de3714d5d9d01b3"},
+    {file = "deepmerge-0.2.1.tar.gz", hash = "sha256:5fbd777507dd86c767048bddb2c50adf7da30f7688fe3f3f4e6ede6226dd4b20"},
 ]
 flake8 = [
     {file = "flake8-3.8.4-py2.py3-none-any.whl", hash = "sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839"},
