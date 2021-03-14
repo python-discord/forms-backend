@@ -15,6 +15,8 @@ SNEKBOX_URL = os.getenv("SNEKBOX_URL", "http://snekbox.default.svc.cluster.local
 PRODUCTION = os.getenv("PRODUCTION", "True").lower() != "false"
 PRODUCTION_URL = "https://forms.pythondiscord.com"
 
+LOG_FILES = os.getenv("LOG_FILES", "False").lower() != "false"
+
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
 OAUTH2_REDIRECT_URI = os.getenv(

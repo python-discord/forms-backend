@@ -1,3 +1,5 @@
+import logging
+
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.applications import Starlette
@@ -6,6 +8,7 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from backend import constants
+from backend import logs  # This has to be imported before other logging statements
 from backend.authentication import JWTAuthenticationBackend
 from backend.middleware import DatabaseMiddleware, ProtectedDocsMiddleware
 from backend.route_manager import create_route_map

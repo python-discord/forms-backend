@@ -9,3 +9,4 @@ __pycache__
 .github
 .gitlab
 .gitignore
+logs/
