@@ -1,3 +1,4 @@
+import logging
 import typing as t
 
 import httpx
@@ -8,6 +9,8 @@ from backend.constants import FormFeatures, WebHook
 from .question import Question
 
 PUBLIC_FIELDS = ["id", "features", "questions", "name", "description", "submitted_text"]
+
+logger = logging.getLogger(__name__)
 
 
 class _WebHook(BaseModel):
@@ -54,11 +57,14 @@ class Form(BaseModel):
 
     def dict(self, admin: bool = True, **kwargs: t.Any) -> dict[str, t.Any]:
         """Wrapper for original function to exclude private data for public access."""
+        logger.debug("Converting form to dict.")
         data = super().dict(**kwargs)
 
         returned_data = {}
 
         if not admin:
+            logger.debug("Removing non-public fields, as admin was false.")
+
             for field in PUBLIC_FIELDS:
                 if field == "id" and kwargs.get("by_alias"):
                     fetch_field = "_id"
@@ -67,6 +73,7 @@ class Form(BaseModel):
 
                 returned_data[field] = data[fetch_field]
         else:
+            logger.debug("Including all fields.")
             returned_data = data
 
         return returned_data
@@ -86,6 +93,7 @@ async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
             raise ValueError("URL must be a discord webhook.")
 
         try:
+            logger.debug("Pinging discord to verify webhook.")
             async with httpx.AsyncClient() as client:
                 response = await client.get(url)
                 response.raise_for_status()
@@ -117,6 +125,7 @@ async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
 
     # Validate, and return errors, if any
     try:
+        logger.info("Validating a webhook url.")
         await validate()
     except Exception as e:
         loc = (

@@ -1,6 +1,8 @@
 """
 Returns, updates or deletes a single form given an ID.
 """
+import logging
+
 import deepmerge
 from pydantic import ValidationError
 from spectree.response import Response
@@ -13,6 +15,7 @@ from backend.route import Route
 from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
+logger = logging.getLogger(__name__)
 
 class SingleForm(Route):
     """
@@ -59,6 +62,8 @@ class SingleForm(Route):
         data = await request.json()
 
         form_id = {"_id": request.path_params["form_id"]}
+        logger.info(f"Attempting to patch a form with ID: {form_id.get('_id')}")
+
         if raw_form := await request.state.db.forms.find_one(form_id):
             if "_id" in data or "id" in data:
                 return JSONResponse({"error": "locked_field"}, status_code=400)
@@ -77,6 +82,7 @@ class SingleForm(Route):
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
 
+            logger.debug("Inserting updated form into DB.")
             await request.state.db.forms.replace_one(
                 {"_id": request.path_params["form_id"]},
                 form.dict()
@@ -93,14 +99,14 @@ class SingleForm(Route):
     )
     async def delete(self, request: Request) -> JSONResponse:
         """Deletes form by ID."""
-        if not await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"]}
-        ):
+        form_id = {"_id": request.path_params["form_id"]}
+        logger.info(f"Attempting to delete a form with ID: {form_id.get('_id')}")
+
+        if not await request.state.db.forms.find_one(form_id):
             return JSONResponse({"error": "not_found"}, status_code=404)
 
-        await request.state.db.forms.delete_one(
-            {"_id": request.path_params["form_id"]}
-        )
+        logger.debug("Executing deletion.")
+        await request.state.db.forms.delete_one(form_id)
         await request.state.db.responses.delete_many(
             {"form_id": request.path_params["form_id"]}
         )

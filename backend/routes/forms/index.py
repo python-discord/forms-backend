@@ -1,6 +1,8 @@
 """
 Return a list of all forms to authenticated users.
 """
+import logging
+
 from spectree.response import Response
 from starlette.authentication import requires
 from starlette.requests import Request
@@ -11,6 +13,8 @@ from backend.models import Form, FormList
 from backend.models.form import validate_hook_url
 from backend.route import Route
 from backend.validation import ErrorMessage, OkayResponse, api
+
+logger = logging.getLogger(__name__)
 
 
 class FormsList(Route):
@@ -62,11 +66,13 @@ class FormsList(Route):
             pass
 
         form = Form(**form_data)
+        logging.info(f"Attempting to add a form with ID: {form.id}")
 
         if await request.state.db.forms.find_one({"_id": form.id}):
             return JSONResponse({
                 "error": "id_taken"
             }, status_code=400)
 
+        logging.debug("Inserting new form.")
         await request.state.db.forms.insert_one(form.dict(by_alias=True))
         return JSONResponse(form.dict())

@@ -1,6 +1,8 @@
 """
 Returns all form responses by form ID.
 """
+import logging
+
 from pydantic import BaseModel
 from spectree import Response
 from starlette.authentication import requires
@@ -9,7 +11,9 @@ from starlette.responses import JSONResponse
 
 from backend.models import FormResponse, ResponseList
 from backend.route import Route
-from backend.validation import api, ErrorMessage, OkayResponse
+from backend.validation import ErrorMessage, OkayResponse, api
+
+logger = logging.getLogger(__name__)
 
 
 class ResponseIdList(BaseModel):
@@ -56,9 +60,10 @@ class Responses(Route):
     )
     async def delete(self, request: Request) -> JSONResponse:
         """Bulk deletes form responses by IDs."""
-        if not await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"]}
-        ):
+        form_id = {"_id": request.path_params["form_id"]}
+        logger.info(f"Bulk deleting responses for form with ID: {form_id.get('_id')}")
+
+        if not await request.state.db.forms.find_one(form_id):
             return JSONResponse({"error": "not_found"}, status_code=404)
 
         data = await request.json()
@@ -96,6 +101,7 @@ class Responses(Route):
                 status_code=400
             )
 
+        logger.debug(f"Executing deletion for the following responses: {','.join(actual_ids)}")
         await request.state.db.responses.delete_many(
             {
                 "_id": {"$in": list(actual_ids)}

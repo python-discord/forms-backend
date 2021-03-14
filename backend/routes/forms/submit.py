@@ -5,6 +5,7 @@ Submit a form.
 import binascii
 import datetime
 import hashlib
+import logging
 import uuid
 from typing import Any, Optional
 
@@ -23,6 +24,8 @@ from backend.route import Route
 from backend.routes.auth.authorize import set_response_token
 from backend.routes.forms.unittesting import execute_unittest
 from backend.validation import ErrorMessage, api
+
+logger = logging.getLogger(__name__)
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
@@ -208,6 +211,10 @@ class SubmitForm(Route):
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
         if form.webhook is None:
+            logger.warning(
+                f"Attempted to submit a form that has "
+                f"webhooks enabled with no webhook url. ID: {form.id}"
+            )
             raise ValueError("Got empty webhook.")
 
         try:
@@ -259,6 +266,7 @@ class SubmitForm(Route):
             hook["content"] = message.replace("_USER_MENTION_", mention)
 
         # Post hook
+        logger.debug("Attempting to send an embed to the webhook.")
         async with httpx.AsyncClient() as client:
             r = await client.post(form.webhook.url, json=hook)
             r.raise_for_status()

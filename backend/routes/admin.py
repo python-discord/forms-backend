@@ -1,6 +1,8 @@
 """
 Adds new admin user.
 """
+import logging
+
 from pydantic import BaseModel, Field
 from spectree import Response
 from starlette.authentication import requires
@@ -9,6 +11,8 @@ from starlette.responses import JSONResponse
 
 from backend.route import Route
 from backend.validation import ErrorMessage, OkayResponse, api
+
+logger = logging.getLogger(__name__)
 
 
 class AdminModel(BaseModel):
@@ -31,6 +35,8 @@ class AdminRoute(Route):
         """Grant a user administrator privileges."""
         data = await request.json()
         admin = AdminModel(**data)
+
+        logger.info(f"Trying to add a new admin with ID: {admin.id}")
 
         if await request.state.db.admins.find_one(
             {"_id": admin.id}
