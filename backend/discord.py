@@ -1,4 +1,6 @@
 """Various utilities for working with the Discord API."""
+import logging
+
 import httpx
 
 from backend.constants import (
@@ -7,8 +9,11 @@ from backend.constants import (
 
 API_BASE_URL = "https://discord.com/api/v8"
 
+logger = logging.getLogger(__name__)
+
 
 async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict:
+    logger.debug(f"Fetching bearer token with code: {code}")
     async with httpx.AsyncClient() as client:
         data = {
             "client_id": OAUTH2_CLIENT_ID,

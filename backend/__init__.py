@@ -8,12 +8,15 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from backend import constants
-from backend import logs  # This has to be imported before other logging statements
+from backend import logs  # This has to be imported before logging statements are used
 from backend.authentication import JWTAuthenticationBackend
 from backend.middleware import DatabaseMiddleware, ProtectedDocsMiddleware
 from backend.route_manager import create_route_map
 from backend.validation import api
 
+logger = logging.getLogger(__name__)
+
+# Setup CORS Origins
 ORIGINS = [
     r"(https://[^.?#]*--pydis-forms\.netlify\.app)",  # Netlify Previews
     r"(https?://[^.?#]*.forms-frontend.pages.dev)",  # Cloudflare Previews
@@ -21,6 +24,7 @@ ORIGINS = [
 
 if not constants.PRODUCTION:
     # Allow all hosts on non-production deployments
+    logger.info("Allowing all CORS origins.")
     ORIGINS.append(r"(.*)")
 
 ALLOW_ORIGIN_REGEX = "|".join(ORIGINS)

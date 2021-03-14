@@ -1,3 +1,4 @@
+import logging
 import typing as t
 
 import jwt
@@ -6,6 +7,8 @@ from starlette.requests import Request
 
 from backend.constants import SECRET_KEY
 from backend.discord import fetch_user_details
+
+logger = logging.getLogger(__name__)
 
 
 class User(BaseUser):
@@ -35,6 +38,7 @@ class User(BaseUser):
         return jwt.decode(self.token, SECRET_KEY, algorithms=["HS256"])
 
     async def fetch_admin_status(self, request: Request) -> bool:
+        logger.debug(f"Checking admin status for user with ID: {self.payload['id']}")
         self.admin = await request.state.db.admins.find_one(
             {"_id": self.payload["id"]}
         ) is not None
@@ -43,6 +47,7 @@ class User(BaseUser):
 
     async def refresh_data(self) -> None:
         """Fetches user data from discord, and updates the instance."""
+        logger.debug(f"Updating user info for user with ID: {self.payload['id']}")
         self.payload = await fetch_user_details(self.decoded_token.get("token"))
 
         updated_info = self.decoded_token
