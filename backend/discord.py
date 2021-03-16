@@ -1,5 +1,6 @@
 """Various utilities for working with the Discord API."""
 import asyncio
+import typing
 from urllib import parse
 
 import httpx
@@ -146,3 +147,34 @@ async def assign_role(form: Form, request_user: User) -> None:
     )
 
     await make_request("PUT", url)
+
+
+async def get_direct_message_channel(user_id: int) -> typing.Optional[int]:
+    """Get the ID of a direct message channel."""
+    try:
+        response = await make_request("POST", "users/@me/channels", {"recipient_id": user_id})
+        return response.json().get("id")
+    except httpx.HTTPStatusError as e:
+        # This is most likely caused by an incorrect ID
+        if e.response.status_code == 400:
+            return
+
+        raise e
+
+
+async def send_direct_message(form: Form, response: FormResponse, user: Request.user) -> None:
+    """A helper method to assign a discord role to a user."""
+    channel = await get_direct_message_channel(user.payload['id'])
+    if not channel:
+        return
+
+    message = format_message(build_ctx_variables(form, response, user), form.dm_message)
+
+    try:
+        await make_request("POST", f"channels/{channel}/messages", {"content": message})
+    except httpx.HTTPStatusError as e:
+        # This is most likely caused by closed DMs
+        if e.response.status_code == 403:
+            return
+
+        raise e
