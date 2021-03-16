@@ -73,6 +73,33 @@ async def fetch_user_details(bearer_token: str) -> dict:
     return r.json()
 
 
+def build_ctx_variables(
+        form: Form,
+        response: FormResponse,
+        user: Request.user
+) -> dict[str, str]:
+    """Parses contextual information from a request. See SCHEMA.md for all variables."""
+    try:
+        mention = user.discord_mention
+    except AttributeError:
+        mention = "User"
+
+    return {
+        "user": mention,
+        "response_id": response.id,
+        "form": form.name,
+        "form_id": form.id,
+        "time": response.timestamp,
+    }
+
+
+def format_message(ctx: dict[str, str], message: str) -> str:
+    """Formats a message using contextual information."""
+    for key, val in ctx.items():
+        message = message.replace(f"{{{key}}}", str(val))
+    return message
+
+
 async def send_submission_webhook(
         form: Form,
         response: FormResponse,
@@ -83,12 +110,10 @@ async def send_submission_webhook(
     if form.webhook is None:
         raise ValueError("Got empty webhook.")
 
-    try:
-        mention = request_user.discord_mention
-    except AttributeError:
-        mention = "User"
+    ctx = build_ctx_variables(form, response, request_user)
 
     user = response.user
+    mention = ctx.get("mention")
 
     # Build Embed
     embed = {
@@ -117,19 +142,7 @@ async def send_submission_webhook(
     # Set hook message
     message = form.webhook.message
     if message:
-        # Available variables, see SCHEMA.md
-        ctx = {
-            "user": mention,
-            "response_id": response.id,
-            "form": form.name,
-            "form_id": form.id,
-            "time": response.timestamp,
-        }
-
-        for key in ctx:
-            message = message.replace(f"{{{key}}}", str(ctx[key]))
-
-        hook["content"] = message.replace("_USER_MENTION_", mention)
+        hook["content"] = format_message(ctx, message)
 
     # Post hook
     await make_request("POST", form.webhook.url, hook)
