@@ -2,7 +2,6 @@
 Submit a form.
 """
 
-import asyncio
 import binascii
 import datetime
 import hashlib
@@ -17,7 +16,7 @@ from starlette.background import BackgroundTasks
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend import constants
+from backend import constants, discord
 from backend.authentication.user import User
 from backend.models import Form, FormResponse
 from backend.route import Route
@@ -28,10 +27,6 @@ from backend.validation import ErrorMessage, api
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded"
-}
-
-DISCORD_HEADERS = {
-    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"
 }
 
 
@@ -88,7 +83,8 @@ class SubmitForm(Route):
 
         return response
 
-    async def submit(self, request: Request) -> JSONResponse:
+    @staticmethod
+    async def submit(request: Request) -> JSONResponse:
         """Helper method for handling submission logic."""
         data = await request.json()
         data["timestamp"] = None
@@ -188,7 +184,7 @@ class SubmitForm(Route):
             tasks = BackgroundTasks()
             if constants.FormFeatures.WEBHOOK_ENABLED.value in form.features:
                 tasks.add_task(
-                    self.send_submission_webhook,
+                    discord.send_submission_webhook,
                     form=form,
                     response=response_obj,
                     request_user=request.user
@@ -196,7 +192,7 @@ class SubmitForm(Route):
 
             if constants.FormFeatures.ASSIGN_ROLE.value in form.features:
                 tasks.add_task(
-                    self.assign_role,
+                    discord.assign_role,
                     form=form,
                     request_user=request.user
                 )
@@ -210,88 +206,3 @@ class SubmitForm(Route):
             return JSONResponse({
                 "error": "Open form not found"
             }, status_code=404)
-
-    @staticmethod
-    async def send_submission_webhook(
-            form: Form,
-            response: FormResponse,
-            request_user: User
-    ) -> None:
-        """Helper to send a submission message to a discord webhook."""
-        # Stop if webhook is not available
-        if form.webhook is None:
-            raise ValueError("Got empty webhook.")
-
-        try:
-            mention = request_user.discord_mention
-        except AttributeError:
-            mention = "User"
-
-        user = response.user
-
-        # Build Embed
-        embed = {
-            "title": "New Form Response",
-            "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{constants.FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
-            "timestamp": response.timestamp,
-            "color": 7506394,
-        }
-
-        # Add author to embed
-        if request_user.is_authenticated:
-            embed["author"] = {"name": request_user.display_name}
-
-            if user and user.avatar:
-                url = f"https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png"
-                embed["author"]["icon_url"] = url
-
-        # Build Hook
-        hook = {
-            "embeds": [embed],
-            "allowed_mentions": {"parse": ["users", "roles"]},
-            "username": form.name or "Python Discord Forms"
-        }
-
-        # Set hook message
-        message = form.webhook.message
-        if message:
-            # Available variables, see SCHEMA.md
-            ctx = {
-                "user": mention,
-                "response_id": response.id,
-                "form": form.name,
-                "form_id": form.id,
-                "time": response.timestamp,
-            }
-
-            for key in ctx:
-                message = message.replace(f"{{{key}}}", str(ctx[key]))
-
-            hook["content"] = message.replace("_USER_MENTION_", mention)
-
-        # Post hook
-        async with httpx.AsyncClient() as client:
-            r = await client.post(form.webhook.url, json=hook)
-            r.raise_for_status()
-
-    @staticmethod
-    async def assign_role(form: Form, request_user: User) -> None:
-        """Assigns Discord role to user when user submitted response."""
-        if not form.discord_role:
-            raise ValueError("Got empty Discord role ID.")
-
-        url = (
-            f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
-            f"/members/{request_user.payload['id']}/roles/{form.discord_role}"
-        )
-
-        async with httpx.AsyncClient() as client:
-            resp = await client.put(url, headers=DISCORD_HEADERS)
-            # Handle Rate Limits
-            while resp.status_code == 429:
-                retry_after = float(resp.headers["X-Ratelimit-Reset-After"])
-                await asyncio.sleep(retry_after)
-                resp = await client.put(url, headers=DISCORD_HEADERS)
-
-            resp.raise_for_status()
