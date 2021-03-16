@@ -12,16 +12,17 @@ In this document:
 
 ## Form
 
-| Field               | Type                                      | Description                                                                               | Example                                  |
-| ------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `id`                | Unique identifier                         | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)        | `"ban-appeals"`                          |
-| `features`          | List of [form features](#form-features)   | A list of features to change the behaviour of the form, described in the features section | `["OPEN", "COLLECT_EMAIL"]`              |
-| `questions`         | List of [form questions](#form-question)  | The list of questions to render on a specific form                                        | Too long! See below                      |
-| `name`              | String                                    | Name of the form                                                                          | `"Summer Code Jam 2100"`                 |
-| `description`       | String                                    | Form description                                                                          | `"This is my amazing form description."` |
-| `webhook`           | [Webhook object](#webhooks)               | An optional discord webhook.                                                              | See webhook documentation.               |
-| `submitted_text`    | Optional[String]                          | An optional string for the response upon submitting.                                      | `"This is my amazing form response."`    |
-| `discord_role`      | String (optional)                         | Discord role ID what will be assigned, required when `ASSIGN_ROLE` flag provided.         | `784467518298259466`                     |
+| Field               | Type                                      | Description                                                                                                                                       | Example                                  |
+| ------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `id`                | Unique identifier                         | A user selected, unique, descriptive identifier (used in URL routes, so no spaces)                                                                | `"ban-appeals"`                          |
+| `features`          | List of [form features](#form-features)   | A list of features to change the behaviour of the form, described in the features section                                                         | `["OPEN", "COLLECT_EMAIL"]`              |
+| `questions`         | List of [form questions](#form-question)  | The list of questions to render on a specific form                                                                                                | Too long! See below                      |
+| `name`              | String                                    | Name of the form                                                                                                                                  | `"Summer Code Jam 2100"`                 |
+| `description`       | String                                    | Form description                                                                                                                                  | `"This is my amazing form description."` |
+| `webhook`           | [Webhook object](#webhooks)               | An optional discord webhook.                                                                                                                      | See webhook documentation.               |
+| `submitted_text`    | Optional[String]                          | An optional string for the response upon submitting.                                                                                              | `"This is my amazing form response."`    |
+| `discord_role`      | String (optional)                         | Discord role ID what will be assigned, required when `ASSIGN_ROLE` flag provided.                                                                 | `784467518298259466`                     |
+| `dm_message`        | Optional[String]                          | A message to send to the user after submitting a form. Can use [message variables](#message-variables). Required when `SEND_DM` flag is provided. | `"Hello world!"`                         |
 
 ### Form features
 
@@ -34,6 +35,7 @@ In this document:
 | `DISABLE_ANTISPAM` | Disable the anti-spam checks from running on a form submission.               |
 | `WEBHOOK_ENABLED`  | The form should notify the webhook. Has no effect if no webhook is set.       |
 | `ASSIGN_ROLE`      | The form should assign role to user. Requires `REQUIRES_LOGIN`.               |
+| `SEND_DM`          | The form should send a DM to the user. Requires `REQUIRES_LOGIN`.             |
 
 ### Webhooks
 Discord webhooks to send information upon form submission.
@@ -41,10 +43,10 @@ Discord webhooks to send information upon form submission.
 | Field     | Type   | Description                                                                                               |
 | ----------| ------ | --------------------------------------------------------------------------------------------------------- |
 | `url`     | String | Discord webhook URL.                                                                                      |
-| `message` | String | An optional message to include before the embed. Can use certain [context variables](#webhook-variables). |
+| `message` | String | An optional message to include before the embed. Can use certain [context variables](#message-variables). |
 
 
-#### Webhook Variables
+#### Message Variables
 The following variables can be used in a webhook's message. The variables must be wrapped by braces (`{}`).
 
 | Name          | Description                                                                  |

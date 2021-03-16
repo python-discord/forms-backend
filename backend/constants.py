@@ -73,6 +73,7 @@ class FormFeatures(Enum):
     DISABLE_ANTISPAM = "DISABLE_ANTISPAM"
     WEBHOOK_ENABLED = "WEBHOOK_ENABLED"
     ASSIGN_ROLE = "ASSIGN_ROLE"
+    SEND_DM = "SEND_DM"
 
 
 class WebHook(Enum):

@@ -14,7 +14,14 @@ PUBLIC_FIELDS = [
     "name",
     "description",
     "submitted_text",
-    "discord_role"
+    "discord_role",
+    "dm_message",
+]
+
+REQUIRES_LOGIN_FEATURES = [
+    FormFeatures.COLLECT_EMAIL,
+    FormFeatures.ASSIGN_ROLE,
+    FormFeatures.SEND_DM,
 ]
 
 
@@ -43,6 +50,7 @@ class Form(BaseModel):
     submitted_text: t.Optional[str] = None
     webhook: _WebHook = None
     discord_role: t.Optional[str]
+    dm_message: t.Optional[str]
 
     class Config:
         allow_population_by_field_name = True
@@ -57,13 +65,9 @@ class Form(BaseModel):
             raise ValueError("Form features list contains one or more invalid values.")
 
         if FormFeatures.REQUIRES_LOGIN.value not in value:
-            if FormFeatures.COLLECT_EMAIL.value in value:
-                raise ValueError(
-                    "COLLECT_EMAIL feature require REQUIRES_LOGIN feature."
-                )
-
-            if FormFeatures.ASSIGN_ROLE.value in value:
-                raise ValueError("ASSIGN_ROLE feature require REQUIRES_LOGIN feature.")
+            for feature in REQUIRES_LOGIN_FEATURES:
+                if feature.value in value:
+                    raise ValueError(f"{feature.value} feature requires REQUIRES_LOGIN feature.")
 
         return value
 
@@ -76,6 +80,19 @@ class Form(BaseModel):
         ):
             raise ValueError(
                 "discord_role field is required when ASSIGN_ROLE flag is provided."
+            )
+
+        return values
+
+    @root_validator
+    def validate_dm_message(cls, values: dict[str, t.Any]) -> t.Optional[dict[str, t.Any]]:
+        """Validates message provided when flag provided."""
+        if (
+            FormFeatures.SEND_DM.value in values.get("features", [])
+            and not values.get("dm_message")
+        ):
+            raise ValueError(
+                "dm_message field is required when SEND_DM flag is provided."
             )
 
         return values

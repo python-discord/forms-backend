@@ -197,6 +197,14 @@ class SubmitForm(Route):
                     request_user=request.user
                 )
 
+            if constants.FormFeatures.SEND_DM.value in form.features:
+                tasks.add_task(
+                    discord.send_direct_message,
+                    form=form,
+                    response=response_obj,
+                    user=request.user
+                )
+
             return JSONResponse({
                 "form": form.dict(admin=False),
                 "response": response_obj.dict()
