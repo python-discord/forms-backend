@@ -1,13 +1,21 @@
 import typing as t
 
 import httpx
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
 from backend.constants import FormFeatures, WebHook
 from .question import Question
 
-PUBLIC_FIELDS = ["id", "features", "questions", "name", "description", "submitted_text"]
+PUBLIC_FIELDS = [
+    "id",
+    "features",
+    "questions",
+    "name",
+    "description",
+    "submitted_text",
+    "discord_role"
+]
 
 
 class _WebHook(BaseModel):
@@ -34,6 +42,7 @@ class Form(BaseModel):
     description: str
     submitted_text: t.Optional[str] = None
     webhook: _WebHook = None
+    discord_role: t.Optional[str]
 
     class Config:
         allow_population_by_field_name = True
@@ -47,10 +56,29 @@ class Form(BaseModel):
         if any(v not in allowed_values for v in value):
             raise ValueError("Form features list contains one or more invalid values.")
 
-        if FormFeatures.COLLECT_EMAIL in value and FormFeatures.REQUIRES_LOGIN not in value:
-            raise ValueError("COLLECT_EMAIL feature require REQUIRES_LOGIN feature.")
+        if FormFeatures.REQUIRES_LOGIN.value not in value:
+            if FormFeatures.COLLECT_EMAIL.value in value:
+                raise ValueError(
+                    "COLLECT_EMAIL feature require REQUIRES_LOGIN feature."
+                )
+
+            if FormFeatures.ASSIGN_ROLE.value in value:
+                raise ValueError("ASSIGN_ROLE feature require REQUIRES_LOGIN feature.")
 
         return value
+
+    @root_validator
+    def validate_role(cls, values: dict[str, t.Any]) -> t.Optional[dict[str, t.Any]]:
+        """Validates does Discord role provided when flag provided."""
+        if (
+            FormFeatures.ASSIGN_ROLE.value in values.get("features", [])
+            and not values.get("discord_role")
+        ):
+            raise ValueError(
+                "discord_role field is required when ASSIGN_ROLE flag is provided."
+            )
+
+        return values
 
     def dict(self, admin: bool = True, **kwargs: t.Any) -> dict[str, t.Any]:
         """Wrapper for original function to exclude private data for public access."""

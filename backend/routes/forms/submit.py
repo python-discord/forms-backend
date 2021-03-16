@@ -2,6 +2,7 @@
 Submit a form.
 """
 
+import asyncio
 import binascii
 import datetime
 import hashlib
@@ -12,7 +13,7 @@ import httpx
 from pydantic import ValidationError
 from pydantic.main import BaseModel
 from spectree import Response
-from starlette.background import BackgroundTask
+from starlette.background import BackgroundTasks
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -27,6 +28,10 @@ from backend.validation import ErrorMessage, api
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded"
+}
+
+DISCORD_HEADERS = {
+    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"
 }
 
 
@@ -180,19 +185,26 @@ class SubmitForm(Route):
                 response_obj.dict(by_alias=True)
             )
 
-            send_webhook = None
+            tasks = BackgroundTasks()
             if constants.FormFeatures.WEBHOOK_ENABLED.value in form.features:
-                send_webhook = BackgroundTask(
+                tasks.add_task(
                     self.send_submission_webhook,
                     form=form,
                     response=response_obj,
                     request_user=request.user
                 )
 
+            if constants.FormFeatures.ASSIGN_ROLE.value in form.features:
+                tasks.add_task(
+                    self.assign_role,
+                    form=form,
+                    request_user=request.user
+                )
+
             return JSONResponse({
                 "form": form.dict(admin=False),
                 "response": response_obj.dict()
-            }, background=send_webhook)
+            }, background=tasks)
 
         else:
             return JSONResponse({
@@ -203,7 +215,7 @@ class SubmitForm(Route):
     async def send_submission_webhook(
             form: Form,
             response: FormResponse,
-            request_user: Request.user
+            request_user: User
     ) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
@@ -262,3 +274,24 @@ class SubmitForm(Route):
         async with httpx.AsyncClient() as client:
             r = await client.post(form.webhook.url, json=hook)
             r.raise_for_status()
+
+    @staticmethod
+    async def assign_role(form: Form, request_user: User) -> None:
+        """Assigns Discord role to user when user submitted response."""
+        if not form.discord_role:
+            raise ValueError("Got empty Discord role ID.")
+
+        url = (
+            f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
+            f"/members/{request_user.payload['id']}/roles/{form.discord_role}"
+        )
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.put(url, headers=DISCORD_HEADERS)
+            # Handle Rate Limits
+            while resp.status_code == 429:
+                retry_after = float(resp.headers["X-Ratelimit-Reset-After"])
+                await asyncio.sleep(retry_after)
+                resp = await client.put(url, headers=DISCORD_HEADERS)
+
+            resp.raise_for_status()

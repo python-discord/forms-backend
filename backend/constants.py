@@ -28,6 +28,8 @@ FORMS_BACKEND_DSN = os.getenv("FORMS_BACKEND_DSN")
 DOCS_PASSWORD = os.getenv("DOCS_PASSWORD")
 
 SECRET_KEY = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(30)).decode())
+DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+DISCORD_GUILD = os.getenv("DISCORD_GUILD", 267624335836053506)
 
 HCAPTCHA_API_SECRET = os.getenv("HCAPTCHA_API_SECRET")
 
@@ -60,6 +62,8 @@ REQUIRED_QUESTION_TYPE_DATA = {
     },
 }
 
+DISCORD_API_BASE_URL = "https://discord.com/api/v8"
+
 
 class FormFeatures(Enum):
     """Lists form features. Read more in SCHEMA.md."""
@@ -70,6 +74,7 @@ class FormFeatures(Enum):
     COLLECT_EMAIL = "COLLECT_EMAIL"
     DISABLE_ANTISPAM = "DISABLE_ANTISPAM"
     WEBHOOK_ENABLED = "WEBHOOK_ENABLED"
+    ASSIGN_ROLE = "ASSIGN_ROLE"
 
 
 class WebHook(Enum):
