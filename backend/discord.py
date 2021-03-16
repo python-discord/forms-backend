@@ -7,7 +7,6 @@ import httpx
 from starlette.requests import Request
 
 from backend import constants
-from backend.authentication.user import User
 from backend.models import Form, FormResponse
 
 API_BASE_URL = "https://discord.com/api/v8/"
@@ -136,7 +135,7 @@ async def send_submission_webhook(
     await make_request("POST", form.webhook.url, hook)
 
 
-async def assign_role(form: Form, request_user: User) -> None:
+async def assign_role(form: Form, request_user: Request.user) -> None:
     """Assigns Discord role to user when user submitted response."""
     if not form.discord_role:
         raise ValueError("Got empty Discord role ID.")
