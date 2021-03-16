@@ -7,7 +7,15 @@ from pydantic.error_wrappers import ErrorWrapper, ValidationError
 from backend.constants import FormFeatures, WebHook
 from .question import Question
 
-PUBLIC_FIELDS = ["id", "features", "questions", "name", "description", "submitted_text", "discord_role"]
+PUBLIC_FIELDS = [
+    "id",
+    "features",
+    "questions",
+    "name",
+    "description",
+    "submitted_text",
+    "discord_role"
+]
 
 
 class _WebHook(BaseModel):
