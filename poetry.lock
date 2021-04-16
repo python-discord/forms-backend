@@ -292,7 +292,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "spectree"
-version = "0.4.1"
+version = "0.4.2"
 description = "generate OpenAPI document and validate request&response with Python annotations."
 category = "main"
 optional = false
@@ -393,7 +393,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "16ba5455bf1b598ef9a2f8b64bbcd16d6caa0066cf93c08657300d1001e143c7"
+content-hash = "7d6369652edd127a9cf36c90fa244c1f4e257ca366ab6a6b9734fae0e70aa9fa"
 
 [metadata.files]
 certifi = [
@@ -614,8 +614,8 @@ sniffio = [
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
 ]
 spectree = [
-    {file = "spectree-0.4.1-py3-none-any.whl", hash = "sha256:432c4d3d150b703b791e81168c6788800de621ed19f6f21897eba3c381f9d4e2"},
-    {file = "spectree-0.4.1.tar.gz", hash = "sha256:cb8b9d0792fe0a4125f828a6cc0b954ca3e4b7610f17b0998265aeb812ba3d55"},
+    {file = "spectree-0.4.2-py3-none-any.whl", hash = "sha256:eb1ebef556be289715e4b502bb5683058e4d1f8a1be673e9a49f210e2bb5ff33"},
+    {file = "spectree-0.4.2.tar.gz", hash = "sha256:821e3002faab128355bb6bc26695c12d7eeedca931ed73ec29360c73b6967122"},
 ]
 starlette = [
     {file = "starlette-0.14.2-py3-none-any.whl", hash = "sha256:3c8e48e52736b3161e34c9f0e8153b4f32ec5d8995a3ee1d59410d92f75162ed"},
