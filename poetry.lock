@@ -138,7 +138,7 @@ python-versions = "*"
 
 [[package]]
 name = "motor"
-version = "2.3.1"
+version = "2.4.0"
 description = "Non-blocking MongoDB driver for Tornado or asyncio"
 category = "main"
 optional = false
@@ -146,6 +146,9 @@ python-versions = ">=3.5.2"
 
 [package.dependencies]
 pymongo = ">=3.11,<4"
+
+[package.extras]
+encryption = ["pymongo[encryption] (>=3.11,<4)"]
 
 [[package]]
 name = "nested-dict"
@@ -390,7 +393,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "3c1bcca340c27b76a4ebf522b349154d05e3a3d2bb17bb63eb9ba6631748cb7c"
+content-hash = "16ba5455bf1b598ef9a2f8b64bbcd16d6caa0066cf93c08657300d1001e143c7"
 
 [metadata.files]
 certifi = [
@@ -455,8 +458,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 motor = [
-    {file = "motor-2.3.1-py3-none-any.whl", hash = "sha256:ea5a8f5c7cbb08b7c301d7c66746fc96333d634182df236dff0f814f802fe232"},
-    {file = "motor-2.3.1.tar.gz", hash = "sha256:319df35ef9d4099dc125b7d46b552fa88578675e0b06cab94624c666bb0a8a90"},
+    {file = "motor-2.4.0-py3-none-any.whl", hash = "sha256:839c11a43897dbec8e5ba0e87a9c9b877239803126877b2efa5cef89aa6b687a"},
+    {file = "motor-2.4.0.tar.gz", hash = "sha256:1196db507142ef8f00d953efa2f37b39335ef2d72af6ce4fbccfd870b65c5e9f"},
 ]
 nested-dict = [
     {file = "nested_dict-1.61.tar.gz", hash = "sha256:de0fb5bac82ba7bcc23736f09373f18628ea57f92bbaa13480d23f261c41e771"},
