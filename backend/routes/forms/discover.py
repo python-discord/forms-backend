@@ -5,9 +5,32 @@ from spectree.response import Response
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from backend.models import Form, FormList
+from backend import constants
+from backend.models import Form, FormList, Question
 from backend.route import Route
 from backend.validation import api
+
+__FEATURES = [
+    constants.FormFeatures.DISCOVERABLE.value,
+    constants.FormFeatures.OPEN.value,
+    constants.FormFeatures.REQUIRES_LOGIN.value
+]
+
+__QUESTION = Question(
+    id="description",
+    name="Check your cookies after pressing the button.",
+    type="section",
+    data={"text": "You can find cookies under \"Application\" in dev tools."},
+    required=False
+)
+
+EMPTY_FORM = Form(
+    id="empty_auth",
+    features=__FEATURES,
+    questions=[__QUESTION],
+    name="Auth form",
+    description="An empty form to help you get a token."
+)
 
 
 class DiscoverableFormsList(Route):
@@ -31,6 +54,8 @@ class DiscoverableFormsList(Route):
 
         forms = [form.dict(admin=False) for form in forms]
 
-        return JSONResponse(
-            forms
-        )
+        # Return an empty form in development environments to help with authentication.
+        if not forms and not constants.PRODUCTION:
+            forms.append(EMPTY_FORM.dict(admin=False))
+
+        return JSONResponse(forms)
