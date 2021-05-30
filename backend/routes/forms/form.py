@@ -47,6 +47,7 @@ class SingleForm(Route):
 
     @requires(["authenticated", "admin"])
     @api.validate(
+        json=Form,
         resp=Response(
             HTTP_200=OkayResponse,
             HTTP_400=ErrorMessage,
@@ -61,7 +62,8 @@ class SingleForm(Route):
         form_id = {"_id": request.path_params["form_id"]}
         if raw_form := await request.state.db.forms.find_one(form_id):
             if "_id" in data or "id" in data:
-                return JSONResponse({"error": "locked_field"}, status_code=400)
+                if (data.get("id") or data.get("_id")) != form_id["_id"]:
+                    return JSONResponse({"error": "locked_field"}, status_code=400)
 
             # Build Data Merger
             merge_strategy = [
