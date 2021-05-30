@@ -233,7 +233,7 @@ class SubmitForm(Route):
         embed = {
             "title": "New Form Response",
             "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{constants.FRONTEND_URL}/path_to_view_form/{response.id}",  # noqa # TODO: Enter Form View URL
+            "url": f"{constants.FRONTEND_URL}/form/{form.id}/{response.id}",
             "timestamp": response.timestamp,
             "color": 7506394,
         }
