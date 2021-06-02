@@ -169,7 +169,7 @@ class SubmitForm(Route):
                 unittest_results = await execute_unittest(response_obj, form)
 
                 failures = []
-                status_code = 403
+                status_code = 422
 
                 for test in unittest_results:
                     response_obj.response[test.question_id] = {
