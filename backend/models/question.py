@@ -8,11 +8,13 @@ _TESTS_TYPE = t.Union[t.Dict[str, str], int]
 
 
 class Unittests(BaseModel):
+    """Schema model for unittest suites in code questions."""
     allow_failure: bool = False
     tests: _TESTS_TYPE
 
     @validator("tests")
     def validate_tests(cls, value: _TESTS_TYPE) -> _TESTS_TYPE:
+        """Confirm that at least one test exists in a test suite."""
         if isinstance(value, dict) and not len(value.keys()):
             raise ValueError("Must have at least one test in a test suite.")
 
@@ -20,6 +22,7 @@ class Unittests(BaseModel):
 
 
 class CodeQuestion(BaseModel):
+    """Schema model for questions of type `code`."""
     language: str
     unittests: t.Optional[Unittests]
 
