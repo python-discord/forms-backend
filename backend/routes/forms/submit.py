@@ -178,8 +178,15 @@ class SubmitForm(Route):
                     }
 
                     if test.return_code == 0:
-                        test_names = [] if test.passed else test.result.split(";")
-                        response_obj.response[test.question_id]["failures"] = test_names
+                        failure_names = [] if test.passed else test.result.split(";")
+                    elif test.return_code == 5:
+                        failure_names = ["Could not parse user code."]
+                    elif test.return_code == 6:
+                        failure_names = ["Could not load user code."]
+                    else:
+                        failure_names = ["Internal error."]
+
+                    response_obj.response[test.question_id]["failures"] = failure_names
 
                     # Report a failure on internal errors,
                     # or if the test suite doesn't allow failures
