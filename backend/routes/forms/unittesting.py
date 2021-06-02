@@ -7,13 +7,15 @@ import httpx
 from httpx import HTTPStatusError
 
 from backend.constants import SNEKBOX_URL
-from backend.models import FormResponse, Form
+from backend.models import Form, FormResponse
 
 with open("resources/unittest_template.py") as file:
     TEST_TEMPLATE = file.read()
 
 
-UnittestResult = namedtuple("UnittestResult", "question_id return_code passed result")
+UnittestResult = namedtuple(
+    "UnittestResult", "question_id question_index return_code passed result"
+)
 
 
 def filter_unittests(form: Form) -> Form:
@@ -119,6 +121,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
 
             unittest_results.append(UnittestResult(
                 question_id=question.id,
+                question_index=index,
                 return_code=return_code,
                 passed=passed,
                 result=result
