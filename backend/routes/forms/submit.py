@@ -195,6 +195,7 @@ class SubmitForm(Route):
                             form.questions[test.question_index].data["unittests"]["allow_failure"]
                         )
 
+                        # An error while communicating with the test runner
                         if test.return_code == 99:
                             failures.append(test)
                             status_code = 500
