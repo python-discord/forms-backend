@@ -4,6 +4,25 @@ from pydantic import BaseModel, Field, root_validator, validator
 
 from backend.constants import QUESTION_TYPES, REQUIRED_QUESTION_TYPE_DATA
 
+_TESTS_TYPE = t.Union[t.Dict[str, str], int]
+
+
+class Unittests(BaseModel):
+    allow_failure: bool = False
+    tests: _TESTS_TYPE
+
+    @validator("tests")
+    def validate_tests(cls, value: _TESTS_TYPE) -> _TESTS_TYPE:
+        if isinstance(value, dict) and not len(value.keys()):
+            raise ValueError("Must have at least one test in a test suite.")
+
+        return value
+
+
+class CodeQuestion(BaseModel):
+    language: str
+    unittests: t.Optional[Unittests]
+
 
 class Question(BaseModel):
     """Schema model for form question."""
@@ -48,5 +67,9 @@ class Question(BaseModel):
                     f"Question data key '{key}' expects {data_type.__name__}, "
                     f"got {type(value['data'][key]).__name__} instead."
                 )
+
+            # Validate unittest options
+            if value.get("type").lower() == "code":
+                value["data"] = CodeQuestion(**value.get("data")).dict()
 
         return value

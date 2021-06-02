@@ -24,7 +24,7 @@ def filter_unittests(form: Form) -> Form:
     """
     for question in form.questions:
         if question.type == "code" and "unittests" in question.data:
-            question.data["unittests"] = len(question.data["unittests"])
+            question.data["unittests"]["tests"] = len(question.data["unittests"]["tests"])
 
     return form
 
@@ -62,7 +62,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
     """Execute all the unittests in this form and return the results."""
     unittest_results = []
 
-    for question in form.questions:
+    for index, question in enumerate(form.questions):
         if question.type == "code" and "unittests" in question.data:
             passed = False
 
@@ -70,12 +70,12 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
             hidden_test_counter = count(1)
             hidden_tests = {
                 test.lstrip("#").lstrip("test_"): next(hidden_test_counter)
-                for test in question.data["unittests"].keys()
+                for test in question.data["unittests"]["tests"].keys()
                 if test.startswith("#")
             }
 
             # Compose runner code
-            unit_code = _make_unit_code(question.data["unittests"])
+            unit_code = _make_unit_code(question.data["unittests"]["tests"])
             user_code = _make_user_code(form_response.response[question.id])
 
             code = TEST_TEMPLATE.replace("### USER CODE", user_code)

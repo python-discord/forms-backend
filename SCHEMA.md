@@ -128,8 +128,13 @@ Textareas require no additional configuration.
     "language": "python",
     // An optinal mapping of unit tests
     "unittests": {
-        "unit_1": "unit_code()",
-        ...
+        // Record a submission, even if the tests don't pass
+        // Default: false
+        "allow_failure": false,
+        "tests": {
+            "unit_1": "unit_code()",
+            ...
+        }
     }
 }
 ```
