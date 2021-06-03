@@ -45,6 +45,18 @@ class PartialSubmission(BaseModel):
     captcha: Optional[str]
 
 
+class UnittestError(BaseModel):
+    question_id: str
+    question_index: int
+    return_code: int
+    passed: bool
+    result: str
+
+
+class UnittestErrorMessage(ErrorMessage):
+    test_results: list[UnittestError]
+
+
 class SubmitForm(Route):
     """
     Submit a form with the provided form ID.
@@ -58,7 +70,8 @@ class SubmitForm(Route):
         resp=Response(
             HTTP_200=SubmissionResponse,
             HTTP_404=ErrorMessage,
-            HTTP_400=ErrorMessage
+            HTTP_400=ErrorMessage,
+            HTTP_422=UnittestErrorMessage
         ),
         tags=["forms", "responses"]
     )
