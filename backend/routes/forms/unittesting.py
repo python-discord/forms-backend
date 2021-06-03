@@ -65,7 +65,19 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
     unittest_results = []
 
     for index, question in enumerate(form.questions):
-        if question.type == "code" and "unittests" in question.data:
+        if question.type == "code":
+
+            # Exit early if the suite doesn't have any tests
+            if question.data["unittests"] is None:
+                unittest_results.append(UnittestResult(
+                    question_id=question.id,
+                    question_index=index,
+                    return_code=0,
+                    passed=True,
+                    result=""
+                ))
+                continue
+
             passed = False
 
             # Tests starting with an hashtag should have censored names.
