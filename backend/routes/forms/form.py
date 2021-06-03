@@ -1,6 +1,8 @@
 """
 Returns, updates or deletes a single form given an ID.
 """
+import json.decoder
+
 import deepmerge
 from pydantic import ValidationError
 from spectree.response import Response
@@ -47,7 +49,6 @@ class SingleForm(Route):
 
     @requires(["authenticated", "admin"])
     @api.validate(
-        json=Form,
         resp=Response(
             HTTP_200=OkayResponse,
             HTTP_400=ErrorMessage,
@@ -57,7 +58,10 @@ class SingleForm(Route):
     )
     async def patch(self, request: Request) -> JSONResponse:
         """Updates form by ID."""
-        data = await request.json()
+        try:
+            data = await request.json()
+        except json.decoder.JSONDecodeError:
+            return JSONResponse("Expected a JSON body.", 400)
 
         form_id = {"_id": request.path_params["form_id"]}
         if raw_form := await request.state.db.forms.find_one(form_id):
