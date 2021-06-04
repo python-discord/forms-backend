@@ -51,12 +51,14 @@ class FormsList(Route):
         # Verify Webhook
         try:
             # Get url from request
-            url = form_data[WebHook.__name__.lower()][WebHook.URL.value]
+            webhook = form_data[WebHook.__name__.lower()]
+            if webhook is not None:
+                url = webhook[WebHook.URL.value]
 
-            # Validate URL
-            validation = await validate_hook_url(url)
-            if validation:
-                return JSONResponse(validation.errors(), status_code=422)
+                # Validate URL
+                validation = await validate_hook_url(url)
+                if validation:
+                    return JSONResponse(validation.errors(), status_code=422)
 
         except KeyError:
             pass
