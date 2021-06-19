@@ -25,7 +25,7 @@ def filter_unittests(form: Form) -> Form:
     This is used to redact the exact tests when sending the form back to the frontend.
     """
     for question in form.questions:
-        if question.type == "code" and "unittests" in question.data:
+        if question.type == "code" and question.data["unittests"] is not None:
             question.data["unittests"]["tests"] = len(question.data["unittests"]["tests"])
 
     return form
