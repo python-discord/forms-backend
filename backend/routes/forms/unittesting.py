@@ -7,13 +7,15 @@ import httpx
 from httpx import HTTPStatusError
 
 from backend.constants import SNEKBOX_URL
-from backend.models import FormResponse, Form
+from backend.models import Form, FormResponse
 
 with open("resources/unittest_template.py") as file:
     TEST_TEMPLATE = file.read()
 
 
-UnittestResult = namedtuple("UnittestResult", "question_id return_code passed result")
+UnittestResult = namedtuple(
+    "UnittestResult", "question_id question_index return_code passed result"
+)
 
 
 def filter_unittests(form: Form) -> Form:
@@ -23,8 +25,8 @@ def filter_unittests(form: Form) -> Form:
     This is used to redact the exact tests when sending the form back to the frontend.
     """
     for question in form.questions:
-        if question.type == "code" and "unittests" in question.data:
-            question.data["unittests"] = len(question.data["unittests"])
+        if question.type == "code" and question.data["unittests"] is not None:
+            question.data["unittests"]["tests"] = len(question.data["unittests"]["tests"])
 
     return form
 
@@ -62,20 +64,32 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
     """Execute all the unittests in this form and return the results."""
     unittest_results = []
 
-    for question in form.questions:
-        if question.type == "code" and "unittests" in question.data:
+    for index, question in enumerate(form.questions):
+        if question.type == "code":
+
+            # Exit early if the suite doesn't have any tests
+            if question.data["unittests"] is None:
+                unittest_results.append(UnittestResult(
+                    question_id=question.id,
+                    question_index=index,
+                    return_code=0,
+                    passed=True,
+                    result=""
+                ))
+                continue
+
             passed = False
 
             # Tests starting with an hashtag should have censored names.
             hidden_test_counter = count(1)
             hidden_tests = {
                 test.lstrip("#").lstrip("test_"): next(hidden_test_counter)
-                for test in question.data["unittests"].keys()
+                for test in question.data["unittests"]["tests"].keys()
                 if test.startswith("#")
             }
 
             # Compose runner code
-            unit_code = _make_unit_code(question.data["unittests"])
+            unit_code = _make_unit_code(question.data["unittests"]["tests"])
             user_code = _make_user_code(form_response.response[question.id])
 
             code = TEST_TEMPLATE.replace("### USER CODE", user_code)
@@ -119,6 +133,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
 
             unittest_results.append(UnittestResult(
                 question_id=question.id,
+                question_index=index,
                 return_code=return_code,
                 passed=passed,
                 result=result

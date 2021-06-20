@@ -128,8 +128,13 @@ Textareas require no additional configuration.
     "language": "python",
     // An optinal mapping of unit tests
     "unittests": {
-        "unit_1": "unit_code()",
-        ...
+        // Record a submission, even if the tests don't pass
+        // Default: false
+        "allow_failure": false,
+        "tests": {
+            "unit_1": "unit_code()",
+            ...
+        }
     }
 }
 ```
@@ -164,9 +169,24 @@ Textareas require no additional configuration.
 | `_id`/`id`  | MongoDB ObjectID                                     | Random identifier used for the response                                     |
 | `user`      | Optional [user details object](#user-details-object) | An object describing the user that submitted if the form is not anonymous   |
 | `antispam`  | Optional [anti spam object](#anti-spam-object)       | An object containing information about the anti-spam on the form submission |
-| `response`  | Object                                               | Object containing question IDs mapping to the users answer                  |
+| `response`  | Object                                               | Object containing question IDs mapping to the users answer*                 |
 | `form_id`   | String                                               | ID of the form that the user is submitting to                               |
 | `timestamp` | String                                               | ISO formatted string of submission time.                                    |
+
+
+&nbsp;* If the question is of type `code`, the response has the following structure:
+```json
+"response": {
+  "<QUESTION ID>": {
+    "value": "<USER CODE>",
+    "passed": bool,
+    "failures": ["<TEST NAME 1>", "<TEST NAME 4>", "<HIDDEN TEST 1>", ...]
+  },
+  ...
+}
+```
+* Values in `<>` are placeholders, while the rest are actual keys
+* `passed` is True only if all tests in the suite passed.
 
 ### User details object
 

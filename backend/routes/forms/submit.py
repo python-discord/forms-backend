@@ -45,6 +45,18 @@ class PartialSubmission(BaseModel):
     captcha: Optional[str]
 
 
+class UnittestError(BaseModel):
+    question_id: str
+    question_index: int
+    return_code: int
+    passed: bool
+    result: str
+
+
+class UnittestErrorMessage(ErrorMessage):
+    test_results: list[UnittestError]
+
+
 class SubmitForm(Route):
     """
     Submit a form with the provided form ID.
@@ -58,7 +70,8 @@ class SubmitForm(Route):
         resp=Response(
             HTTP_200=SubmissionResponse,
             HTTP_404=ErrorMessage,
-            HTTP_400=ErrorMessage
+            HTTP_400=ErrorMessage,
+            HTTP_422=UnittestErrorMessage
         ),
         tags=["forms", "responses"]
     )
@@ -168,16 +181,46 @@ class SubmitForm(Route):
             if any("unittests" in question.data for question in form.questions):
                 unittest_results = await execute_unittest(response_obj, form)
 
-                if not all(test.passed for test in unittest_results):
-                    # Return 500 if we encountered an internal error (code 99).
-                    status_code = 500 if any(
-                        test.return_code == 99 for test in unittest_results
-                    ) else 403
+                failures = []
+                status_code = 422
 
+                for test in unittest_results:
+                    response_obj.response[test.question_id] = {
+                        "value": response_obj.response[test.question_id],
+                        "passed": test.passed
+                    }
+
+                    if test.return_code == 0:
+                        failure_names = [] if test.passed else test.result.split(";")
+                    elif test.return_code == 5:
+                        failure_names = ["Could not parse user code."]
+                    elif test.return_code == 6:
+                        failure_names = ["Could not load user code."]
+                    else:
+                        failure_names = ["Internal error."]
+
+                    response_obj.response[test.question_id]["failures"] = failure_names
+
+                    # Report a failure on internal errors,
+                    # or if the test suite doesn't allow failures
+                    if not test.passed:
+                        allow_failure = (
+                            form.questions[test.question_index].data["unittests"]["allow_failure"]
+                        )
+
+                        # An error while communicating with the test runner
+                        if test.return_code == 99:
+                            failures.append(test)
+                            status_code = 500
+
+                        elif not allow_failure:
+                            failures.append(test)
+
+                if len(failures):
                     return JSONResponse({
                         "error": "failed_tests",
                         "test_results": [
-                            test._asdict() for test in unittest_results if not test.passed
+                            test._asdict() for test in failures
                         ]
                     }, status_code=status_code)
 
