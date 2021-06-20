@@ -10,8 +10,10 @@ from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from backend import constants
 from backend.models import Form
 from backend.route import Route
+from backend.routes.forms.discover import EMPTY_FORM
 from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
@@ -30,9 +32,10 @@ class SingleForm(Route):
     async def get(self, request: Request) -> JSONResponse:
         """Returns single form information by ID."""
         admin = request.user.admin if request.user.is_authenticated else False
+        form_id = request.path_params["form_id"]
 
         filters = {
-            "_id": request.path_params["form_id"]
+            "_id": form_id
         }
 
         if not admin:
@@ -44,6 +47,10 @@ class SingleForm(Route):
                 form = filter_unittests(form)
 
             return JSONResponse(form.dict(admin=admin))
+
+        elif not constants.PRODUCTION and form_id == EMPTY_FORM.id:
+            # Empty form to help with authentication in development.
+            return JSONResponse(EMPTY_FORM.dict(admin=admin))
 
         return JSONResponse({"error": "not_found"}, status_code=404)
 
