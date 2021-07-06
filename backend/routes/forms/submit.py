@@ -276,7 +276,7 @@ class SubmitForm(Route):
         embed = {
             "title": "New Form Response",
             "description": f"{mention} submitted a response to `{form.name}`.",
-            "url": f"{constants.FRONTEND_URL}/form/{form.id}/{response.id}",
+            "url": f"https://forms-api.pythondiscord.com/forms/{form.id}/responses/{response.id}",
             "timestamp": response.timestamp,
             "color": 7506394,
         }
