@@ -1,0 +1,36 @@
+name: Feature Request
+description: New features, or modifications to existing ones
+labels: ["type: feature", triage]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request!
+        
+        Developers need to be able to understand your request,
+        to properly discuss it an implement it. Please fill this
+        form to the best of your ability.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Describe what the feature is for, don't give justification just yet, just give the concrete description of the feature."
+      placeholder: The app needs even more routes.
+    validations:
+      required: true
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: Describe why this feature is necessary, does it fit into one of our epics? Are there any use cases for Forms that we can see this feature being useful for?
+      placeholder: "The current number of routes isn't as high as it should be because..."
+    validations:
+      required: true
+  - type: textarea
+    id: implm
+    attributes:
+      label: Implementation
+      description: If you have any suggestions for engineers, you can leave them here
+      validations:
+        required: false
