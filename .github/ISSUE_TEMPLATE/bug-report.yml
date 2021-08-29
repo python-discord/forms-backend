@@ -16,8 +16,8 @@ body:
       label: Description
       description: A brief overview of what the bug is
       placeholder: Clicking the submit button wipes my harddrive.
-      validations:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: repro
     attributes:
@@ -27,19 +27,19 @@ body:
         1. Create a new form
         2. Submit an empty response
         3. ...
-      validations:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: files
     attributes:
       label: Files
       description: If you have any screenshots, log files, or other files that you believe are relevant, you can attach them here
-      validations:
-        required: false
+    validations:
+      required: false
   - type: textarea
     id: technical
     attributes:
       label: Technical Details
       description: "If you have a technical overview of what is causing the bug please describe it here, don't worry if not"
-      validations:
-        required: false
+    validations:
+      required: false
