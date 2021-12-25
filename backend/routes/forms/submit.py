@@ -116,7 +116,11 @@ class SubmitForm(Route):
 
             if constants.FormFeatures.DISABLE_ANTISPAM.value not in form.features:
                 ip_hash_ctx = hashlib.md5()
-                ip_hash_ctx.update(request.client.host.encode())
+                ip_hash_ctx.update(
+                    request.headers.get(
+                        "Cf-Connecting-IP", request.client.host
+                    ).encode()
+                )
                 ip_hash = binascii.hexlify(ip_hash_ctx.digest())
                 user_agent_hash_ctx = hashlib.md5()
                 user_agent_hash_ctx.update(request.headers["User-Agent"].encode())
