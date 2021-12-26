@@ -32,7 +32,7 @@ class SingleForm(Route):
     async def get(self, request: Request) -> JSONResponse:
         """Returns single form information by ID."""
         admin = request.user.admin if request.user.is_authenticated else False
-        form_id = request.path_params["form_id"]
+        form_id = request.path_params["form_id"].lower()
 
         filters = {
             "_id": form_id
@@ -70,7 +70,7 @@ class SingleForm(Route):
         except json.decoder.JSONDecodeError:
             return JSONResponse("Expected a JSON body.", 400)
 
-        form_id = {"_id": request.path_params["form_id"]}
+        form_id = {"_id": request.path_params["form_id"].lower()}
         if raw_form := await request.state.db.forms.find_one(form_id):
             if "_id" in data or "id" in data:
                 if (data.get("id") or data.get("_id")) != form_id["_id"]:
@@ -90,10 +90,7 @@ class SingleForm(Route):
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
 
-            await request.state.db.forms.replace_one(
-                {"_id": request.path_params["form_id"]},
-                form.dict()
-            )
+            await request.state.db.forms.replace_one(form_id, form.dict())
 
             return JSONResponse(form.dict())
         else:
@@ -107,15 +104,15 @@ class SingleForm(Route):
     async def delete(self, request: Request) -> JSONResponse:
         """Deletes form by ID."""
         if not await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"]}
+            {"_id": request.path_params["form_id"].lower()}
         ):
             return JSONResponse({"error": "not_found"}, status_code=404)
 
         await request.state.db.forms.delete_one(
-            {"_id": request.path_params["form_id"]}
+            {"_id": request.path_params["form_id"].lower()}
         )
         await request.state.db.responses.delete_many(
-            {"form_id": request.path_params["form_id"]}
+            {"form_id": request.path_params["form_id"].lower()}
         )
 
         return JSONResponse({"status": "ok"})
