@@ -1,7 +1,7 @@
 import typing as t
 
 import httpx
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import constr, BaseModel, Field, root_validator, validator
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
 from backend.constants import FormFeatures, WebHook
@@ -35,7 +35,7 @@ class _WebHook(BaseModel):
 class Form(BaseModel):
     """Schema model for form."""
 
-    id: str = Field(alias="_id")
+    id: constr(to_lower=True) = Field(alias="_id")
     features: list[str]
     questions: list[Question]
     name: str
