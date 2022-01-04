@@ -1,4 +1,5 @@
 import typing as t
+import re
 
 import httpx
 from pydantic import constr, BaseModel, Field, root_validator, validator
@@ -17,6 +18,7 @@ PUBLIC_FIELDS = [
     "discord_role"
 ]
 
+WEBHOOK_PATTERN = "(?P<scheme>https?):\/\/(?P<domain>(?:ptb\.|canary\.)?discord(?:app)?\.com)\/api(?:\/)?(?P<api_version>v\d{1,2})?\/webhooks\/(?P<webhook_identifier>\d{17,21})\/(?P<webhook_token>[\w-]{68})"
 
 class _WebHook(BaseModel):
     """Schema model of discord webhooks."""
@@ -26,7 +28,7 @@ class _WebHook(BaseModel):
     @validator("url")
     def validate_url(cls, url: str) -> str:
         """Validates URL parameter."""
-        if "discord.com/api/webhooks/" not in url:
+        if not re.match(WEBHOOK_PATTERN, url):
             raise ValueError("URL must be a discord webhook.")
 
         return url
