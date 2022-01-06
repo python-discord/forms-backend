@@ -13,7 +13,7 @@ uvicorn = {extras = ["standard"], version = "^0.13.4"}
 motor = "^2.4.0"
 python-dotenv = "^0.17.0"
 pyjwt = "^2.0.1"
-httpx = "^0.17.1"
+httpx = "^0.21.3"
 gunicorn = "^20.1.0"
 pydantic = "^1.8.1"
 spectree = "^0.4.2"
