@@ -18,9 +18,9 @@ PUBLIC_FIELDS = [
     "discord_role"
 ]
 
-
-WEBHOOK_PATTERN = "(?P<scheme>https?)://(?P<domain>(?:ptb.|canary.)?discord(?:app)?.com)/api(?:/)?(" \
-                  "?P<api_version>v\\d{1,2})?/webhooks/(?P<webhook_identifier>\\d{17,21})/(?P<webhook_token>[\\w-]{68})"
+WEBHOOK_PATTERN = "(?P<scheme>https?)://(?P<domain>(?:ptb.|canary.)?discord(?:app)?.com)" \
+                  "/api(?:/)?(?P<api_version>v\\d{1,2})?/webhooks/" \
+                  "(?P<webhook_identifier>\\d{17,21})/(?P<webhook_token>[\\w-]{68})"
 
 
 class _WebHook(BaseModel):
