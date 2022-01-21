@@ -234,11 +234,15 @@ class SubmitForm(Route):
 
             tasks = BackgroundTasks()
             if constants.FormFeatures.WEBHOOK_ENABLED.value in form.features:
+                if constants.FormFeatures.REQUIRES_LOGIN.value in form.features:
+                    request_user = request.user
+                else:
+                    request_user = None
                 tasks.add_task(
                     self.send_submission_webhook,
                     form=form,
                     response=response_obj,
-                    request_user=request.user
+                    request_user=request_user
                 )
 
             if constants.FormFeatures.ASSIGN_ROLE.value in form.features:
