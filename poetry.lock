@@ -24,7 +24,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "deepmerge"
-version = "0.2.1"
+version = "1.0.1"
 description = "a toolset to deeply merge python dictionaries."
 category = "main"
 optional = false
@@ -422,7 +422,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "7a759a3c6197e7f233dde612a0c93a5b6d910ba9db8416c1a9b8ea2045cc824a"
+content-hash = "aabfe57efe56ec9548d983c00eeb99bc87e667b4e774cec6d4d27e7446dd62bd"
 
 [metadata.files]
 certifi = [
@@ -438,8 +438,8 @@ colorama = [
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
 deepmerge = [
-    {file = "deepmerge-0.2.1-py2.py3-none-any.whl", hash = "sha256:8270901f85fbe249686236cb18bf4bccc69775da2c2e1fa35de3714d5d9d01b3"},
-    {file = "deepmerge-0.2.1.tar.gz", hash = "sha256:5fbd777507dd86c767048bddb2c50adf7da30f7688fe3f3f4e6ede6226dd4b20"},
+    {file = "deepmerge-1.0.1-py3-none-any.whl", hash = "sha256:f851fff957697cb8f4580b465acf5c2d35841695306ff0abb9cb9c273ad76112"},
+    {file = "deepmerge-1.0.1.tar.gz", hash = "sha256:4b44779ed3d2fb791bb181fc2683423496fea428abb7af37feb23286de7f0a1a"},
 ]
 dnspython = [
     {file = "dnspython-2.2.0-py3-none-any.whl", hash = "sha256:081649da27ced5e75709a1ee542136eaba9842a0fe4c03da4fb0a3d3ed1f3c44"},
