@@ -70,7 +70,7 @@ class Form(BaseModel):
         return value
 
     @validator("response_readers", "editors")
-    def validate_role_scoping(cls, value: t.Optional[list[str]]):
+    def validate_role_scoping(cls, value: t.Optional[list[str]]) -> t.Optional[list[str]]:
         """Ensure special role based permissions aren't granted to the @everyone role."""
         if value and str(DISCORD_GUILD) in value:
             raise ValueError("You can not add the everyone role as an access scope.")

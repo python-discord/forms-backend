@@ -10,7 +10,7 @@ class RoleTags(BaseModel):
     integration_id: typing.Optional[str]
     premium_subscriber: bool
 
-    def __init__(self, **data: typing.Any):
+    def __init__(self, **data: typing.Any) -> None:
         """
         Handle the terrible discord API.
 
