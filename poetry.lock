@@ -31,6 +31,34 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "dnspython"
+version = "2.2.0"
+description = "DNS toolkit"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.extras]
+dnssec = ["cryptography (>=2.6,<37.0)"]
+curio = ["curio (>=1.2,<2.0)", "sniffio (>=1.1,<2.0)"]
+doh = ["h2 (>=4.1.0)", "httpx (>=0.21.1)", "requests (>=2.23.0,<3.0.0)", "requests-toolbelt (>=0.9.1,<0.10.0)"]
+idna = ["idna (>=2.1,<4.0)"]
+trio = ["trio (>=0.14,<0.20)"]
+wmi = ["wmi (>=1.5.1,<2.0.0)"]
+
+[[package]]
+name = "email-validator"
+version = "1.1.3"
+description = "A robust email syntax and deliverability validation library for Python 2.x/3.x."
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+
+[package.dependencies]
+dnspython = ">=1.15.0"
+idna = ">=2.0.0"
+
+[[package]]
 name = "flake8"
 version = "3.9.1"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -175,6 +203,7 @@ optional = false
 python-versions = ">=3.6.1"
 
 [package.dependencies]
+email-validator = {version = ">=1.0.3", optional = true, markers = "extra == \"email\""}
 typing-extensions = ">=3.7.4.3"
 
 [package.extras]
@@ -292,14 +321,14 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "spectree"
-version = "0.4.2"
+version = "0.7.2"
 description = "generate OpenAPI document and validate request&response with Python annotations."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-pydantic = ">=1.2"
+pydantic = {version = ">=1.2", extras = ["email"]}
 
 [package.extras]
 dev = ["pytest (>=6)", "flake8 (>=3.8)", "black (>=20.8b1)", "isort (>=5.6)", "autoflake (>=1.4)"]
@@ -393,7 +422,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "49c748bdda1328fd254edc64938b25f5fe7a1cd532826382b570552eabef6d58"
+content-hash = "7a759a3c6197e7f233dde612a0c93a5b6d910ba9db8416c1a9b8ea2045cc824a"
 
 [metadata.files]
 certifi = [
@@ -411,6 +440,14 @@ colorama = [
 deepmerge = [
     {file = "deepmerge-0.2.1-py2.py3-none-any.whl", hash = "sha256:8270901f85fbe249686236cb18bf4bccc69775da2c2e1fa35de3714d5d9d01b3"},
     {file = "deepmerge-0.2.1.tar.gz", hash = "sha256:5fbd777507dd86c767048bddb2c50adf7da30f7688fe3f3f4e6ede6226dd4b20"},
+]
+dnspython = [
+    {file = "dnspython-2.2.0-py3-none-any.whl", hash = "sha256:081649da27ced5e75709a1ee542136eaba9842a0fe4c03da4fb0a3d3ed1f3c44"},
+    {file = "dnspython-2.2.0.tar.gz", hash = "sha256:e79351e032d0b606b98d38a4b0e6e2275b31a5b85c873e587cc11b73aca026d6"},
+]
+email-validator = [
+    {file = "email_validator-1.1.3-py2.py3-none-any.whl", hash = "sha256:5675c8ceb7106a37e40e2698a57c056756bf3f272cfa8682a4f87ebd95d8440b"},
+    {file = "email_validator-1.1.3.tar.gz", hash = "sha256:aa237a65f6f4da067119b7df3f13e89c25c051327b2b5b66dc075f33d62480d7"},
 ]
 flake8 = [
     {file = "flake8-3.9.1-py2.py3-none-any.whl", hash = "sha256:3b9f848952dddccf635be78098ca75010f073bfe14d2c6bda867154bea728d2a"},
@@ -615,8 +652,8 @@ sniffio = [
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
 ]
 spectree = [
-    {file = "spectree-0.4.2-py3-none-any.whl", hash = "sha256:eb1ebef556be289715e4b502bb5683058e4d1f8a1be673e9a49f210e2bb5ff33"},
-    {file = "spectree-0.4.2.tar.gz", hash = "sha256:821e3002faab128355bb6bc26695c12d7eeedca931ed73ec29360c73b6967122"},
+    {file = "spectree-0.7.2-py3-none-any.whl", hash = "sha256:fc2190e4c2b8f8f8d02e90983dba4fae73bb92101fa78a5586611efefa23e023"},
+    {file = "spectree-0.7.2.tar.gz", hash = "sha256:e182fd2f62431317eb99c3724d2f38db11607f5dfc37eeae70a9afdd93bb5116"},
 ]
 starlette = [
     {file = "starlette-0.14.2-py3-none-any.whl", hash = "sha256:3c8e48e52736b3161e34c9f0e8153b4f32ec5d8995a3ee1d59410d92f75162ed"},
