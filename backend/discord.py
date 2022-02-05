@@ -1,8 +1,13 @@
 """Various utilities for working with the Discord API."""
-import httpx
 
-from backend import constants
-from backend.models import discord_role, discord_user
+import datetime
+import json
+import typing
+
+import httpx
+from pymongo.database import Database
+
+from backend import constants, models
 
 
 async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict:
@@ -40,7 +45,7 @@ async def fetch_user_details(bearer_token: str) -> dict:
         return r.json()
 
 
-async def get_role_info() -> list[discord_role.DiscordRole]:
+async def _get_role_info() -> list[models.DiscordRole]:
     """Get information about the roles in the configured guild."""
     async with httpx.AsyncClient() as client:
         r = await client.get(
@@ -49,11 +54,50 @@ async def get_role_info() -> list[discord_role.DiscordRole]:
         )
 
         r.raise_for_status()
-        return [discord_role.DiscordRole(**role) for role in r.json()]
+        return [models.DiscordRole(**role) for role in r.json()]
 
 
-async def get_member(member_id: str) -> discord_user.DiscordMember:
-    """Get a member by ID from the configured guild."""
+async def get_roles(
+    database: Database, *, force_refresh: bool = False
+) -> list[models.DiscordRole]:
+    """
+    Get a list of all roles from the cache, or discord API if not available.
+
+    If `force_refresh` is True, the cache is skipped and the roles are updated.
+    """
+    collection = database.get_collection("roles")
+
+    if force_refresh:
+        # Drop all values in the collection
+        await collection.delete_many({})
+
+    # `create_index` creates the index if it does not exist, or passes
+    # This handles TTL on role objects
+    await collection.create_index(
+        "inserted_at",
+        expireAfterSeconds=60 * 60 * 24,  # 1 day
+        name="inserted_at",
+    )
+
+    roles = []
+    async for role in collection.find():
+        roles.append(models.DiscordRole(**json.loads(role["data"])))
+
+    if len(roles) == 0:
+        # Fetch roles from the API and insert into the database
+        roles = await _get_role_info()
+        await collection.insert_many({
+            "name": role.name,
+            "id": role.id,
+            "data": role.json(),
+            "inserted_at": datetime.datetime.now(tz=datetime.timezone.utc),
+        } for role in roles)
+
+    return roles
+
+
+async def _fetch_member_api(member_id: str) -> typing.Optional[models.DiscordMember]:
+    """Get a member by ID from the configured guild using the discord API."""
     async with httpx.AsyncClient() as client:
         r = await client.get(
             f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
@@ -61,5 +105,48 @@ async def get_member(member_id: str) -> discord_user.DiscordMember:
             headers={"Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"}
         )
 
+        if r.status_code == 404:
+            return None
+
         r.raise_for_status()
-        return discord_user.DiscordMember(**r.json())
+        return models.DiscordMember(**r.json())
+
+
+async def get_member(
+    database: Database, user_id: str, *, force_refresh: bool = False
+) -> typing.Optional[models.DiscordMember]:
+    """
+    Get a member from the cache, or from the discord API.
+
+    If `force_refresh` is True, the cache is skipped and the entry is updated.
+    None may be returned if the member object does not exist.
+    """
+    collection = database.get_collection("discord_members")
+
+    if force_refresh:
+        await collection.delete_one({"user": user_id})
+
+    # `create_index` creates the index if it does not exist, or passes
+    # This handles TTL on member objects
+    await collection.create_index(
+        "inserted_at",
+        expireAfterSeconds=60 * 60,  # 1 hour
+        name="inserted_at",
+    )
+
+    result = await collection.find_one({"user": user_id})
+
+    if result is not None:
+        return models.DiscordMember(**json.loads(result["data"]))
+
+    member = await _fetch_member_api(user_id)
+
+    if not member:
+        return None
+
+    await collection.insert_one({
+        "user": user_id,
+        "data": member.json(),
+        "inserted_at": datetime.datetime.now(tz=datetime.timezone.utc),
+    })
+    return member

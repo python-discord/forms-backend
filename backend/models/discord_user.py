@@ -43,3 +43,12 @@ class DiscordMember(BaseModel):
     pending: t.Optional[bool]
     permissions: t.Optional[str]
     communication_disabled_until: t.Optional[datetime.datetime]
+
+    def dict(self, *args, **kwargs) -> dict[str, t.Any]:
+        """Convert the model to a python dict, and encode timestamps in a serializable format."""
+        data = super().dict(*args, **kwargs)
+        for field, value in data.items():
+            if isinstance(value, datetime.datetime):
+                data[field] = value.isoformat()
+
+        return data
