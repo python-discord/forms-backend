@@ -7,6 +7,7 @@ import typing
 import httpx
 import starlette.requests
 from pymongo.database import Database
+from starlette import exceptions
 
 from backend import constants, models
 
@@ -151,22 +152,26 @@ async def get_member(
     return member
 
 
-class FormNotFoundError(Exception):
+class FormNotFoundError(exceptions.HTTPException):
     """The requested form was not found."""
+
+
+class UnauthorizedError(exceptions.HTTPException):
+    """You are not authorized to use this resource."""
 
 
 async def _verify_access_helper(
     form_id: str, request: starlette.requests.Request, attribute: str
-) -> bool:
+) -> None:
     """A low level helper to validate access to a form resource based on the user's scopes."""
     # Short circuit all resources for admins
     if "admin" in request.auth.scopes:
-        return True
+        return
 
     form = await request.state.db.forms.find_one({"id": form_id})
 
     if not form:
-        raise FormNotFoundError()
+        raise FormNotFoundError(status_code=404)
 
     form = models.Form(**form)
 
@@ -178,16 +183,16 @@ async def _verify_access_helper(
         role = models.DiscordRole(**json.loads(role["data"]))
 
         if role.name in request.auth.scopes:
-            return True
+            return
 
-    return False
+    raise UnauthorizedError(status_code=401)
 
 
-async def verify_response_access(form_id: str, request: starlette.requests.Request) -> bool:
+async def verify_response_access(form_id: str, request: starlette.requests.Request) -> None:
     """Ensure the user can access responses on the requested resource."""
-    return await _verify_access_helper(form_id, request, "response_readers")
+    await _verify_access_helper(form_id, request, "response_readers")
 
 
-async def verify_edit_access(form_id: str, request: starlette.requests.Request) -> bool:
+async def verify_edit_access(form_id: str, request: starlette.requests.Request) -> None:
     """Ensure the user can view and modify the requested resource."""
-    return await _verify_access_helper(form_id, request, "editors")
+    await _verify_access_helper(form_id, request, "editors")

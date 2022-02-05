@@ -17,7 +17,6 @@ from backend.routes.forms.discover import EMPTY_FORM
 from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
-NOT_FOUND_ERROR = JSONResponse({"error": "not_found"}, status_code=404)
 PUBLIC_FORM_FEATURES = (constants.FormFeatures.OPEN, constants.FormFeatures.DISCOVERABLE)
 
 
@@ -37,13 +36,15 @@ class SingleForm(Route):
         form_id = request.path_params["form_id"].lower()
 
         try:
-            admin = await discord.verify_edit_access(form_id, request)
+            await discord.verify_edit_access(form_id, request)
+            admin = True
         except discord.FormNotFoundError:
             if not constants.PRODUCTION and form_id == EMPTY_FORM.id:
                 # Empty form to help with authentication in development.
                 return JSONResponse(EMPTY_FORM.dict(admin=False))
-            else:
-                return NOT_FOUND_ERROR
+            raise
+        except discord.UnauthorizedError:
+            admin = False
 
         filters = {
             "_id": form_id
@@ -63,7 +64,6 @@ class SingleForm(Route):
         resp=Response(
             HTTP_200=OkayResponse,
             HTTP_400=ErrorMessage,
-            HTTP_401=ErrorMessage,
             HTTP_404=ErrorMessage,
         ),
         tags=["forms"]
@@ -76,12 +76,7 @@ class SingleForm(Route):
             return JSONResponse("Expected a JSON body.", 400)
 
         form_id = request.path_params["form_id"].lower()
-
-        try:
-            if not await discord.verify_edit_access(form_id, request):
-                return JSONResponse({"error": "unauthorized"}, status_code=401)
-        except discord.FormNotFoundError:
-            return NOT_FOUND_ERROR
+        await discord.verify_edit_access(form_id, request)
 
         if raw_form := await request.state.db.forms.find_one({"id": form_id}):
             if "_id" in data or "id" in data:
@@ -116,12 +111,7 @@ class SingleForm(Route):
     async def delete(self, request: Request) -> JSONResponse:
         """Deletes form by ID."""
         form_id = request.path_params["form_id"].lower()
-
-        try:
-            if not await discord.verify_edit_access(form_id, request):
-                return JSONResponse({"error": "unauthorized"}, status_code=401)
-        except discord.FormNotFoundError:
-            return NOT_FOUND_ERROR
+        await discord.verify_edit_access(form_id, request)
 
         await request.state.db.forms.delete_one({"_id": form_id})
         await request.state.db.responses.delete_many({"form_id": form_id})

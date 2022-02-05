@@ -21,18 +21,13 @@ class Response(Route):
 
     @requires(["authenticated"])
     @api.validate(
-        resp=RouteResponse(HTTP_200=FormResponse, HTTP_401=ErrorMessage, HTTP_404=ErrorMessage),
+        resp=RouteResponse(HTTP_200=FormResponse, HTTP_404=ErrorMessage),
         tags=["forms", "responses"]
     )
     async def get(self, request: Request) -> JSONResponse:
         """Return a single form response by ID."""
         form_id = request.path_params["form_id"]
-
-        try:
-            if not await discord.verify_response_access(form_id, request):
-                return JSONResponse({"error": "unauthorized"}, status_code=401)
-        except discord.FormNotFoundError:
-            return JSONResponse({"error": "form_not_found"}, status_code=404)
+        await discord.verify_response_access(form_id, request)
 
         if raw_response := await request.state.db.responses.find_one(
             {

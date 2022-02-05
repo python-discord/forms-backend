@@ -27,17 +27,13 @@ class Responses(Route):
 
     @requires(["authenticated"])
     @api.validate(
-        resp=Response(HTTP_200=ResponseList, HTTP_401=ErrorMessage, HTTP_404=ErrorMessage),
+        resp=Response(HTTP_200=ResponseList),
         tags=["forms", "responses"]
     )
     async def get(self, request: Request) -> JSONResponse:
         """Returns all form responses by form ID."""
         form_id = request.path_params["form_id"]
-        try:
-            if not await discord.verify_response_access(form_id, request):
-                return JSONResponse({"error": "unauthorized"}, 401)
-        except discord.FormNotFoundError:
-            return JSONResponse({"error": "not_found"}, 404)
+        await discord.verify_response_access(form_id, request)
 
         cursor = request.state.db.responses.find(
             {"form_id": form_id}
