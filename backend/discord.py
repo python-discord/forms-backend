@@ -188,3 +188,8 @@ async def _verify_access_helper(
 async def verify_response_access(form_id: str, request: starlette.requests.Request) -> bool:
     """Ensure the user can access responses on the requested resource."""
     return await _verify_access_helper(form_id, request, "response_readers")
+
+
+async def verify_edit_access(form_id: str, request: starlette.requests.Request) -> bool:
+    """Ensure the user can view and modify the requested resource."""
+    return await _verify_access_helper(form_id, request, "editors")

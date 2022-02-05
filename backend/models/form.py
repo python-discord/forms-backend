@@ -44,6 +44,7 @@ class Form(BaseModel):
     webhook: _WebHook = None
     discord_role: t.Optional[str]
     response_readers: t.Optional[list[str]]
+    editors: t.Optional[list[str]]
 
     class Config:
         allow_population_by_field_name = True
@@ -68,7 +69,7 @@ class Form(BaseModel):
 
         return value
 
-    @validator("response_readers")
+    @validator("response_readers", "editors")
     def validate_role_scoping(cls, value: t.Optional[list[str]]):
         """Ensure special role based permissions aren't granted to the @everyone role."""
         if value and str(DISCORD_GUILD) in value:

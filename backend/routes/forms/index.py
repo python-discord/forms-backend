@@ -15,13 +15,13 @@ from backend.validation import ErrorMessage, OkayResponse, api
 
 class FormsList(Route):
     """
-    List all available forms for administrator viewing.
+    List all available forms for authorized viewers.
     """
 
     name = "forms_list_create"
     path = "/"
 
-    @requires(["authenticated", "admin"])
+    @requires(["authenticated", "Admins"])
     @api.validate(resp=Response(HTTP_200=FormList), tags=["forms"])
     async def get(self, request: Request) -> JSONResponse:
         """Return a list of all forms to authenticated users."""
@@ -38,7 +38,7 @@ class FormsList(Route):
             forms
         )
 
-    @requires(["authenticated", "admin"])
+    @requires(["authenticated", "Helpers"])
     @api.validate(
         json=Form,
         resp=Response(HTTP_200=OkayResponse, HTTP_400=ErrorMessage),
