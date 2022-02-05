@@ -47,11 +47,7 @@ class User(BaseUser):
             return []
 
         server_roles = await discord.get_roles(database)
-        roles = []
-
-        for role in server_roles:
-            if role.id in self.member.roles:
-                roles.append(role.name)
+        roles = [role.name for role in server_roles if role.id in self.member.roles]
 
         if "admin" in roles:
             # Protect against collision with the forms admin role

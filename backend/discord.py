@@ -80,9 +80,7 @@ async def get_roles(
         name="inserted_at",
     )
 
-    roles = []
-    async for role in collection.find():
-        roles.append(models.DiscordRole(**json.loads(role["data"])))
+    roles = [models.DiscordRole(**json.loads(role["data"])) async for role in collection.find()]
 
     if len(roles) == 0:
         # Fetch roles from the API and insert into the database
