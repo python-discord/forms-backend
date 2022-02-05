@@ -5,6 +5,7 @@ import json
 import typing
 
 import httpx
+import starlette.requests
 from pymongo.database import Database
 
 from backend import constants, models
@@ -150,3 +151,40 @@ async def get_member(
         "inserted_at": datetime.datetime.now(tz=datetime.timezone.utc),
     })
     return member
+
+
+class FormNotFoundError(Exception):
+    """The requested form was not found."""
+
+
+async def _verify_access_helper(
+    form_id: str, request: starlette.requests.Request, attribute: str
+) -> bool:
+    """A low level helper to validate access to a form resource based on the user's scopes."""
+    # Short circuit all resources for admins
+    if "admin" in request.auth.scopes:
+        return True
+
+    form = await request.state.db.forms.find_one({"id": form_id})
+
+    if not form:
+        raise FormNotFoundError()
+
+    form = models.Form(**form)
+
+    for role_id in getattr(form, attribute) or []:
+        role = await request.state.db.roles.find_one({"id": role_id})
+        if not role:
+            continue
+
+        role = models.DiscordRole(**json.loads(role["data"]))
+
+        if role.name in request.auth.scopes:
+            return True
+
+    return False
+
+
+async def verify_response_access(form_id: str, request: starlette.requests.Request) -> bool:
+    """Ensure the user can access responses on the requested resource."""
+    return await _verify_access_helper(form_id, request, "response_readers")

@@ -1,10 +1,10 @@
 import typing as t
 
 import httpx
-from pydantic import constr, BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, constr, root_validator, validator
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
-from backend.constants import FormFeatures, WebHook
+from backend.constants import DISCORD_GUILD, FormFeatures, WebHook
 from .question import Question
 
 PUBLIC_FIELDS = [
@@ -43,6 +43,7 @@ class Form(BaseModel):
     submitted_text: t.Optional[str] = None
     webhook: _WebHook = None
     discord_role: t.Optional[str]
+    response_readers: t.Optional[list[str]]
 
     class Config:
         allow_population_by_field_name = True
@@ -65,6 +66,13 @@ class Form(BaseModel):
             if FormFeatures.ASSIGN_ROLE.value in value:
                 raise ValueError("ASSIGN_ROLE feature require REQUIRES_LOGIN feature.")
 
+        return value
+
+    @validator("response_readers")
+    def validate_role_scoping(cls, value: t.Optional[list[str]]):
+        """Ensure special role based permissions aren't granted to the @everyone role."""
+        if value and str(DISCORD_GUILD) in value:
+            raise ValueError("You can not add the everyone role as an access scope.")
         return value
 
     @root_validator

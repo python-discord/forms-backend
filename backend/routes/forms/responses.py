@@ -7,9 +7,10 @@ from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from backend import discord
 from backend.models import FormResponse, ResponseList
 from backend.route import Route
-from backend.validation import api, ErrorMessage, OkayResponse
+from backend.validation import ErrorMessage, OkayResponse, api
 
 
 class ResponseIdList(BaseModel):
@@ -24,20 +25,22 @@ class Responses(Route):
     name = "form_responses"
     path = "/{form_id:str}/responses"
 
-    @requires(["authenticated", "admin"])
+    @requires(["authenticated"])
     @api.validate(
-        resp=Response(HTTP_200=ResponseList, HTTP_404=ErrorMessage),
+        resp=Response(HTTP_200=ResponseList, HTTP_401=ErrorMessage, HTTP_404=ErrorMessage),
         tags=["forms", "responses"]
     )
     async def get(self, request: Request) -> JSONResponse:
         """Returns all form responses by form ID."""
-        if not await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"]}
-        ):
+        form_id = request.path_params["form_id"]
+        try:
+            if not await discord.verify_response_access(form_id, request):
+                return JSONResponse({"error": "unauthorized"}, 401)
+        except discord.FormNotFoundError:
             return JSONResponse({"error": "not_found"}, 404)
 
         cursor = request.state.db.responses.find(
-            {"form_id": request.path_params["form_id"]}
+            {"form_id": form_id}
         )
         responses = [
             FormResponse(**response) for response in await cursor.to_list(None)
