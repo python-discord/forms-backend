@@ -72,12 +72,12 @@ try:
     DEVNULL = SimpleNamespace(write=lambda *_: None, flush=lambda *_: None)
 
     RESULT = io.StringIO()
-    ORIGINAL_STDOUT = sys.stdout
+    ORIGINAL_STDOUT = sys.__stdout__
 
     # stdout/err is patched in order to control what is outputted by the runner
-    sys.stdout = DEVNULL
-    sys.stderr = DEVNULL
-    
+    sys.__stdout__ = sys.stdout = DEVNULL
+    sys.__stderr__ = sys.stderr = DEVNULL
+
     # Load the user code as a global module variable
     try:
         module = _load_user_module()
