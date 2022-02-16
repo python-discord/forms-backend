@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.9"
 starlette = "^0.14.2"
 nested_dict = "^1.61"
-uvicorn = {extras = ["standard"], version = "^0.17.4"}
+uvicorn = {extras = ["standard"], version = "^0.17.5"}
 motor = "^2.4.0"
 python-dotenv = "^0.19.2"
 pyjwt = "^2.3.0"
