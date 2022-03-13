@@ -21,7 +21,7 @@ deepmerge = "^1.0.1"
 sentry-sdk = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.9.1"
+flake8 = "^4.0.1"
 flake8-annotations = "^2.7.0"
 
 [build-system]
