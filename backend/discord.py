@@ -164,12 +164,12 @@ async def _verify_access_helper(
     form_id: str, request: starlette.requests.Request, attribute: str
 ) -> None:
     """A low level helper to validate access to a form resource based on the user's scopes."""
-    form = await request.state.db.forms.find_one({"id": form_id})
+    form = await request.state.db.forms.find_one({"_id": form_id})
 
     if not form:
         raise FormNotFoundError(status_code=404)
 
-    # Short circuit all resources for admins
+    # Short circuit all resources for forms admins
     if "admin" in request.auth.scopes:
         return
 

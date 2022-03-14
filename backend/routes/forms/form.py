@@ -78,7 +78,7 @@ class SingleForm(Route):
         form_id = request.path_params["form_id"].lower()
         await discord.verify_edit_access(form_id, request)
 
-        if raw_form := await request.state.db.forms.find_one({"id": form_id}):
+        if raw_form := await request.state.db.forms.find_one({"_id": form_id}):
             if "_id" in data or "id" in data:
                 if (data.get("id") or data.get("_id")) != form_id:
                     return JSONResponse({"error": "locked_field"}, status_code=400)
@@ -97,7 +97,7 @@ class SingleForm(Route):
             except ValidationError as e:
                 return JSONResponse(e.errors(), status_code=422)
 
-            await request.state.db.forms.replace_one({"id": form_id}, form.dict())
+            await request.state.db.forms.replace_one({"_id": form_id}, form.dict())
 
             return JSONResponse(form.dict())
         else:
