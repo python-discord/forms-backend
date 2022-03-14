@@ -175,7 +175,7 @@ async def _verify_access_helper(
 
     form = models.Form(**form)
 
-    for role_id in getattr(form, attribute) or []:
+    for role_id in getattr(form, attribute, []):
         role = await request.state.db.roles.find_one({"id": role_id})
         if not role:
             continue
