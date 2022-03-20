@@ -5,6 +5,7 @@ from starlette import authentication
 from starlette.requests import Request
 
 from backend import constants
+from backend import discord
 # We must import user such way here to avoid circular imports
 from .user import User
 
@@ -60,8 +61,12 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         except Exception:
             raise authentication.AuthenticationError("Could not parse user details.")
 
-        user = User(token, user_details)
-        if await user.fetch_admin_status(request):
+        user = User(
+            token, user_details, await discord.get_member(request.state.db, user_details["id"])
+        )
+        if await user.fetch_admin_status(request.state.db):
             scopes.append("admin")
+
+        scopes.extend(await user.get_user_roles(request.state.db))
 
         return authentication.AuthCredentials(scopes), user

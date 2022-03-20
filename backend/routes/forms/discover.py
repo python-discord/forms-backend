@@ -29,7 +29,7 @@ EMPTY_FORM = Form(
     features=__FEATURES,
     questions=[__QUESTION],
     name="Auth form",
-    description="An empty form to help you get a token."
+    description="An empty form to help you get a token.",
 )
 
 

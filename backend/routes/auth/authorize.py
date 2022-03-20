@@ -17,7 +17,7 @@ from starlette.requests import Request
 from backend import constants
 from backend.authentication.user import User
 from backend.constants import SECRET_KEY
-from backend.discord import fetch_bearer_token, fetch_user_details
+from backend.discord import fetch_bearer_token, fetch_user_details, get_member
 from backend.route import Route
 from backend.validation import ErrorMessage, api
 
@@ -34,8 +34,8 @@ class AuthorizeResponse(BaseModel):
 
 
 async def process_token(
-        bearer_token: dict,
-        request: Request
+    bearer_token: dict,
+    request: Request
 ) -> Union[AuthorizeResponse, AUTH_FAILURE]:
     """Post a bearer token to Discord, and return a JWT and username."""
     interaction_start = datetime.datetime.now()
@@ -46,6 +46,9 @@ async def process_token(
         AUTH_FAILURE.delete_cookie("token")
         return AUTH_FAILURE
 
+    user_id = user_details["id"]
+    member = await get_member(request.state.db, user_id, force_refresh=True)
+
     max_age = datetime.timedelta(seconds=int(bearer_token["expires_in"]))
     token_expiry = interaction_start + max_age
 
@@ -53,11 +56,12 @@ async def process_token(
         "token": bearer_token["access_token"],
         "refresh": bearer_token["refresh_token"],
         "user_details": user_details,
+        "in_guild": bool(member),
         "expiry": token_expiry.isoformat()
     }
 
     token = jwt.encode(data, SECRET_KEY, algorithm="HS256")
-    user = User(token, user_details)
+    user = User(token, user_details, member)
 
     response = responses.JSONResponse({
         "username": user.display_name,
