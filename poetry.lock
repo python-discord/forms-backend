@@ -371,7 +371,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "spectree"
-version = "0.7.6"
+version = "0.9.1"
 description = "generate OpenAPI document and validate request&response with Python annotations."
 category = "main"
 optional = false
@@ -381,7 +381,7 @@ python-versions = ">=3.6"
 pydantic = {version = ">=1.2", extras = ["email"]}
 
 [package.extras]
-dev = ["pytest (>=7.0,<8.0)", "flake8 (>=3.8,<4.0)", "black (>=22.1,<23.0)", "isort (>=5.6,<6.0)", "autoflake (>=1.4,<2.0)"]
+dev = ["pytest (>=7.1,<8.0)", "flake8 (>=4.0,<5.0)", "black (>=22.3,<23.0)", "isort (>=5.10,<6.0)", "autoflake (>=1.4,<2.0)", "mypy (>=0.942)"]
 falcon = ["falcon"]
 flask = ["flask"]
 starlette = ["starlette"]
@@ -477,7 +477,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5778c5a48613b0f1f4bf4e8bf3d7838db28cef9e2b39f548b13613e8daf5decb"
+content-hash = "6d32c0de0c824ad37c794ab4f6f61a43500b5f15174de1fb64f71a34dd69dda1"
 
 [metadata.files]
 anyio = [
@@ -801,8 +801,8 @@ sniffio = [
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
 ]
 spectree = [
-    {file = "spectree-0.7.6-py3-none-any.whl", hash = "sha256:5d950c947f44fc4c54eee5835b32f69fd6010bf44474984cdc831cf27ef26112"},
-    {file = "spectree-0.7.6.tar.gz", hash = "sha256:98ef641f5d48002df0b9da3c78ba5cbd87f5539ae360eee9cbca4f1f06b92aa0"},
+    {file = "spectree-0.9.1-py3-none-any.whl", hash = "sha256:3941be1873639d47cf36e49c1713d9a05328495aca981600d6bf2d03e39b9fac"},
+    {file = "spectree-0.9.1.tar.gz", hash = "sha256:a0730a85d2571b6402cf63589b0d7f5d28b744dfe6b93053f231bff6df882974"},
 ]
 starlette = [
     {file = "starlette-0.19.0-py3-none-any.whl", hash = "sha256:de752c8f6c2ac6ef78bfe44058fc61dc04895eba24d4e47d2ae254ba5c125c5e"},
