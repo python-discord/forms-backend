@@ -42,7 +42,7 @@ class SingleForm(Route):
             if not constants.PRODUCTION and form_id == EMPTY_FORM.id:
                 # Empty form to help with authentication in development.
                 return JSONResponse(EMPTY_FORM.dict(admin=False))
-            raise
+            return JSONResponse({"error": "not_found"}, status_code=404)
         except discord.UnauthorizedError:
             admin = False
 
@@ -53,7 +53,11 @@ class SingleForm(Route):
         if not admin:
             filters["features"] = {"$in": ["OPEN", "DISCOVERABLE"]}
 
-        form = Form(**await request.state.db.forms.find_one(filters))
+        form = await request.state.db.forms.find_one(filters)
+        if not form:
+            return JSONResponse({"error": "not_found"}, status_code=404)
+
+        form = Form(**form)
         if not admin:
             form = filter_unittests(form)
 
