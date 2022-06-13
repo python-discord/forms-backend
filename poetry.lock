@@ -376,11 +376,11 @@ starlette = ["starlette"]
 
 [[package]]
 name = "starlette"
-version = "0.19.0"
+version = "0.20.3"
 description = "The little ASGI library that shines."
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 anyio = ">=3.4.0,<5"
@@ -465,7 +465,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "9f20721dc2e5196709693e7ffbc5fe2e7043afeeb40b790a15ccd94d9676b042"
+content-hash = "d348b179ade85c7350038508484217676414f7aa9861953bdeb803279463c35e"
 
 [metadata.files]
 anyio = [
@@ -789,8 +789,8 @@ spectree = [
     {file = "spectree-0.7.6.tar.gz", hash = "sha256:98ef641f5d48002df0b9da3c78ba5cbd87f5539ae360eee9cbca4f1f06b92aa0"},
 ]
 starlette = [
-    {file = "starlette-0.19.0-py3-none-any.whl", hash = "sha256:de752c8f6c2ac6ef78bfe44058fc61dc04895eba24d4e47d2ae254ba5c125c5e"},
-    {file = "starlette-0.19.0.tar.gz", hash = "sha256:4a1a92aa89dbacc3a4c694a2c112863e88449730ff99b421a9b71fb2213bcd9c"},
+    {file = "starlette-0.20.3-py3-none-any.whl", hash = "sha256:4d39be143dffde65782865ce40f86e5a8986400c5be0217b3cda3e732bfd7233"},
+    {file = "starlette-0.20.3.tar.gz", hash = "sha256:38ef09c1c9a8ea7b7927d2c42d515efbbdbb6ea60dbe88b29abb320824fe16c1"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.0.1-py3-none-any.whl", hash = "sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b"},
