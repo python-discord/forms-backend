@@ -1,10 +1,7 @@
-import typing as t
-
 import ssl
 from motor.motor_asyncio import AsyncIOMotorClient
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Scope, Receive, Send
 
 from backend.constants import DATABASE_URL, DOCS_PASSWORD, MONGO_DATABASE
@@ -34,6 +31,7 @@ class ProtectedDocsMiddleware:
         request = Request(scope)
         if DOCS_PASSWORD and request.url.path.startswith("/docs"):
             if request.cookies.get("docs_password") != DOCS_PASSWORD:
-                await JSONResponse({"status": "unauthorized"}, status_code=403)(scope, receive, send)
+                resp = JSONResponse({"status": "unauthorized"}, status_code=403)
+                await resp(scope, receive, send)
                 return
         await self._app(scope, receive, send)
