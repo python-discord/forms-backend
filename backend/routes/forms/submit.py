@@ -22,6 +22,7 @@ from backend.authentication.user import User
 from backend.models import Form, FormResponse
 from backend.route import Route
 from backend.routes.auth.authorize import set_response_token
+from backend.routes.forms.discover import AUTH_FORM
 from backend.routes.forms.unittesting import execute_unittest
 from backend.validation import ErrorMessage, api
 
@@ -106,9 +107,18 @@ class SubmitForm(Route):
         data = await request.json()
         data["timestamp"] = None
 
-        if form := await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"], "features": "OPEN"}
-        ):
+        form_id = request.path_params["form_id"]
+
+        if form_id == AUTH_FORM.id:
+            response = FormResponse(
+                id="not-submitted",
+                form_id=AUTH_FORM.id,
+                response={question.id: None for question in AUTH_FORM.questions},
+                timestamp=datetime.datetime.now().isoformat()
+            ).dict()
+            return JSONResponse({"form": AUTH_FORM.dict(admin=False), "response": response})
+
+        if form := await request.state.db.forms.find_one({"_id": form_id, "features": "OPEN"}):
             form = Form(**form)
             response = data.copy()
             response["id"] = str(uuid.uuid4())
