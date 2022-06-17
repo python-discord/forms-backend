@@ -13,7 +13,7 @@ from starlette.responses import JSONResponse
 from backend import constants, discord
 from backend.models import Form
 from backend.route import Route
-from backend.routes.forms.discover import EMPTY_FORM
+from backend.routes.forms.discover import AUTH_FORM
 from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
@@ -35,13 +35,14 @@ class SingleForm(Route):
         """Returns single form information by ID."""
         form_id = request.path_params["form_id"].lower()
 
+        if form_id == AUTH_FORM.id:
+            # Empty form for login purposes
+            return JSONResponse(AUTH_FORM.dict(admin=False))
+
         try:
             await discord.verify_edit_access(form_id, request)
             admin = True
         except discord.FormNotFoundError:
-            if not constants.PRODUCTION and form_id == EMPTY_FORM.id:
-                # Empty form to help with authentication in development.
-                return JSONResponse(EMPTY_FORM.dict(admin=False))
             return JSONResponse({"error": "not_found"}, status_code=404)
         except discord.UnauthorizedError:
             admin = False
