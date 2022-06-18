@@ -18,7 +18,7 @@ class DatabaseMiddleware:
             ssl_cert_reqs=ssl.CERT_NONE
         )
         db = client[MONGO_DATABASE]
-        scope["state"].db = db
+        Request(scope).state.db = db
         await self._app(scope, receive, send)
 
 
