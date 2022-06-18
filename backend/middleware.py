@@ -19,7 +19,7 @@ class DatabaseMiddleware:
         )
         db = client[MONGO_DATABASE]
         scope["state"].db = db
-        await self._app(scope, send, receive)
+        await self._app(scope, receive, send)
 
 
 class ProtectedDocsMiddleware:
