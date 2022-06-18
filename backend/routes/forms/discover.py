@@ -11,25 +11,27 @@ from backend.route import Route
 from backend.validation import api
 
 __FEATURES = [
-    constants.FormFeatures.DISCOVERABLE.value,
     constants.FormFeatures.OPEN.value,
     constants.FormFeatures.REQUIRES_LOGIN.value
 ]
+if not constants.PRODUCTION:
+    __FEATURES.append(constants.FormFeatures.DISCOVERABLE.value)
 
 __QUESTION = Question(
     id="description",
-    name="Check your cookies after pressing the button.",
+    name="Click the button below to log into the forms application.",
     type="section",
-    data={"text": "You can find cookies under \"Application\" in dev tools."},
+    data={"text": ""},
     required=False
 )
 
-EMPTY_FORM = Form(
-    id="empty_auth",
+AUTH_FORM = Form(
+    id="login",
     features=__FEATURES,
     questions=[__QUESTION],
-    name="Auth form",
-    description="An empty form to help you get a token.",
+    name="Login",
+    description="Log into Python Discord Forms.",
+    submitted_text="This page can't be submitted."
 )
 
 
@@ -55,7 +57,7 @@ class DiscoverableFormsList(Route):
         forms = [form.dict(admin=False) for form in forms]
 
         # Return an empty form in development environments to help with authentication.
-        if not forms and not constants.PRODUCTION:
-            forms.append(EMPTY_FORM.dict(admin=False))
+        if not constants.PRODUCTION:
+            forms.append(AUTH_FORM.dict(admin=False))
 
         return JSONResponse(forms)
