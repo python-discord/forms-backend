@@ -15,7 +15,7 @@ from unittest import mock
 ### USER CODE
 
 
-class RunnerTestCase(unittest.TestCase):
+class RunnerTestCase(unittest.IsolatedAsyncioTestCase):
 ### UNIT CODE
 
 

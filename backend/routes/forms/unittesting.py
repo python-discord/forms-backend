@@ -36,12 +36,14 @@ def _make_unit_code(units: dict[str, str]) -> str:
     result = ""
 
     for unit_name, unit_code in units.items():
-        test_prefix = "test_" if unit_name != "setUp" else ""
+        # Function definition
+        if unit_name == "setUp":
+            result += "\ndef setUp(self):"
+        else:
+            result += f"\nasync def {unit_name.removeprefix('#')}(self):"
 
-        result += (
-            f"\ndef {test_prefix}{unit_name.removeprefix('#')}(self):"  # Function definition
-            f"\n{indent(unit_code, '    ')}"  # Unit code
-        )
+        # Unite code
+        result += f"\n{indent(unit_code, '    ')}"
 
     return indent(result, "    ")
 
