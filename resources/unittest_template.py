@@ -15,7 +15,7 @@ from unittest import mock
 ### USER CODE
 
 
-class RunnerTestCase(unittest.TestCase):
+class RunnerTestCase(unittest.IsolatedAsyncioTestCase):
 ### UNIT CODE
 
 
@@ -64,8 +64,8 @@ def _main() -> None:
     if not result.wasSuccessful():
         RESULT.write(
             ";".join(chain(
-                (error[0]._testMethodName.lstrip("test_") for error in result.errors),
-                (failure[0]._testMethodName.lstrip("test_") for failure in result.failures)
+                (error[0]._testMethodName.removeprefix("test_") for error in result.errors),
+                (failure[0]._testMethodName.removeprefix("test_") for failure in result.failures)
             ))
         )
 

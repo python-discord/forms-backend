@@ -15,8 +15,10 @@ class Unittests(BaseModel):
     @validator("tests")
     def validate_tests(cls, value: _TESTS_TYPE) -> _TESTS_TYPE:
         """Confirm that at least one test exists in a test suite."""
-        if isinstance(value, dict) and len(value.keys()) == 0:
-            raise ValueError("Must have at least one test in a test suite.")
+        if isinstance(value, dict):
+            keys = len(value.keys()) - (1 if "setUp" in value.keys() else 0)
+            if keys == 0:
+                raise ValueError("Must have at least one test in a test suite.")
 
         return value
 
