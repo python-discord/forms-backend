@@ -36,8 +36,10 @@ def _make_unit_code(units: dict[str, str]) -> str:
     result = ""
 
     for unit_name, unit_code in units.items():
+        test_prefix = "test_" if unit_name != "setUp" else ""
+
         result += (
-            f"\ndef test_{unit_name.lstrip('#')}(unit):"  # Function definition
+            f"\ndef {test_prefix}{unit_name.removeprefix('#')}(self):"  # Function definition
             f"\n{indent(unit_code, '    ')}"  # Unit code
         )
 
@@ -83,7 +85,7 @@ async def execute_unittest(form_response: FormResponse, form: Form) -> list[Unit
             # Tests starting with an hashtag should have censored names.
             hidden_test_counter = count(1)
             hidden_tests = {
-                test.lstrip("#").lstrip("test_"): next(hidden_test_counter)
+                test.removeprefix("#").removeprefix("test_"): next(hidden_test_counter)
                 for test in question.data["unittests"]["tests"].keys()
                 if test.startswith("#")
             }
