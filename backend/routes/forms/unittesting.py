@@ -40,7 +40,8 @@ def _make_unit_code(units: dict[str, str]) -> str:
         if unit_name == "setUp":
             result += "\ndef setUp(self):"
         else:
-            result += f"\nasync def {unit_name.removeprefix('#')}(self):"
+            name = f"test_{unit_name.removeprefix('#').removeprefix('test_')}"
+            result += f"\nasync def {name}(self):"
 
         # Unite code
         result += f"\n{indent(unit_code, '    ')}"
