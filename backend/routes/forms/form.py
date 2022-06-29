@@ -78,7 +78,7 @@ class SingleForm(Route):
         try:
             data = await request.json()
         except json.decoder.JSONDecodeError:
-            return JSONResponse("Expected a JSON body.", 400)
+            return JSONResponse({"error": "Expected a JSON body."}, 400)
 
         form_id = request.path_params["form_id"].lower()
         await discord.verify_edit_access(form_id, request)
