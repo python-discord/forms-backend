@@ -38,6 +38,10 @@ class User(BaseUser):
         return f"<@{self.payload['id']}>"
 
     @property
+    def user_id(self) -> str:
+        return str(self.payload["id"])
+
+    @property
     def decoded_token(self) -> dict[str, any]:
         return jwt.decode(self.token, SECRET_KEY, algorithms=["HS256"])
 

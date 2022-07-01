@@ -10,6 +10,8 @@ import uuid
 from typing import Any, Optional
 
 import httpx
+import pymongo.database
+import sentry_sdk
 from pydantic import ValidationError
 from pydantic.main import BaseModel
 from spectree import Response
@@ -23,7 +25,7 @@ from backend.models import Form, FormResponse
 from backend.route import Route
 from backend.routes.auth.authorize import set_response_token
 from backend.routes.forms.discover import AUTH_FORM
-from backend.routes.forms.unittesting import execute_unittest
+from backend.routes.forms.unittesting import BypassDetectedError, execute_unittest
 from backend.validation import ErrorMessage, api
 
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
@@ -193,7 +195,22 @@ class SubmitForm(Route):
 
             # Run unittests if needed
             if any("unittests" in question.data for question in form.questions):
-                unittest_results = await execute_unittest(response_obj, form)
+                unittest_results, errors = await execute_unittest(response_obj, form)
+
+                if len(errors):
+                    username = getattr(request.user, "user_id", "Unknown")
+                    sentry_sdk.capture_exception(BypassDetectedError(
+                        f"Detected unittest bypass attempt on form {form.id} by {username}. "
+                        f"Submission has been written to reporting database ({response_obj.id})."
+                    ))
+                    database: pymongo.database.Database = request.state.db
+                    await database.get_collection("violations").insert_one({
+                        "user": username,
+                        "bypasses": [error.args[0] for error in errors],
+                        "submission": response_obj.dict(by_alias=True),
+                        "timestamp": response_obj.timestamp,
+                        "id": response_obj.id,
+                    })
 
                 failures = []
                 status_code = 422
@@ -210,6 +227,8 @@ class SubmitForm(Route):
                         failure_names = ["Could not parse user code."]
                     elif test.return_code == 6:
                         failure_names = ["Could not load user code."]
+                    elif test.return_code == 10:
+                        failure_names = ["Bypass detected."]
                     else:
                         failure_names = ["Internal error."]
 
