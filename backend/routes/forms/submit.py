@@ -6,6 +6,7 @@ import asyncio
 import binascii
 import datetime
 import hashlib
+import typing
 import uuid
 from typing import Any, Optional
 
@@ -295,7 +296,7 @@ class SubmitForm(Route):
     async def send_submission_webhook(
             form: Form,
             response: FormResponse,
-            request_user: User
+            request_user: typing.Optional[User]
     ) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
@@ -305,9 +306,7 @@ class SubmitForm(Route):
         try:
             mention = request_user.discord_mention
         except AttributeError:
-            mention = "User"
-
-        user = response.user
+            mention = "A user"
 
         # Build Embed
         embed = {
@@ -319,7 +318,8 @@ class SubmitForm(Route):
         }
 
         # Add author to embed
-        if request_user.is_authenticated:
+        if request_user and request_user.is_authenticated:
+            user = response.user
             embed["author"] = {"name": request_user.display_name}
 
             if user and user.avatar:
