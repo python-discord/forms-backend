@@ -5,11 +5,10 @@ Module to dynamically generate a Starlette routing map based on a directory tree
 import importlib
 import inspect
 import typing as t
-
 from pathlib import Path
 
-from starlette.routing import Route as StarletteRoute, BaseRoute, Mount
 from nested_dict import nested_dict
+from starlette.routing import BaseRoute, Mount, Route as StarletteRoute
 
 from backend.route import Route
 
@@ -28,7 +27,7 @@ def construct_route_map_from_dict(route_dict: dict) -> list[BaseRoute]:
     return route_map
 
 
-def is_route_class(member: t.Any) -> bool:
+def is_route_class(member: t.Any) -> bool:  # noqa: ANN401
     return inspect.isclass(member) and issubclass(member, Route) and member != Route
 
 

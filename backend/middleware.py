@@ -1,8 +1,7 @@
-import ssl
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.types import ASGIApp, Scope, Receive, Send
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from backend.constants import DATABASE_URL, DOCS_PASSWORD, MONGO_DATABASE
 
@@ -15,7 +14,7 @@ class DatabaseMiddleware:
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         client: AsyncIOMotorClient = AsyncIOMotorClient(
             DATABASE_URL,
-            ssl_cert_reqs=ssl.CERT_NONE
+            tlsAllowInvalidCertificates=True
         )
         db = client[MONGO_DATABASE]
         Request(scope).state.db = db
