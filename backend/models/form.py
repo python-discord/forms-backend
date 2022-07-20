@@ -89,7 +89,7 @@ class Form(BaseModel):
 
         return values
 
-    def dict(self, admin: bool = True, **kwargs: t.Any) -> dict[str, t.Any]:
+    def dict(self, admin: bool = True, **kwargs) -> dict[str, t.Any]:
         """Wrapper for original function to exclude private data for public access."""
         data = super().dict(**kwargs)
 
