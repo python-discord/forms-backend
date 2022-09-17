@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.9-slim
+FROM --platform=linux/amd64 ghcr.io/chrislovering/python-poetry-base:3.9-slim
 
 # Allow service to handle stops gracefully
 STOPSIGNAL SIGQUIT
@@ -8,19 +8,12 @@ RUN apt-get update && \
     apt-get install -y gcc make && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install poetry
-
-# Copy dependencies-related files
-COPY poetry.lock .
-COPY pyproject.toml .
-
 # Install dependencies
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev
+WORKDIR /app
+COPY pyproject.toml poetry.lock ./
+RUN poetry install  --without dev
 
 # Copy all files to container
-WORKDIR /app
 COPY . .
 
 # Set Git SHA build argument
@@ -30,4 +23,5 @@ ARG git_sha="development"
 ENV GIT_SHA=$git_sha
 
 # Start the server with uvicorn
+ENTRYPOINT ["poetry", "run"]
 CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker", "backend:app"]
