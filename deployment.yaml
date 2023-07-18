@@ -21,5 +21,3 @@ spec:
           envFrom:
             - secretRef:
                 name: forms-backend-env
-            - secretRef:
-                name: sentry-env
