@@ -43,6 +43,8 @@ def _make_unit_code(units: dict[str, str]) -> str:
         # Function definition
         if unit_name == "setUp":
             result += "\ndef setUp(self):"
+        elif unit_name == "tearDown":
+            result += "\ndef tearDown(self):"
         else:
             name = f"test_{unit_name.removeprefix('#').removeprefix('test_')}"
             result += f"\nasync def {name}(self):"
