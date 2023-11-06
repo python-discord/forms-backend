@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-starlette = "^0.20.4"
+starlette = "^0.32.0"
 nested_dict = "^1.61"
 uvicorn = {extras = ["standard"], version = "^0.18.2"}
 motor = "3.0.0"
