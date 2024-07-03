@@ -18,8 +18,7 @@ PRODUCTION_URL = "https://forms.pythondiscord.com"
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
 OAUTH2_REDIRECT_URI = os.getenv(
-    "OAUTH2_REDIRECT_URI",
-    "https://forms.pythondiscord.com/callback"
+    "OAUTH2_REDIRECT_URI", "https://forms.pythondiscord.com/callback"
 )
 
 GIT_SHA = os.getenv("GIT_SHA", "dev")
@@ -42,6 +41,7 @@ QUESTION_TYPES = [
     "code",
     "range",
     "section",
+    "timezone",
 ]
 
 REQUIRED_QUESTION_TYPE_DATA = {
