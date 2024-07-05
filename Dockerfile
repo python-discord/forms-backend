@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 ghcr.io/chrislovering/python-poetry-base:3.9-slim
+FROM --platform=linux/amd64 ghcr.io/owl-corp/python-poetry-base:3.12-slim
 
 # Allow service to handle stops gracefully
 STOPSIGNAL SIGQUIT
