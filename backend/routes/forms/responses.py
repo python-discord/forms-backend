@@ -1,6 +1,5 @@
-"""
-Returns all form responses by form ID.
-"""
+"""Returns all form responses by form ID."""
+
 from pydantic import BaseModel
 from spectree import Response
 from starlette.authentication import requires
@@ -18,9 +17,7 @@ class ResponseIdList(BaseModel):
 
 
 class Responses(Route):
-    """
-    Returns all form responses by form ID.
-    """
+    """Returns all form responses by form ID."""
 
     name = "form_responses"
     path = "/{form_id:str}/responses"
@@ -28,7 +25,7 @@ class Responses(Route):
     @requires(["authenticated"])
     @api.validate(
         resp=Response(HTTP_200=ResponseList),
-        tags=["forms", "responses"]
+        tags=["forms", "responses"],
     )
     async def get(self, request: Request) -> JSONResponse:
         """Returns all form responses by form ID."""
@@ -36,11 +33,9 @@ class Responses(Route):
         await discord.verify_response_access(form_id, request)
 
         cursor = request.state.db.responses.find(
-            {"form_id": form_id}
+            {"form_id": form_id},
         )
-        responses = [
-            FormResponse(**response) for response in await cursor.to_list(None)
-        ]
+        responses = [FormResponse(**response) for response in await cursor.to_list(None)]
         return JSONResponse([response.dict() for response in responses])
 
     @requires(["authenticated", "admin"])
@@ -49,14 +44,14 @@ class Responses(Route):
         resp=Response(
             HTTP_200=OkayResponse,
             HTTP_404=ErrorMessage,
-            HTTP_400=ErrorMessage
+            HTTP_400=ErrorMessage,
         ),
-        tags=["forms", "responses"]
+        tags=["forms", "responses"],
     )
     async def delete(self, request: Request) -> JSONResponse:
         """Bulk deletes form responses by IDs."""
         if not await request.state.db.forms.find_one(
-            {"_id": request.path_params["form_id"]}
+            {"_id": request.path_params["form_id"]},
         ):
             return JSONResponse({"error": "not_found"}, status_code=404)
 
@@ -67,37 +62,34 @@ class Responses(Route):
         ids = set(response_ids.ids)
 
         cursor = request.state.db.responses.find(
-            {"_id": {"$in": list(ids)}}  # Convert here back to list, may throw error.
+            {"_id": {"$in": list(ids)}},  # Convert here back to list, may throw error.
         )
-        entries = [
-            FormResponse(**submission) for submission in await cursor.to_list(None)
-        ]
+        entries = [FormResponse(**submission) for submission in await cursor.to_list(None)]
         actual_ids = {entry.id for entry in entries}
 
         if len(ids) != len(actual_ids):
             return JSONResponse(
                 {
                     "error": "responses_not_found",
-                    "ids": list(ids - actual_ids)
+                    "ids": list(ids - actual_ids),
                 },
-                status_code=404
+                status_code=404,
             )
 
         if any(entry.form_id != request.path_params["form_id"] for entry in entries):
             return JSONResponse(
                 {
                     "error": "wrong_form",
-                    "ids": list(
-                        entry.id for entry in entries
-                        if entry.id != request.path_params["form_id"]
-                    )
+                    "ids": [
+                        entry.id for entry in entries if entry.id != request.path_params["form_id"]
+                    ],
                 },
-                status_code=400
+                status_code=400,
             )
 
         await request.state.db.responses.delete_many(
             {
-                "_id": {"$in": list(actual_ids)}
-            }
+                "_id": {"$in": list(actual_ids)},
+            },
         )
         return JSONResponse({"status": "ok"})

@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, constr, root_validator, validator
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
 from backend.constants import DISCORD_GUILD, FormFeatures, WebHook
+
 from .question import Question
 
 PUBLIC_FIELDS = [
@@ -14,20 +15,22 @@ PUBLIC_FIELDS = [
     "name",
     "description",
     "submitted_text",
-    "discord_role"
+    "discord_role",
 ]
 
 
 class _WebHook(BaseModel):
     """Schema model of discord webhooks."""
+
     url: str
-    message: t.Optional[str]
+    message: str | None
 
     @validator("url")
     def validate_url(cls, url: str) -> str:
         """Validates URL parameter."""
         if "discord.com/api/webhooks/" not in url:
-            raise ValueError("URL must be a discord webhook.")
+            msg = "URL must be a discord webhook."
+            raise ValueError(msg)
 
         return url
 
@@ -40,56 +43,55 @@ class Form(BaseModel):
     questions: list[Question]
     name: str
     description: str
-    submitted_text: t.Optional[str] = None
+    submitted_text: str | None = None
     webhook: _WebHook = None
-    discord_role: t.Optional[str]
-    response_readers: t.Optional[list[str]]
-    editors: t.Optional[list[str]]
+    discord_role: str | None
+    response_readers: list[str] | None
+    editors: list[str] | None
 
     class Config:
         allow_population_by_field_name = True
 
     @validator("features")
-    def validate_features(cls, value: list[str]) -> t.Optional[list[str]]:
+    def validate_features(cls, value: list[str]) -> list[str]:
         """Validates is all features in allowed list."""
         # Uppercase everything to avoid mixed case in DB
         value = [v.upper() for v in value]
         allowed_values = [v.value for v in FormFeatures.__members__.values()]
         if any(v not in allowed_values for v in value):
-            raise ValueError("Form features list contains one or more invalid values.")
+            msg = "Form features list contains one or more invalid values."
+            raise ValueError(msg)
 
         if FormFeatures.REQUIRES_LOGIN.value not in value:
             if FormFeatures.COLLECT_EMAIL.value in value:
-                raise ValueError(
-                    "COLLECT_EMAIL feature require REQUIRES_LOGIN feature."
-                )
+                msg = "COLLECT_EMAIL feature require REQUIRES_LOGIN feature."
+                raise ValueError(msg)
 
             if FormFeatures.ASSIGN_ROLE.value in value:
-                raise ValueError("ASSIGN_ROLE feature require REQUIRES_LOGIN feature.")
+                msg = "ASSIGN_ROLE feature require REQUIRES_LOGIN feature."
+                raise ValueError(msg)
 
         return value
 
     @validator("response_readers", "editors")
-    def validate_role_scoping(cls, value: t.Optional[list[str]]) -> t.Optional[list[str]]:
+    def validate_role_scoping(cls, value: list[str] | None) -> list[str]:
         """Ensure special role based permissions aren't granted to the @everyone role."""
-        if value and str(DISCORD_GUILD) in value:
-            raise ValueError("You can not add the everyone role as an access scope.")
+        if value and DISCORD_GUILD in value:
+            msg = "You can not add the everyone role as an access scope."
+            raise ValueError(msg)
         return value
 
     @root_validator
-    def validate_role(cls, values: dict[str, t.Any]) -> t.Optional[dict[str, t.Any]]:
+    def validate_role(cls, values: dict[str, t.Any]) -> dict[str, t.Any]:
         """Validates does Discord role provided when flag provided."""
-        if (
-            FormFeatures.ASSIGN_ROLE.value in values.get("features", [])
-            and not values.get("discord_role")
-        ):
-            raise ValueError(
-                "discord_role field is required when ASSIGN_ROLE flag is provided."
-            )
+        is_role_assigner = FormFeatures.ASSIGN_ROLE.value in values.get("features", [])
+        if is_role_assigner and not values.get("discord_role"):
+            msg = "discord_role field is required when ASSIGN_ROLE flag is provided."
+            raise ValueError(msg)
 
         return values
 
-    def dict(self, admin: bool = True, **kwargs) -> dict[str, t.Any]:
+    def dict(self, admin: bool = True, **kwargs) -> dict[str, t.Any]:  # noqa: FBT001, FBT002
         """Wrapper for original function to exclude private data for public access."""
         data = super().dict(**kwargs)
 
@@ -97,10 +99,7 @@ class Form(BaseModel):
 
         if not admin:
             for field in PUBLIC_FIELDS:
-                if field == "id" and kwargs.get("by_alias"):
-                    fetch_field = "_id"
-                else:
-                    fetch_field = field
+                fetch_field = "_id" if field == "id" and kwargs.get("by_alias") else field
 
                 returned_data[field] = data[fetch_field]
         else:
@@ -110,17 +109,20 @@ class Form(BaseModel):
 
 
 class FormList(BaseModel):
-    __root__: t.List[Form]
+    __root__: list[Form]
 
 
-async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
+async def validate_hook_url(url: str) -> ValidationError | None:
     """Validator for discord webhook urls."""
-    async def validate() -> t.Optional[str]:
+
+    async def validate() -> str | None:
         if not isinstance(url, str):
-            raise ValueError("Webhook URL must be a string.")
+            msg = "Webhook URL must be a string."
+            raise TypeError(msg)
 
         if "discord.com/api/webhooks/" not in url:
-            raise ValueError("URL must be a discord webhook.")
+            msg = "URL must be a discord webhook."
+            raise ValueError(msg)
 
         try:
             async with httpx.AsyncClient() as client:
@@ -129,36 +131,32 @@ async def validate_hook_url(url: str) -> t.Optional[ValidationError]:
 
         except httpx.RequestError as error:
             # Catch exceptions in request format
-            raise ValueError(
-                f"Encountered error while trying to connect to url: `{error}`"
-            )
+            msg = f"Encountered error while trying to connect to url: `{error}`"
+            raise ValueError(msg)
 
         except httpx.HTTPStatusError as error:
             # Catch exceptions in response
             status = error.response.status_code
 
             if status == 401:
-                raise ValueError(
-                    "Could not authenticate with target. Please check the webhook url."
-                )
-            elif status == 404:
-                raise ValueError(
-                    "Target could not find webhook url. Please check the webhook url."
-                )
-            else:
-                raise ValueError(
-                    f"Unknown error ({status}) while connecting to target: {error}"
-                )
+                msg = "Could not authenticate with target. Please check the webhook url."
+                raise ValueError(msg)
+            if status == 404:
+                msg = "Target could not find webhook url. Please check the webhook url."
+                raise ValueError(msg)
+
+            msg = f"Unknown error ({status}) while connecting to target: {error}"
+            raise ValueError(msg)
 
         return url
 
     # Validate, and return errors, if any
     try:
         await validate()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         loc = (
             WebHook.__name__.lower(),
-            WebHook.URL.value
+            WebHook.URL.value,
         )
 
         return ValidationError([ErrorWrapper(e, loc=loc)], _WebHook)

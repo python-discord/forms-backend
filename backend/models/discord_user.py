@@ -11,15 +11,15 @@ class _User(BaseModel):
     username: str
     id: str
     discriminator: str
-    avatar: t.Optional[str]
-    bot: t.Optional[bool]
-    system: t.Optional[bool]
-    locale: t.Optional[str]
-    verified: t.Optional[bool]
-    email: t.Optional[str]
-    flags: t.Optional[int]
-    premium_type: t.Optional[int]
-    public_flags: t.Optional[int]
+    avatar: str | None
+    bot: bool | None
+    system: bool | None
+    locale: str | None
+    verified: bool | None
+    email: str | None
+    flags: int | None
+    premium_type: int | None
+    public_flags: int | None
 
 
 class DiscordUser(_User):
@@ -33,16 +33,16 @@ class DiscordMember(BaseModel):
     """A discord guild member."""
 
     user: _User
-    nick: t.Optional[str]
-    avatar: t.Optional[str]
+    nick: str | None
+    avatar: str | None
     roles: list[str]
     joined_at: datetime.datetime
-    premium_since: t.Optional[datetime.datetime]
+    premium_since: datetime.datetime | None
     deaf: bool
     mute: bool
-    pending: t.Optional[bool]
-    permissions: t.Optional[str]
-    communication_disabled_until: t.Optional[datetime.datetime]
+    pending: bool | None
+    permissions: str | None
+    communication_disabled_until: datetime.datetime | None
 
     def dict(self, *args, **kwargs) -> dict[str, t.Any]:
         """Convert the model to a python dict, and encode timestamps in a serializable format."""

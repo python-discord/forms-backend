@@ -27,7 +27,7 @@ sentry_sdk.init(
     dsn=constants.FORMS_BACKEND_DSN,
     send_default_pii=True,
     release=SENTRY_RELEASE,
-    environment=SENTRY_RELEASE
+    environment=SENTRY_RELEASE,
 )
 
 middleware = [
@@ -36,10 +36,10 @@ middleware = [
         allow_origins=["https://forms.pythondiscord.com"],
         allow_origin_regex=ALLOW_ORIGIN_REGEX,
         allow_headers=[
-            "Content-Type"
+            "Content-Type",
         ],
         allow_methods=["*"],
-        allow_credentials=True
+        allow_credentials=True,
     ),
     Middleware(DatabaseMiddleware),
     Middleware(AuthenticationMiddleware, backend=JWTAuthenticationBackend()),

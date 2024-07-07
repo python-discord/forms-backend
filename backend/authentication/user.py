@@ -1,4 +1,3 @@
-import typing
 import typing as t
 
 import jwt
@@ -16,7 +15,7 @@ class User(BaseUser):
         self,
         token: str,
         payload: dict[str, t.Any],
-        member: typing.Optional[models.DiscordMember],
+        member: models.DiscordMember | None,
     ) -> None:
         self.token = token
         self.payload = payload
@@ -31,11 +30,11 @@ class User(BaseUser):
     @property
     def display_name(self) -> str:
         """Return username and discriminator as display name."""
-        return f"{self.payload['username']}#{self.payload['discriminator']}"
+        return f"{self.payload["username"]}#{self.payload["discriminator"]}"
 
     @property
     def discord_mention(self) -> str:
-        return f"<@{self.payload['id']}>"
+        return f"<@{self.payload["id"]}>"
 
     @property
     def user_id(self) -> str:
@@ -61,9 +60,10 @@ class User(BaseUser):
         return roles
 
     async def fetch_admin_status(self, database: Database) -> bool:
-        self.admin = await database.admins.find_one(
-            {"_id": self.payload["id"]}
-        ) is not None
+        query = {"_id": self.payload["id"]}
+        found_admin = await database.admins.find_one(query)
+
+        self.admin = found_admin is not None
 
         return self.admin
 

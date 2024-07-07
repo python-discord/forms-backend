@@ -7,14 +7,13 @@ from backend.constants import DATABASE_URL, DOCS_PASSWORD, MONGO_DATABASE
 
 
 class DatabaseMiddleware:
-
     def __init__(self, app: ASGIApp) -> None:
         self._app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         client: AsyncIOMotorClient = AsyncIOMotorClient(
             DATABASE_URL,
-            tlsAllowInvalidCertificates=True
+            tlsAllowInvalidCertificates=True,
         )
         db = client[MONGO_DATABASE]
         Request(scope).state.db = db
@@ -22,7 +21,6 @@ class DatabaseMiddleware:
 
 
 class ProtectedDocsMiddleware:
-
     def __init__(self, app: ASGIApp) -> None:
         self._app = app
 

@@ -1,6 +1,5 @@
-"""
-Returns, updates or deletes a single form given an ID.
-"""
+"""Returns, updates or deletes a single form given an ID."""
+
 import json.decoder
 
 import deepmerge
@@ -48,7 +47,7 @@ class SingleForm(Route):
             admin = False
 
         filters = {
-            "_id": form_id
+            "_id": form_id,
         }
 
         if not admin:
@@ -71,7 +70,7 @@ class SingleForm(Route):
             HTTP_400=ErrorMessage,
             HTTP_404=ErrorMessage,
         ),
-        tags=["forms"]
+        tags=["forms"],
     )
     async def patch(self, request: Request) -> JSONResponse:
         """Updates form by ID."""
@@ -90,7 +89,7 @@ class SingleForm(Route):
 
             # Build Data Merger
             merge_strategy = [
-                (dict, ["merge"])
+                (dict, ["merge"]),
             ]
             merger = deepmerge.Merger(merge_strategy, ["override"], ["override"])
 
@@ -105,13 +104,12 @@ class SingleForm(Route):
             await request.state.db.forms.replace_one({"_id": form_id}, form.dict())
 
             return JSONResponse(form.dict())
-        else:
-            return JSONResponse({"error": "not_found"}, status_code=404)
+        return JSONResponse({"error": "not_found"}, status_code=404)
 
     @requires(["authenticated", "admin"])
     @api.validate(
         resp=Response(HTTP_200=OkayResponse, HTTP_401=ErrorMessage, HTTP_404=ErrorMessage),
-        tags=["forms"]
+        tags=["forms"],
     )
     async def delete(self, request: Request) -> JSONResponse:
         """Deletes form by ID."""

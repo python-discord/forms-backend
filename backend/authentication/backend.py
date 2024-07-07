@@ -1,11 +1,9 @@
-import typing as t
-
 import jwt
 from starlette import authentication
 from starlette.requests import Request
 
-from backend import constants
-from backend import discord
+from backend import constants, discord
+
 # We must import user such way here to avoid circular imports
 from .user import User
 
@@ -19,20 +17,19 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         try:
             prefix, token = cookie.split()
         except ValueError:
-            raise authentication.AuthenticationError(
-                "Unable to split prefix and token from authorization cookie."
-            )
+            msg = "Unable to split prefix and token from authorization cookie."
+            raise authentication.AuthenticationError(msg)
 
         if prefix.upper() != "JWT":
-            raise authentication.AuthenticationError(
-                f"Invalid authorization cookie prefix '{prefix}'."
-            )
+            msg = f"Invalid authorization cookie prefix '{prefix}'."
+            raise authentication.AuthenticationError(msg)
 
         return token
 
     async def authenticate(
-        self, request: Request
-    ) -> t.Optional[tuple[authentication.AuthCredentials, authentication.BaseUser]]:
+        self,
+        request: Request,
+    ) -> tuple[authentication.AuthCredentials, authentication.BaseUser] | None:
         """Handles JWT authentication process."""
         cookie = request.cookies.get("token")
         if not cookie:
@@ -48,21 +45,25 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         scopes = ["authenticated"]
 
         if not payload.get("token"):
-            raise authentication.AuthenticationError("Token is missing from JWT.")
+            msg = "Token is missing from JWT."
+            raise authentication.AuthenticationError(msg)
         if not payload.get("refresh"):
-            raise authentication.AuthenticationError(
-                "Refresh token is missing from JWT."
-            )
+            msg = "Refresh token is missing from JWT."
+            raise authentication.AuthenticationError(msg)
 
         try:
             user_details = payload.get("user_details")
             if not user_details or not user_details.get("id"):
-                raise authentication.AuthenticationError("Improper user details.")
-        except Exception:
-            raise authentication.AuthenticationError("Could not parse user details.")
+                msg = "Improper user details."
+                raise authentication.AuthenticationError(msg)  # noqa: TRY301
+        except Exception:  # noqa: BLE001
+            msg = "Could not parse user details."
+            raise authentication.AuthenticationError(msg)
 
         user = User(
-            token, user_details, await discord.get_member(request.state.db, user_details["id"])
+            token,
+            user_details,
+            await discord.get_member(request.state.db, user_details["id"]),
         )
         if await user.fetch_admin_status(request.state.db):
             scopes.append("admin")

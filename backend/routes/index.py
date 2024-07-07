@@ -1,6 +1,5 @@
-"""
-Index route for the forms API.
-"""
+"""Index route for the forms API."""
+
 import platform
 
 from pydantic import BaseModel
@@ -20,13 +19,13 @@ class IndexResponse(BaseModel):
         description=(
             "The connecting client, in production this will"
             " be an IP of our internal load balancer"
-        )
+        ),
     )
     sha: str = Field(
-        description="Current release Git SHA in production."
+        description="Current release Git SHA in production.",
     )
     node: str = Field(
-        description="The node that processed the request."
+        description="The node that processed the request.",
     )
 
 
@@ -42,24 +41,22 @@ class IndexRoute(Route):
 
     @api.validate(resp=Response(HTTP_200=IndexResponse))
     def get(self, request: Request) -> JSONResponse:
-        """
-        Return a hello from Python Discord forms!
-        """
+        """Return a hello from Python Discord forms!."""
         response_data = {
             "message": "Hello, world!",
             "client": request.client.host,
             "user": {
-                "authenticated": False
+                "authenticated": False,
             },
             "sha": GIT_SHA,
-            "node": platform.uname().node
+            "node": platform.uname().node,
         }
 
         if request.user.is_authenticated:
             response_data["user"] = {
                 "authenticated": True,
                 "user": request.user.payload,
-                "scopes": request.auth.scopes
+                "scopes": request.auth.scopes,
             }
 
         return JSONResponse(response_data)

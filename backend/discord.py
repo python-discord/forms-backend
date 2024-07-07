@@ -2,7 +2,6 @@
 
 import datetime
 import json
-import typing
 
 import httpx
 import starlette.requests
@@ -17,7 +16,7 @@ async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict
         data = {
             "client_id": constants.OAUTH2_CLIENT_ID,
             "client_secret": constants.OAUTH2_CLIENT_SECRET,
-            "redirect_uri": f"{redirect}/callback"
+            "redirect_uri": f"{redirect}/callback",
         }
 
         if refresh:
@@ -27,9 +26,13 @@ async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict
             data["grant_type"] = "authorization_code"
             data["code"] = code
 
-        r = await client.post(f"{constants.DISCORD_API_BASE_URL}/oauth2/token", headers={
-            "Content-Type": "application/x-www-form-urlencoded"
-        }, data=data)
+        r = await client.post(
+            f"{constants.DISCORD_API_BASE_URL}/oauth2/token",
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            data=data,
+        )
 
         r.raise_for_status()
 
@@ -38,9 +41,12 @@ async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict
 
 async def fetch_user_details(bearer_token: str) -> dict:
     async with httpx.AsyncClient() as client:
-        r = await client.get(f"{constants.DISCORD_API_BASE_URL}/users/@me", headers={
-            "Authorization": f"Bearer {bearer_token}"
-        })
+        r = await client.get(
+            f"{constants.DISCORD_API_BASE_URL}/users/@me",
+            headers={
+                "Authorization": f"Bearer {bearer_token}",
+            },
+        )
 
         r.raise_for_status()
 
@@ -52,7 +58,7 @@ async def _get_role_info() -> list[models.DiscordRole]:
     async with httpx.AsyncClient() as client:
         r = await client.get(
             f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}/roles",
-            headers={"Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"}
+            headers={"Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"},
         )
 
         r.raise_for_status()
@@ -60,7 +66,9 @@ async def _get_role_info() -> list[models.DiscordRole]:
 
 
 async def get_roles(
-    database: Database, *, force_refresh: bool = False
+    database: Database,
+    *,
+    force_refresh: bool = False,
 ) -> list[models.DiscordRole]:
     """
     Get a list of all roles from the cache, or discord API if not available.
@@ -86,23 +94,26 @@ async def get_roles(
     if len(roles) == 0:
         # Fetch roles from the API and insert into the database
         roles = await _get_role_info()
-        await collection.insert_many({
-            "name": role.name,
-            "id": role.id,
-            "data": role.json(),
-            "inserted_at": datetime.datetime.now(tz=datetime.timezone.utc),
-        } for role in roles)
+        await collection.insert_many(
+            {
+                "name": role.name,
+                "id": role.id,
+                "data": role.json(),
+                "inserted_at": datetime.datetime.now(tz=datetime.UTC),
+            }
+            for role in roles
+        )
 
     return roles
 
 
-async def _fetch_member_api(member_id: str) -> typing.Optional[models.DiscordMember]:
+async def _fetch_member_api(member_id: str) -> models.DiscordMember | None:
     """Get a member by ID from the configured guild using the discord API."""
     async with httpx.AsyncClient() as client:
         r = await client.get(
             f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
             f"/members/{member_id}",
-            headers={"Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"}
+            headers={"Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"},
         )
 
         if r.status_code == 404:
@@ -113,8 +124,11 @@ async def _fetch_member_api(member_id: str) -> typing.Optional[models.DiscordMem
 
 
 async def get_member(
-    database: Database, user_id: str, *, force_refresh: bool = False
-) -> typing.Optional[models.DiscordMember]:
+    database: Database,
+    user_id: str,
+    *,
+    force_refresh: bool = False,
+) -> models.DiscordMember | None:
     """
     Get a member from the cache, or from the discord API.
 
@@ -147,7 +161,7 @@ async def get_member(
     await collection.insert_one({
         "user": user_id,
         "data": member.json(),
-        "inserted_at": datetime.datetime.now(tz=datetime.timezone.utc),
+        "inserted_at": datetime.datetime.now(tz=datetime.UTC),
     })
     return member
 
@@ -161,7 +175,9 @@ class UnauthorizedError(exceptions.HTTPException):
 
 
 async def _verify_access_helper(
-    form_id: str, request: starlette.requests.Request, attribute: str
+    form_id: str,
+    request: starlette.requests.Request,
+    attribute: str,
 ) -> None:
     """A low level helper to validate access to a form resource based on the user's scopes."""
     form = await request.state.db.forms.find_one({"_id": form_id})

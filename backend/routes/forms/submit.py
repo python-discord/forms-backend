@@ -1,6 +1,4 @@
-"""
-Submit a form.
-"""
+"""Submit a form."""
 
 import asyncio
 import binascii
@@ -8,10 +6,9 @@ import datetime
 import hashlib
 import typing
 import uuid
-from typing import Any, Optional
+from typing import Any
 
 import httpx
-import pymongo.database
 import sentry_sdk
 from pydantic import ValidationError
 from pydantic.main import BaseModel
@@ -29,13 +26,16 @@ from backend.routes.forms.discover import AUTH_FORM
 from backend.routes.forms.unittesting import BypassDetectedError, execute_unittest
 from backend.validation import ErrorMessage, api
 
+if typing.TYPE_CHECKING:
+    import pymongo.database
+
 HCAPTCHA_VERIFY_URL = "https://hcaptcha.com/siteverify"
 HCAPTCHA_HEADERS = {
-    "Content-Type": "application/x-www-form-urlencoded"
+    "Content-Type": "application/x-www-form-urlencoded",
 }
 
 DISCORD_HEADERS = {
-    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}"
+    "Authorization": f"Bot {constants.DISCORD_BOT_TOKEN}",
 }
 
 
@@ -46,7 +46,7 @@ class SubmissionResponse(BaseModel):
 
 class PartialSubmission(BaseModel):
     response: dict[str, Any]
-    captcha: Optional[str]
+    captcha: str | None
 
 
 class UnittestError(BaseModel):
@@ -62,9 +62,7 @@ class UnittestErrorMessage(ErrorMessage):
 
 
 class SubmitForm(Route):
-    """
-    Submit a form with the provided form ID.
-    """
+    """Submit a form with the provided form ID."""
 
     name = "submit_form"
     path = "/submit/{form_id:str}"
@@ -75,9 +73,9 @@ class SubmitForm(Route):
             HTTP_200=SubmissionResponse,
             HTTP_404=ErrorMessage,
             HTTP_400=ErrorMessage,
-            HTTP_422=UnittestErrorMessage
+            HTTP_422=UnittestErrorMessage,
         ),
-        tags=["forms", "responses"]
+        tags=["forms", "responses"],
     )
     async def post(self, request: Request) -> JSONResponse:
         """Submit a response to the form."""
@@ -92,7 +90,7 @@ class SubmitForm(Route):
                 if old != request.user.token:
                     try:
                         expiry = datetime.datetime.fromisoformat(
-                            request.user.decoded_token.get("expiry")
+                            request.user.decoded_token.get("expiry"),
                         )
                     except ValueError:
                         expiry = None
@@ -117,7 +115,7 @@ class SubmitForm(Route):
                 id="not-submitted",
                 form_id=AUTH_FORM.id,
                 response={question.id: None for question in AUTH_FORM.questions},
-                timestamp=datetime.datetime.now().isoformat()
+                timestamp=datetime.datetime.now().isoformat(),
             ).dict()
             return JSONResponse({"form": AUTH_FORM.dict(admin=False), "response": response})
 
@@ -131,8 +129,9 @@ class SubmitForm(Route):
                 ip_hash_ctx = hashlib.md5()
                 ip_hash_ctx.update(
                     request.headers.get(
-                        "Cf-Connecting-IP", request.client.host
-                    ).encode()
+                        "Cf-Connecting-IP",
+                        request.client.host,
+                    ).encode(),
                 )
                 ip_hash = binascii.hexlify(ip_hash_ctx.digest())
                 user_agent_hash_ctx = hashlib.md5()
@@ -142,12 +141,12 @@ class SubmitForm(Route):
                 async with httpx.AsyncClient() as client:
                     query_params = {
                         "secret": constants.HCAPTCHA_API_SECRET,
-                        "response": data.get("captcha")
+                        "response": data.get("captcha"),
                     }
                     r = await client.post(
                         HCAPTCHA_VERIFY_URL,
                         params=query_params,
-                        headers=HCAPTCHA_HEADERS
+                        headers=HCAPTCHA_HEADERS,
                     )
                     r.raise_for_status()
                     captcha_data = r.json()
@@ -155,7 +154,7 @@ class SubmitForm(Route):
                 response["antispam"] = {
                     "ip_hash": ip_hash.decode(),
                     "user_agent_hash": user_agent_hash.decode(),
-                    "captcha_pass": captcha_data["success"]
+                    "captcha_pass": captcha_data["success"],
                 }
 
             if constants.FormFeatures.REQUIRES_LOGIN.value in form.features:
@@ -164,16 +163,12 @@ class SubmitForm(Route):
                     response["user"]["admin"] = request.user.admin
 
                     if (
-                            constants.FormFeatures.COLLECT_EMAIL.value in form.features
-                            and "email" not in response["user"]
+                        constants.FormFeatures.COLLECT_EMAIL.value in form.features
+                        and "email" not in response["user"]
                     ):
-                        return JSONResponse({
-                            "error": "email_required"
-                        }, status_code=400)
+                        return JSONResponse({"error": "email_required"}, status_code=400)
                 else:
-                    return JSONResponse({
-                        "error": "missing_discord_data"
-                    }, status_code=400)
+                    return JSONResponse({"error": "missing_discord_data"}, status_code=400)
 
             missing_fields = []
             for question in form.questions:
@@ -184,10 +179,13 @@ class SubmitForm(Route):
                         missing_fields.append(question.id)
 
             if missing_fields:
-                return JSONResponse({
-                    "error": "missing_fields",
-                    "fields": missing_fields
-                }, status_code=400)
+                return JSONResponse(
+                    {
+                        "error": "missing_fields",
+                        "fields": missing_fields,
+                    },
+                    status_code=400,
+                )
 
             try:
                 response_obj = FormResponse(**response)
@@ -200,10 +198,12 @@ class SubmitForm(Route):
 
                 if len(errors):
                     username = getattr(request.user, "user_id", "Unknown")
-                    sentry_sdk.capture_exception(BypassDetectedError(
-                        f"Detected unittest bypass attempt on form {form.id} by {username}. "
-                        f"Submission has been written to reporting database ({response_obj.id})."
-                    ))
+                    sentry_sdk.capture_exception(
+                        BypassDetectedError(
+                            f"Detected unittest bypass attempt on form {form.id} by {username}. "
+                            f"Submission has been written to reporting database ({response_obj.id}).",
+                        )
+                    )
                     database: pymongo.database.Database = request.state.db
                     await database.get_collection("violations").insert_one({
                         "user": username,
@@ -219,7 +219,7 @@ class SubmitForm(Route):
                 for test in unittest_results:
                     response_obj.response[test.question_id] = {
                         "value": response_obj.response[test.question_id],
-                        "passed": test.passed
+                        "passed": test.passed,
                     }
 
                     if test.return_code == 0:
@@ -238,9 +238,8 @@ class SubmitForm(Route):
                     # Report a failure on internal errors,
                     # or if the test suite doesn't allow failures
                     if not test.passed:
-                        allow_failure = (
-                            form.questions[test.question_index].data["unittests"]["allow_failure"]
-                        )
+                        question = form.questions[test.question_index]
+                        allow_failure = question.data["unittests"]["allow_failure"]
 
                         # An error while communicating with the test runner
                         if test.return_code == 99:
@@ -251,15 +250,16 @@ class SubmitForm(Route):
                             failures.append(test)
 
                 if len(failures):
-                    return JSONResponse({
-                        "error": "failed_tests",
-                        "test_results": [
-                            test._asdict() for test in failures
-                        ]
-                    }, status_code=status_code)
+                    return JSONResponse(
+                        {
+                            "error": "failed_tests",
+                            "test_results": [test._asdict() for test in failures],
+                        },
+                        status_code=status_code,
+                    )
 
             await request.state.db.responses.insert_one(
-                response_obj.dict(by_alias=True)
+                response_obj.dict(by_alias=True),
             )
 
             tasks = BackgroundTasks()
@@ -272,36 +272,37 @@ class SubmitForm(Route):
                     self.send_submission_webhook,
                     form=form,
                     response=response_obj,
-                    request_user=request_user
+                    request_user=request_user,
                 )
 
             if constants.FormFeatures.ASSIGN_ROLE.value in form.features:
                 tasks.add_task(
                     self.assign_role,
                     form=form,
-                    request_user=request.user
+                    request_user=request.user,
                 )
 
-            return JSONResponse({
-                "form": form.dict(admin=False),
-                "response": response_obj.dict()
-            }, background=tasks)
+            return JSONResponse(
+                {
+                    "form": form.dict(admin=False),
+                    "response": response_obj.dict(),
+                },
+                background=tasks,
+            )
 
-        else:
-            return JSONResponse({
-                "error": "Open form not found"
-            }, status_code=404)
+        return JSONResponse({"error": "Open form not found"}, status_code=404)
 
     @staticmethod
     async def send_submission_webhook(
-            form: Form,
-            response: FormResponse,
-            request_user: typing.Optional[User]
+        form: Form,
+        response: FormResponse,
+        request_user: User | None,
     ) -> None:
         """Helper to send a submission message to a discord webhook."""
         # Stop if webhook is not available
         if form.webhook is None:
-            raise ValueError("Got empty webhook.")
+            msg = "Got empty webhook."
+            raise ValueError(msg)
 
         try:
             mention = request_user.discord_mention
@@ -330,7 +331,7 @@ class SubmitForm(Route):
         hook = {
             "embeds": [embed],
             "allowed_mentions": {"parse": ["users", "roles"]},
-            "username": form.name or "Python Discord Forms"
+            "username": form.name or "Python Discord Forms",
         }
 
         # Set hook message
@@ -345,8 +346,8 @@ class SubmitForm(Route):
                 "time": response.timestamp,
             }
 
-            for key in ctx:
-                message = message.replace(f"{{{key}}}", str(ctx[key]))
+            for key, val in ctx.items():
+                message = message.replace(f"{{{key}}}", str(val))
 
             hook["content"] = message.replace("_USER_MENTION_", mention)
 
@@ -359,11 +360,12 @@ class SubmitForm(Route):
     async def assign_role(form: Form, request_user: User) -> None:
         """Assigns Discord role to user when user submitted response."""
         if not form.discord_role:
-            raise ValueError("Got empty Discord role ID.")
+            msg = "Got empty Discord role ID."
+            raise ValueError(msg)
 
         url = (
             f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
-            f"/members/{request_user.payload['id']}/roles/{form.discord_role}"
+            f"/members/{request_user.payload["id"]}/roles/{form.discord_role}"
         )
 
         async with httpx.AsyncClient() as client:

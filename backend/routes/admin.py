@@ -1,6 +1,5 @@
-"""
-Adds new admin user.
-"""
+"""Adds new admin user."""
+
 from pydantic import BaseModel, Field
 from spectree import Response
 from starlette.authentication import requires
@@ -22,7 +21,7 @@ async def grant(request: Request) -> JSONResponse:
     admin = AdminModel(**data)
 
     if await request.state.db.admins.find_one(
-            {"_id": admin.id}
+        {"_id": admin.id},
     ):
         return JSONResponse({"error": "already_exists"}, status_code=400)
 
@@ -40,7 +39,7 @@ class AdminRoute(Route):
     @api.validate(
         json=AdminModel,
         resp=Response(HTTP_200=OkayResponse, HTTP_400=ErrorMessage),
-        tags=["admin"]
+        tags=["admin"],
     )
     async def post(self, request: Request) -> JSONResponse:
         """Grant a user administrator privileges."""
@@ -48,6 +47,7 @@ class AdminRoute(Route):
 
 
 if not constants.PRODUCTION:
+
     class AdminDev(Route):
         """Adds new admin user with no authentication."""
 
@@ -57,7 +57,7 @@ if not constants.PRODUCTION:
         @api.validate(
             json=AdminModel,
             resp=Response(HTTP_200=OkayResponse, HTTP_400=ErrorMessage),
-            tags=["admin"]
+            tags=["admin"],
         )
         async def post(self, request: Request) -> JSONResponse:
             """
