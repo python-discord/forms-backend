@@ -20,10 +20,50 @@ spectree = "^1.2.10"
 deepmerge = "^1.1.1"
 sentry-sdk = "^2.7.1"
 
-[tool.poetry.dev-dependencies]
-flake8 = "^7.1.0"
-flake8-annotations = "^3.1.1"
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.1"
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.ruff]
+target-version = "py312"
+extend-exclude = [".cache"]
+line-length = 100
+unsafe-fixes = true
+preview = true
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN002", "ANN003", "ANN101", "ANN102", "ANN204", "ANN206", "ANN401",
+    "B904",
+    "C401", "C408",
+    "CPY001",
+    "D100", "D104", "D105", "D107", "D203", "D212", "D214", "D215", "D301",
+    "D400", "D401", "D402", "D404", "D405", "D406", "D407", "D408", "D409", "D410", "D411", "D412", "D413", "D414", "D416", "D417",
+    "E731",
+    "RET504",
+    "RUF005",
+    "S311",
+    "SIM102", "SIM108",
+    "PD",
+    "PLR0913", "PLR0917", "PLR6301",
+    "DTZ003",
+    "INP001",
+    "D102",
+    "D103", "D103", "D101",
+    "S113",
+    "DTZ005",
+    "N805",
+
+    # Rules suggested to be ignored when using ruff format
+    "COM812", "D206", "E111", "E114", "E117", "E501", "ISC001", "Q000", "Q001", "Q002", "Q003", "W191",
+]
+
+[tool.ruff.lint.isort]
+order-by-type = false
+case-sensitive = true
+combine-as-imports = true
