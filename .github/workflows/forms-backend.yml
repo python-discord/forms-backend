@@ -18,13 +18,15 @@ jobs:
       - name: Install Python Dependencies
         uses: HassanAbouelela/actions/setup-python@setup-python_v1.6.0
         with:
-          dev: true
           python_version: "3.12"
+          install_args: "--only dev"
 
-      # Use this formatting to show them as GH Actions annotations.
-      - name: Run flake8
-        run: |
-          flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[flake8] %(code)s: %(text)s'
+      - name: Run pre-commit hooks
+        run: SKIP=ruff-lint pre-commit run --all-files
+
+      # Run `ruff` using github formatting to enable automatic inline annotations.
+      - name: Run ruff
+        run: "ruff check --output-format=github ."
 
       # Prepare the Pull Request Payload artifact. If this fails, we
       # we fail silently using the `continue-on-error` option. It's
@@ -117,5 +119,5 @@ jobs:
           namespace: forms
           manifests: |
             deployment.yaml
-          images: 'ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}'
-          kubectl-version: 'latest'
+          images: "ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}"
+          kubectl-version: "latest"
