@@ -19,4 +19,4 @@ ENV GIT_SHA=$git_sha
 
 # Start the server with uvicorn
 ENTRYPOINT ["poetry", "run"]
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker", "backend:app"]
+CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000"]
