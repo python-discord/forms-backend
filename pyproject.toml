@@ -22,6 +22,7 @@ sentry-sdk = "^2.7.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.1"
+pre-commit = "^3.7.1"
 
 [build-system]
 requires = ["poetry>=0.12"]
