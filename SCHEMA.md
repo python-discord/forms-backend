@@ -71,16 +71,17 @@ The following variables can be used in a webhook's message. The variables must b
 
 #### Question types
 
-| Name         | Description                                               |
-|--------------|-----------------------------------------------------------|
-| `radio`      | Radio buttons                                             |
-| `checkbox`   | Checkbox toggle                                           |
-| `select`     | Dropdown list                                             |
-| `short_text` | One line input field                                      |
-| `textarea`   | Long text input                                           |
-| `code`       | Syntax highlighted code input                             |
-| `range`      | Horizontal drag slider                                    |
-| `section`    | Not an input, just a section of text to explain something |
+| Name         | Description                                                       |
+|--------------|-------------------------------------------------------------------|
+| `radio`      | Radio buttons                                                     |
+| `checkbox`   | Checkbox toggle                                                   |
+| `select`     | Dropdown list                                                     |
+| `short_text` | One line input field                                              |
+| `textarea`   | Long text input                                                   |
+| `code`       | Syntax highlighted code input                                     |
+| `range`      | Horizontal drag slider                                            |
+| `section`    | Not an input, just a section of text to explain something         |
+| `timezone`   | Similar to select, attempts to automatically detect user timezone |
 
 #### Question data
 
@@ -164,6 +165,12 @@ Textareas require no additional configuration.
     "text": "This section will quiz you on A, B and C"
 }
 ```
+
+##### `timezone`
+
+Timezones require no additional options, they will automatically attempt to
+select the users timezone, or allow the user to select one if it is detected
+wrong/could not be detected.
 
 ## Form response
 
