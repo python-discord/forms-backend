@@ -4,16 +4,23 @@ from enum import Enum
 
 from dotenv import load_dotenv
 from redis.asyncio import Redis as _Redis
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 load_dotenv()
 
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://forms.pythondiscord.com")
-DATABASE_URL = os.getenv("DATABASE_URL")
-MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
 SNEKBOX_URL = os.getenv("SNEKBOX_URL", "http://snekbox.default.svc.cluster.local/eval")
 
 REDIS_CLIENT = _Redis.from_url(os.getenv("REDIS_URL"), encoding="utf-8")
+
+MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
+MONGO_DATABASE_URL = os.getenv("MONGO_DATABASE_URL")
+
+PSQL_DATABASE_URL = os.getenv("PSQL_DATABASE_URL")
+DATABASE_ECHO = os.getenv("DATABASE_ECHO", "false").lower() == "true"
+_DB_ENGINE = create_async_engine(PSQL_DATABASE_URL, echo=DATABASE_ECHO)
+DB_SESSION_MAKER = async_sessionmaker(_DB_ENGINE)
 
 PRODUCTION = os.getenv("PRODUCTION", "True").lower() != "false"
 PRODUCTION_URL = "https://forms.pythondiscord.com"

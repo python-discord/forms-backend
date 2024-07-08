@@ -3,7 +3,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from backend.constants import DATABASE_URL, DOCS_PASSWORD, MONGO_DATABASE
+from backend.constants import DB_SESSION_MAKER, DOCS_PASSWORD, MONGO_DATABASE, MONGO_DATABASE_URL
 
 
 class DatabaseMiddleware:
@@ -12,12 +12,14 @@ class DatabaseMiddleware:
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         client: AsyncIOMotorClient = AsyncIOMotorClient(
-            DATABASE_URL,
+            MONGO_DATABASE_URL,
             tlsAllowInvalidCertificates=True,
         )
         db = client[MONGO_DATABASE]
         Request(scope).state.db = db
-        await self._app(scope, receive, send)
+        async with DB_SESSION_MAKER() as session, session.begin():
+            Request(scope).state.psql_db = session
+            await self._app(scope, receive, send)
 
 
 class ProtectedDocsMiddleware:

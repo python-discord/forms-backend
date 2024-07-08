@@ -1,3 +1,6 @@
+import asyncio
+import os
+
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.applications import Starlette
@@ -13,6 +16,10 @@ from backend.authentication import JWTAuthenticationBackend
 from backend.middleware import DatabaseMiddleware, ProtectedDocsMiddleware
 from backend.route_manager import create_route_map
 from backend.validation import api
+
+# On Windows, the selector event loop is required for psycopg.
+if os.name == "nt":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 ORIGINS = [
     r"(https://[^.?#]*--pydis-forms\.netlify\.app)",  # Netlify Previews
