@@ -6,7 +6,8 @@ from starlette.authentication import requires
 from starlette.responses import JSONResponse
 from starlette.routing import Request
 
-from backend import discord, models, route
+from backend import discord, route
+from backend.models import dtos
 from backend.validation import ErrorMessage, api
 
 NOT_FOUND_EXCEPTION = JSONResponse(
@@ -24,7 +25,7 @@ class RolesRoute(route.Route):
     class RolesResponse(pydantic.BaseModel):
         """A list of all roles on the configured server."""
 
-        roles: list[models.DiscordRole]
+        roles: list[dtos.DiscordRole]
 
     @requires(["authenticated", "admin"])
     @api.validate(
@@ -53,7 +54,7 @@ class MemberRoute(route.Route):
 
     @requires(["authenticated", "admin"])
     @api.validate(
-        resp=Response(HTTP_200=models.DiscordMember, HTTP_400=ErrorMessage),
+        resp=Response(HTTP_200=dtos.DiscordMember, HTTP_400=ErrorMessage),
         json=MemberRequest,
         tags=["auth"],
     )
@@ -68,7 +69,7 @@ class MemberRoute(route.Route):
 
     @requires(["authenticated", "admin"])
     @api.validate(
-        resp=Response(HTTP_200=models.DiscordMember, HTTP_400=ErrorMessage),
+        resp=Response(HTTP_200=dtos.DiscordMember, HTTP_400=ErrorMessage),
         json=MemberRequest,
         tags=["auth"],
     )

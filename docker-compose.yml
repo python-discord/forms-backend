@@ -20,22 +20,42 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: backend
+      POSTGRES_PASSWORD: backend
+      POSTGRES_USER: backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backend"]
+      interval: 2s
+      timeout: 1s
+      retries: 5
+    ports:
+      - 5000:5432
+
   backend:
     build: .
     command: ["uvicorn", "--reload", "--host", "0.0.0.0", "backend:app"]
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
-      - mongo
-      - snekbox
-      - redis
+      mongo:
+        condition: service_started
+      snekbox:
+        condition: service_started
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     tty: true
     env_file:
       - .env
     volumes:
       - .:/app:ro
     environment:
-      - DATABASE_URL=mongodb://forms-backend:forms-backend@mongo:27017
+      - MONGO_DATABASE_URL=mongodb://forms-backend:forms-backend@mongo:27017
+      - PSQL_DATABASE_URL=postgresql+psycopg_async://backend:backend@postgres:5432/backend
       - SNEKBOX_URL=http://snekbox:8060/eval
       - OAUTH2_CLIENT_ID
       - OAUTH2_CLIENT_SECRET

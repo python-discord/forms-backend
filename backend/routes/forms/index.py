@@ -6,8 +6,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.constants import WebHook
-from backend.models import Form, FormList
-from backend.models.form import validate_hook_url
+from backend.models.dtos import Form, FormList
+from backend.models.dtos.form import validate_hook_url
 from backend.route import Route
 from backend.validation import ErrorMessage, OkayResponse, api
 

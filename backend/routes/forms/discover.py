@@ -5,7 +5,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend import constants
-from backend.models import Form, FormList, Question
+from backend.models.dtos import Form, FormList, Question
 from backend.route import Route
 from backend.validation import api
 

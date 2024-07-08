@@ -10,7 +10,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend import constants, discord
-from backend.models import Form
+from backend.models.dtos import Form
 from backend.route import Route
 from backend.routes.forms.discover import AUTH_FORM
 from backend.validation import ErrorMessage, OkayResponse, api

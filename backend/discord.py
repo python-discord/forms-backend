@@ -6,7 +6,8 @@ import httpx
 import starlette.requests
 from starlette import exceptions
 
-from backend import constants, models
+from backend import constants
+from backend.models import dtos
 
 
 async def fetch_bearer_token(code: str, redirect: str, *, refresh: bool) -> dict:
@@ -51,7 +52,7 @@ async def fetch_user_details(bearer_token: str) -> dict:
         return r.json()
 
 
-async def _get_role_info() -> list[models.DiscordRole]:
+async def _get_role_info() -> list[dtos.DiscordRole]:
     """Get information about the roles in the configured guild."""
     async with httpx.AsyncClient() as client:
         r = await client.get(
@@ -60,13 +61,13 @@ async def _get_role_info() -> list[models.DiscordRole]:
         )
 
         r.raise_for_status()
-        return [models.DiscordRole(**role) for role in r.json()]
+        return [dtos.DiscordRole(**role) for role in r.json()]
 
 
 async def get_roles(
     *,
     force_refresh: bool = False,
-) -> list[models.DiscordRole]:
+) -> list[dtos.DiscordRole]:
     """
     Get a list of all roles from the cache, or discord API if not available.
 
@@ -77,7 +78,7 @@ async def get_roles(
         roles = await constants.REDIS_CLIENT.hgetall(role_cache_key)
         if roles:
             return [
-                models.DiscordRole(**json.loads(role_data)) for role_id, role_data in roles.items()
+                dtos.DiscordRole(**json.loads(role_data)) for role_id, role_data in roles.items()
             ]
 
     roles = await _get_role_info()
@@ -86,7 +87,7 @@ async def get_roles(
     return roles
 
 
-async def _fetch_member_api(member_id: str) -> models.DiscordMember | None:
+async def _fetch_member_api(member_id: str) -> dtos.DiscordMember | None:
     """Get a member by ID from the configured guild using the discord API."""
     async with httpx.AsyncClient() as client:
         r = await client.get(
@@ -99,14 +100,14 @@ async def _fetch_member_api(member_id: str) -> models.DiscordMember | None:
             return None
 
         r.raise_for_status()
-        return models.DiscordMember(**r.json())
+        return dtos.DiscordMember(**r.json())
 
 
 async def get_member(
     user_id: str,
     *,
     force_refresh: bool = False,
-) -> models.DiscordMember | None:
+) -> dtos.DiscordMember | None:
     """
     Get a member from the cache, or from the discord API.
 
@@ -118,7 +119,7 @@ async def get_member(
     if not force_refresh:
         result = await constants.REDIS_CLIENT.get(member_key)
         if result:
-            return models.DiscordMember(**json.loads(result))
+            return dtos.DiscordMember(**json.loads(result))
 
     member = await _fetch_member_api(user_id)
     if member:
@@ -150,14 +151,14 @@ async def _verify_access_helper(
     if "admin" in request.auth.scopes:
         return
 
-    form = models.Form(**form)
+    form = dtos.Form(**form)
 
     for role_id in getattr(form, attribute, None) or []:
         role = await request.state.db.roles.find_one({"id": role_id})
         if not role:
             continue
 
-        role = models.DiscordRole(**json.loads(role["data"]))
+        role = dtos.DiscordRole(**json.loads(role["data"]))
 
         if role.name in request.auth.scopes:
             return

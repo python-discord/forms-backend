@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend import discord
-from backend.models import Form, FormResponse, Question
+from backend.models.dtos import Form, FormResponse, Question
 from backend.route import Route
 from backend.validation import api
 

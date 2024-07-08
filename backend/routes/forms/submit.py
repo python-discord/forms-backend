@@ -19,7 +19,7 @@ from starlette.responses import JSONResponse
 
 from backend import constants
 from backend.authentication.user import User
-from backend.models import Form, FormResponse
+from backend.models.dtos import Form, FormResponse
 from backend.route import Route
 from backend.routes.auth.authorize import set_response_token
 from backend.routes.forms.discover import AUTH_FORM

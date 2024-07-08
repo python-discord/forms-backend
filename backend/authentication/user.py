@@ -4,8 +4,9 @@ import jwt
 from pymongo.database import Database
 from starlette.authentication import BaseUser
 
-from backend import discord, models
+from backend import discord
 from backend.constants import SECRET_KEY
+from backend.models import dtos
 
 
 class User(BaseUser):
@@ -15,7 +16,7 @@ class User(BaseUser):
         self,
         token: str,
         payload: dict[str, t.Any],
-        member: models.DiscordMember | None,
+        member: dtos.DiscordMember | None,
     ) -> None:
         self.token = token
         self.payload = payload

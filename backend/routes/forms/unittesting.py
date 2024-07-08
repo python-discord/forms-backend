@@ -8,7 +8,7 @@ import httpx
 from httpx import HTTPStatusError
 
 from backend.constants import SNEKBOX_URL
-from backend.models import Form, FormResponse
+from backend.models.dtos import Form, FormResponse
 
 with Path("resources/unittest_template.py").open(encoding="utf8") as file:
     TEST_TEMPLATE = file.read()

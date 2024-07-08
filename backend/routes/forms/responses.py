@@ -7,7 +7,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from backend import discord
-from backend.models import FormResponse, ResponseList
+from backend.models.dtos import FormResponse, ResponseList
 from backend.route import Route
 from backend.validation import ErrorMessage, OkayResponse, api
 
