@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-        
+
         Other developers need to be able to reproduce your bug reports to fix them,
         so please fill the following form to the best of your abilities.
   - type: textarea

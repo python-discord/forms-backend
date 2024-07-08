@@ -1,6 +1,4 @@
-"""
-Module to dynamically generate a Starlette routing map based on a directory tree.
-"""
+"""Module to dynamically generate a Starlette routing map based on a directory tree."""
 
 import importlib
 import inspect
@@ -27,7 +25,7 @@ def construct_route_map_from_dict(route_dict: dict) -> list[BaseRoute]:
     return route_map
 
 
-def is_route_class(member: t.Any) -> bool:  # noqa: ANN401
+def is_route_class(member: t.Any) -> bool:
     return inspect.isclass(member) and issubclass(member, Route) and member != Route
 
 
@@ -35,7 +33,7 @@ def route_classes() -> t.Iterator[tuple[Path, type[Route]]]:
     routes_directory = Path("backend") / "routes"
 
     for module_path in routes_directory.rglob("*.py"):
-        import_name = f"{'.'.join(module_path.parent.parts)}.{module_path.stem}"
+        import_name = f"{".".join(module_path.parent.parts)}.{module_path.stem}"
         route_module = importlib.import_module(import_name)
         for _member_name, member in inspect.getmembers(route_module):
             if is_route_class(member):
@@ -47,7 +45,7 @@ def create_route_map() -> list[BaseRoute]:
     route_dict = nested_dict()
 
     for module_path, member in route_classes():
-        #    module_path == Path("backend/routes/foo/bar/baz/bin.py")
+        #    For Path: "backend/routes/foo/bar/baz/bin.py"
         # => levels == ["foo", "bar", "baz"]
         levels = module_path.parent.parts[2:]
         current_level = None

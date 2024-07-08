@@ -1,9 +1,6 @@
-"""
-Use a token received from the Discord OAuth2 system to fetch user information.
-"""
+"""Use a token received from the Discord OAuth2 system to fetch user information."""
 
 import datetime
-from typing import Union
 
 import httpx
 import jwt
@@ -35,8 +32,8 @@ class AuthorizeResponse(BaseModel):
 
 async def process_token(
     bearer_token: dict,
-    request: Request
-) -> Union[AuthorizeResponse, AUTH_FAILURE]:
+    request: Request,
+) -> AuthorizeResponse | responses.JSONResponse:
     """Post a bearer token to Discord, and return a JWT and username."""
     interaction_start = datetime.datetime.now()
 
@@ -57,7 +54,7 @@ async def process_token(
         "refresh": bearer_token["refresh_token"],
         "user_details": user_details,
         "in_guild": bool(member),
-        "expiry": token_expiry.isoformat()
+        "expiry": token_expiry.isoformat(),
     }
 
     token = jwt.encode(data, SECRET_KEY, algorithm="HS256")
@@ -65,18 +62,18 @@ async def process_token(
 
     response = responses.JSONResponse({
         "username": user.display_name,
-        "expiry": token_expiry.isoformat()
+        "expiry": token_expiry.isoformat(),
     })
 
-    await set_response_token(response, request, token, bearer_token["expires_in"])
+    set_response_token(response, request, token, bearer_token["expires_in"])
     return response
 
 
-async def set_response_token(
-        response: responses.Response,
-        request: Request,
-        new_token: str,
-        expiry: int
+def set_response_token(
+    response: responses.Response,
+    request: Request,
+    new_token: str,
+    expiry: int,
 ) -> None:
     """Helper that handles logic for updating a token in a set-cookie response."""
     origin_url = request.headers.get("origin")
@@ -94,19 +91,18 @@ async def set_response_token(
         samesite = "None"
 
     response.set_cookie(
-        "token", f"JWT {new_token}",
+        "token",
+        f"JWT {new_token}",
         secure=constants.PRODUCTION,
         httponly=True,
         samesite=samesite,
         domain=domain,
-        max_age=expiry
+        max_age=expiry,
     )
 
 
 class AuthorizeRoute(Route):
-    """
-    Use the authorization code from Discord to generate a JWT token.
-    """
+    """Use the authorization code from Discord to generate a JWT token."""
 
     name = "authorize"
     path = "/authorize"
@@ -114,7 +110,7 @@ class AuthorizeRoute(Route):
     @api.validate(
         json=AuthorizeRequest,
         resp=Response(HTTP_200=AuthorizeResponse, HTTP_400=ErrorMessage),
-        tags=["auth"]
+        tags=["auth"],
     )
     async def post(self, request: Request) -> responses.JSONResponse:
         """Generate an authorization token."""
@@ -129,9 +125,7 @@ class AuthorizeRoute(Route):
 
 
 class TokenRefreshRoute(Route):
-    """
-    Use the refresh code from a JWT to get a new token and generate a new JWT token.
-    """
+    """Use the refresh code from a JWT to get a new token and generate a new JWT token."""
 
     name = "refresh"
     path = "/refresh"
@@ -139,7 +133,7 @@ class TokenRefreshRoute(Route):
     @requires(["authenticated"])
     @api.validate(
         resp=Response(HTTP_200=AuthorizeResponse, HTTP_400=ErrorMessage),
-        tags=["auth"]
+        tags=["auth"],
     )
     async def post(self, request: Request) -> responses.JSONResponse:
         """Refresh an authorization token."""

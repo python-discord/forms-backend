@@ -7,7 +7,7 @@ from spectree import SpecTree
 api = SpecTree(
     "starlette",
     TITLE="Python Discord Forms",
-    PATH="docs"
+    PATH="docs",
 )
 
 

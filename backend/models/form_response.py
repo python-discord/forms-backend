@@ -11,19 +11,20 @@ class FormResponse(BaseModel):
     """Schema model for form response."""
 
     id: str = Field(alias="_id")
-    user: t.Optional[DiscordUser]
-    antispam: t.Optional[AntiSpam]
+    user: DiscordUser | None
+    antispam: AntiSpam | None
     response: dict[str, t.Any]
     form_id: str
     timestamp: str
 
     @validator("timestamp", pre=True)
-    def set_timestamp(cls, iso_string: t.Optional[str]) -> t.Optional[str]:
+    def set_timestamp(cls, iso_string: str | None) -> str:
         if iso_string is None:
-            return datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+            return datetime.datetime.now(tz=datetime.UTC).isoformat()
 
-        elif not isinstance(iso_string, str):
-            raise ValueError("Submission timestamp must be a string.")
+        if not isinstance(iso_string, str):
+            msg = "Submission timestamp must be a string."
+            raise TypeError(msg)
 
         # Convert to datetime and back to ensure string is valid
         return datetime.datetime.fromisoformat(iso_string).isoformat()
@@ -33,4 +34,4 @@ class FormResponse(BaseModel):
 
 
 class ResponseList(BaseModel):
-    __root__: t.List[FormResponse]
+    __root__: list[FormResponse]
