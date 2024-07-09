@@ -13,7 +13,6 @@ from backend import constants, discord
 from backend.models import Form
 from backend.route import Route
 from backend.routes.forms.discover import AUTH_FORM
-from backend.routes.forms.unittesting import filter_unittests
 from backend.validation import ErrorMessage, OkayResponse, api
 
 PUBLIC_FORM_FEATURES = (constants.FormFeatures.OPEN, constants.FormFeatures.DISCOVERABLE)
@@ -57,11 +56,7 @@ class SingleForm(Route):
         if not form:
             return JSONResponse({"error": "not_found"}, status_code=404)
 
-        form = Form(**form)
-        if not admin:
-            form = filter_unittests(form)
-
-        return JSONResponse(form.dict(admin=admin))
+        return JSONResponse(Form(**form).dict(admin=admin))
 
     @requires(["authenticated"])
     @api.validate(

@@ -26,19 +26,6 @@ class UnittestResult(NamedTuple):
     result: str
 
 
-def filter_unittests(form: Form) -> Form:
-    """
-    Replace the unittest data section of code questions with the number of test cases.
-
-    This is used to redact the exact tests when sending the form back to the frontend.
-    """
-    for question in form.questions:
-        if question.type == "code" and question.data["unittests"] is not None:
-            question.data["unittests"]["tests"] = len(question.data["unittests"]["tests"])
-
-    return form
-
-
 def _make_unit_code(units: dict[str, str]) -> str:
     """Compose a dict mapping unit names to their code into an actual class body."""
     result = ""

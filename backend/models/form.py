@@ -94,17 +94,19 @@ class Form(BaseModel):
     def dict(self, admin: bool = True, **kwargs) -> dict[str, t.Any]:  # noqa: FBT001, FBT002
         """Wrapper for original function to exclude private data for public access."""
         data = super().dict(**kwargs)
+        if admin:
+            return data
 
         returned_data = {}
 
-        if not admin:
-            for field in PUBLIC_FIELDS:
-                fetch_field = "_id" if field == "id" and kwargs.get("by_alias") else field
+        for field in PUBLIC_FIELDS:
+            fetch_field = "_id" if field == "id" and kwargs.get("by_alias") else field
+            returned_data[field] = data[fetch_field]
 
-                returned_data[field] = data[fetch_field]
-        else:
-            returned_data = data
-
+        # Replace the unittest data section of code questions with the number of test cases.
+        for question in returned_data["questions"]:
+            if question["type"] == "code" and question["data"]["unittests"] is not None:
+                question["data"]["unittests"]["tests"] = len(question["data"]["unittests"]["tests"])
         return returned_data
 
 
