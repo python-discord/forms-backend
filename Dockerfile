@@ -18,5 +18,5 @@ ARG git_sha="development"
 ENV GIT_SHA=$git_sha
 
 # Start the server with uvicorn
-ENTRYPOINT ["poetry", "run"]
-CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["poetry run alembic upgrade head && poetry run uvicorn backend:app --host 0.0.0.0 --port 8000"]
