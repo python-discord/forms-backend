@@ -43,6 +43,7 @@ QUESTION_TYPES = [
     "range",
     "section",
     "timezone",
+    "vote",
 ]
 
 REQUIRED_QUESTION_TYPE_DATA = {
@@ -60,6 +61,9 @@ REQUIRED_QUESTION_TYPE_DATA = {
     },
     "section": {
         "text": str,
+    },
+    "vote": {
+        "options": list,
     },
 }
 
