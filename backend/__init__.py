@@ -1,9 +1,12 @@
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.applications import Starlette
+from starlette.exceptions import HTTPException
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from backend import constants
 from backend.authentication import JWTAuthenticationBackend
@@ -47,5 +50,14 @@ middleware = [
     Middleware(ProtectedDocsMiddleware),
 ]
 
-app = Starlette(routes=create_route_map(), middleware=middleware)
+
+async def http_exception(_request: Request, exc: HTTPException) -> JSONResponse:  # noqa: RUF029
+    return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+
+
+exception_handlers = {HTTPException: http_exception}
+
+app = Starlette(
+    routes=create_route_map(), middleware=middleware, exception_handlers=exception_handlers
+)
 api.register(app)
