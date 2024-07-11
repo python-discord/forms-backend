@@ -78,6 +78,11 @@ class Condorcet(Route):
                 detail="Requested more winners than there are candidates", status_code=400
             )
 
+        if question.type != "vote":
+            raise InvalidCondorcetRequest(
+                detail="Requested question is not a condorcet vote component", status_code=400
+            )
+
         cursor = request.state.db.responses.find(
             {"form_id": form_id},
         )
