@@ -114,7 +114,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
       - name: Deploy to Kubernetes
-        uses: Azure/k8s-deploy@v1
+        uses: Azure/k8s-deploy@v5
         with:
           namespace: forms
           manifests: |
