@@ -107,6 +107,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - uses: azure/setup-kubectl@v4
+
       - name: Authenticate with Kubernetes
         uses: azure/k8s-set-context@v4
         with:
@@ -120,4 +122,3 @@ jobs:
           manifests: |
             deployment.yaml
           images: "ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}"
-          kubectl-version: "latest"
