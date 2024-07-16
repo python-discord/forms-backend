@@ -2,7 +2,7 @@ services:
   mongo:
     image: mongo:latest
     ports:
-      - 27017:27017
+      - "127.0.0.1:27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: forms-backend
       MONGO_INITDB_ROOT_PASSWORD: forms-backend
