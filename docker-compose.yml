@@ -21,9 +21,7 @@ services:
       - "127.0.0.1:6379:6379"
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     command: ["uvicorn", "--reload", "--host", "0.0.0.0", "backend:app"]
     ports:
       - "127.0.0.1:8000:8000"
