@@ -19,6 +19,10 @@ spectree = "^1.2.10"
 deepmerge = "^1.1.1"
 sentry-sdk = "^2.7.1"
 condorcet = "^0.1.1"
+redis = "^5.0.7"
+
+[tool.poetry.group.typing.dependencies]
+types-redis = "^4.6.0.20240425"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.1"

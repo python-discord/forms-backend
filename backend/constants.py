@@ -3,6 +3,7 @@ import os
 from enum import Enum
 
 from dotenv import load_dotenv
+from redis.asyncio import Redis as _Redis
 
 load_dotenv()
 
@@ -11,6 +12,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "https://forms.pythondiscord.com")
 DATABASE_URL = os.getenv("DATABASE_URL")
 MONGO_DATABASE = os.getenv("MONGO_DATABASE", "pydis_forms")
 SNEKBOX_URL = os.getenv("SNEKBOX_URL", "http://snekbox.default.svc.cluster.local/eval")
+
+REDIS_CLIENT = _Redis.from_url(os.getenv("REDIS_URL"), encoding="utf-8")
 
 PRODUCTION = os.getenv("PRODUCTION", "True").lower() != "false"
 PRODUCTION_URL = "https://forms.pythondiscord.com"
