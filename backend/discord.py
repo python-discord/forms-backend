@@ -136,20 +136,14 @@ async def get_member(
     """
     member_key = f"forms-backend:member_cache:{user_id}"
 
-    if force_refresh:
-        await constants.REDIS_CLIENT.delete(member_key)
-
-    result = await constants.REDIS_CLIENT.get(member_key)
-
-    if result is not None:
-        return models.DiscordMember(**json.loads(result))
+    if not force_refresh:
+        result = await constants.REDIS_CLIENT.get(member_key)
+        if result:
+            return models.DiscordMember(**json.loads(result))
 
     member = await _fetch_member_api(user_id)
-
-    if not member:
-        return None
-
-    await constants.REDIS_CLIENT.set(member_key, member.json(), ex=60 * 60)
+    if member:
+        await constants.REDIS_CLIENT.set(member_key, member.json(), ex=60 * 60)
 
     return member
 
