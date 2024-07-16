@@ -67,9 +67,9 @@ class User(BaseUser):
 
         return self.admin
 
-    async def refresh_data(self, database: Database) -> None:
+    async def refresh_data(self) -> None:
         """Fetches user data from discord, and updates the instance."""
-        self.member = await discord.get_member(database, self.payload["id"])
+        self.member = await discord.get_member(self.payload["id"])
 
         if self.member:
             self.payload = self.member.user.dict()

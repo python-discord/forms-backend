@@ -60,7 +60,7 @@ class MemberRoute(route.Route):
     async def delete(self, request: Request) -> JSONResponse:
         """Force a resync of the cache for the given user."""
         body = await request.json()
-        member = await discord.get_member(request.state.db, body["user_id"], force_refresh=True)
+        member = await discord.get_member(body["user_id"], force_refresh=True)
 
         if member:
             return JSONResponse(member.dict())
@@ -75,7 +75,7 @@ class MemberRoute(route.Route):
     async def get(self, request: Request) -> JSONResponse:
         """Get a user's roles on the configured server."""
         body = await request.json()
-        member = await discord.get_member(request.state.db, body["user_id"])
+        member = await discord.get_member(body["user_id"])
 
         if not member:
             return NOT_FOUND_EXCEPTION

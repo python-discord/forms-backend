@@ -124,7 +124,6 @@ async def _fetch_member_api(member_id: str) -> models.DiscordMember | None:
 
 
 async def get_member(
-    database: Database,
     user_id: str,
     *,
     force_refresh: bool = False,
@@ -135,34 +134,23 @@ async def get_member(
     If `force_refresh` is True, the cache is skipped and the entry is updated.
     None may be returned if the member object does not exist.
     """
-    collection = database.get_collection("discord_members")
+    member_key = f"forms-backend:member_cache:{user_id}"
 
     if force_refresh:
-        await collection.delete_one({"user": user_id})
+        await constants.REDIS_CLIENT.delete(member_key)
 
-    # `create_index` creates the index if it does not exist, or passes
-    # This handles TTL on member objects
-    await collection.create_index(
-        "inserted_at",
-        expireAfterSeconds=60 * 60,  # 1 hour
-        name="inserted_at",
-    )
-
-    result = await collection.find_one({"user": user_id})
+    result = await constants.REDIS_CLIENT.get(member_key)
 
     if result is not None:
-        return models.DiscordMember(**json.loads(result["data"]))
+        return models.DiscordMember(**json.loads(result))
 
     member = await _fetch_member_api(user_id)
 
     if not member:
         return None
 
-    await collection.insert_one({
-        "user": user_id,
-        "data": member.json(),
-        "inserted_at": datetime.datetime.now(tz=datetime.UTC),
-    })
+    await constants.REDIS_CLIENT.set(member_key, member.json(), ex=60 * 60)
+
     return member
 
 

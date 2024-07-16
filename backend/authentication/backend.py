@@ -63,7 +63,7 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         user = User(
             token,
             user_details,
-            await discord.get_member(request.state.db, user_details["id"]),
+            await discord.get_member(user_details["id"]),
         )
         if await user.fetch_admin_status(request.state.db):
             scopes.append("admin")

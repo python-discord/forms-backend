@@ -44,7 +44,7 @@ async def process_token(
         return AUTH_FAILURE
 
     user_id = user_details["id"]
-    member = await get_member(request.state.db, user_id, force_refresh=True)
+    member = await get_member(user_id, force_refresh=True)
 
     max_age = datetime.timedelta(seconds=int(bearer_token["expires_in"]))
     token_expiry = interaction_start + max_age

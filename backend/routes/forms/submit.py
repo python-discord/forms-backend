@@ -85,7 +85,7 @@ class SubmitForm(Route):
         try:
             if hasattr(request.user, User.refresh_data.__name__):
                 old = request.user.token
-                await request.user.refresh_data(request.state.db)
+                await request.user.refresh_data()
 
                 if old != request.user.token:
                     try:
