@@ -1,11 +1,9 @@
 """Various utilities for working with the Discord API."""
 
-import datetime
 import json
 
 import httpx
 import starlette.requests
-from pymongo.database import Database
 from starlette import exceptions
 
 from backend import constants, models
@@ -66,7 +64,6 @@ async def _get_role_info() -> list[models.DiscordRole]:
 
 
 async def get_roles(
-    database: Database,
     *,
     force_refresh: bool = False,
 ) -> list[models.DiscordRole]:
@@ -75,35 +72,17 @@ async def get_roles(
 
     If `force_refresh` is True, the cache is skipped and the roles are updated.
     """
-    collection = database.get_collection("roles")
+    role_cache_key = "forms-backend:role_cache"
+    if not force_refresh:
+        roles = await constants.REDIS_CLIENT.hgetall(role_cache_key)
+        if roles:
+            return [
+                models.DiscordRole(**json.loads(role_data)) for role_id, role_data in roles.items()
+            ]
 
-    if force_refresh:
-        # Drop all values in the collection
-        await collection.delete_many({})
-
-    # `create_index` creates the index if it does not exist, or passes
-    # This handles TTL on role objects
-    await collection.create_index(
-        "inserted_at",
-        expireAfterSeconds=60 * 60 * 24,  # 1 day
-        name="inserted_at",
-    )
-
-    roles = [models.DiscordRole(**json.loads(role["data"])) async for role in collection.find()]
-
-    if len(roles) == 0:
-        # Fetch roles from the API and insert into the database
-        roles = await _get_role_info()
-        await collection.insert_many(
-            {
-                "name": role.name,
-                "id": role.id,
-                "data": role.json(),
-                "inserted_at": datetime.datetime.now(tz=datetime.UTC),
-            }
-            for role in roles
-        )
-
+    roles = await _get_role_info()
+    await constants.REDIS_CLIENT.hmset(role_cache_key, {role.id: role.json() for role in roles})
+    await constants.REDIS_CLIENT.expire(role_cache_key, 60 * 60 * 24)  # 1 day
     return roles
 
 

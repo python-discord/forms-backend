@@ -68,6 +68,6 @@ class JWTAuthenticationBackend(authentication.AuthenticationBackend):
         if await user.fetch_admin_status(request.state.db):
             scopes.append("admin")
 
-        scopes.extend(await user.get_user_roles(request.state.db))
+        scopes.extend(await user.get_user_roles())
 
         return authentication.AuthCredentials(scopes), user

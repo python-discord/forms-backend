@@ -44,12 +44,12 @@ class User(BaseUser):
     def decoded_token(self) -> dict[str, any]:
         return jwt.decode(self.token, SECRET_KEY, algorithms=["HS256"])
 
-    async def get_user_roles(self, database: Database) -> list[str]:
+    async def get_user_roles(self) -> list[str]:
         """Get a list of the user's discord roles."""
         if not self.member:
             return []
 
-        server_roles = await discord.get_roles(database)
+        server_roles = await discord.get_roles()
         roles = [role.name for role in server_roles if role.id in self.member.roles]
 
         if "admin" in roles:

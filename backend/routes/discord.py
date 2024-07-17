@@ -31,9 +31,9 @@ class RolesRoute(route.Route):
         resp=Response(HTTP_200=RolesResponse),
         tags=["roles"],
     )
-    async def patch(self, request: Request) -> JSONResponse:
+    async def patch(self, request: Request) -> JSONResponse:  # noqa: ARG002 Request is required by @requires
         """Refresh the roles database."""
-        roles = await discord.get_roles(request.state.db, force_refresh=True)
+        roles = await discord.get_roles(force_refresh=True)
 
         return JSONResponse(
             {"roles": [role.dict() for role in roles]},
