@@ -87,7 +87,7 @@ jobs:
           cache-to: type=inline
           tags: |
             ghcr.io/python-discord/forms-backend:latest
-            ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}
+            ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.sha_tag }}
           build-args: |
             git_sha=${{ github.sha }}
 
@@ -121,4 +121,4 @@ jobs:
           namespace: forms
           manifests: |
             deployment.yaml
-          images: "ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.tag }}"
+          images: "ghcr.io/python-discord/forms-backend:${{ steps.sha_tag.outputs.sha_tag }}"
