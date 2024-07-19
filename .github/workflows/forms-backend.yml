@@ -62,7 +62,7 @@ jobs:
         id: sha_tag
         run: |
           tag=$(cut -c 1-7 <<< $GITHUB_SHA)
-          echo "::set-output name=tag::$tag"
+          echo "sha-tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -102,7 +102,7 @@ jobs:
         id: sha_tag
         run: |
           tag=$(cut -c 1-7 <<< $GITHUB_SHA)
-          echo "::set-output name=tag::$tag"
+          echo "sha-tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
         uses: actions/checkout@v4
