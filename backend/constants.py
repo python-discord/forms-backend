@@ -56,6 +56,12 @@ QUESTION_TYPES = [
     "vote",
 ]
 
+
+class TextType(Enum):
+    SHORT_TEXT = "short_text"
+    TEXT_AREA = "text_area"
+
+
 REQUIRED_QUESTION_TYPE_DATA = {
     "radio": {
         "options": list,

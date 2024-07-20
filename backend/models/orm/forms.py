@@ -1,5 +1,7 @@
 """All forms that can have submissions."""
 
+from typing import TYPE_CHECKING
+
 import sqlalchemy.dialects.postgresql as pg
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -8,6 +10,9 @@ from sqlalchemy.types import BigInteger, Enum, Text
 from backend.constants import FormFeatures
 
 from .base import Base
+
+if TYPE_CHECKING:
+    from . import FormQuestion
 
 
 class Form(Base):
@@ -21,6 +26,11 @@ class Form(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     submission_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    form_questions: Mapped[list["FormQuestion"]] = relationship(
+        cascade="all, delete",
+        passive_deletes=True,
+    )
 
     webhook_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     webhook_message: Mapped[str | None] = mapped_column(Text, nullable=True)
