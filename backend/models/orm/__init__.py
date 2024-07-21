@@ -2,8 +2,7 @@
 
 from .admins import Admin
 from .base import Base
-from .forms import Form, FormEditor, FormFeatures
-from .questions import (
+from .form_questions import (
     FormCheckboxQuestion,
     FormCodeQuestion,
     FormCodeQuestionTest,
@@ -16,6 +15,8 @@ from .questions import (
     FormTimezoneQuestion,
     FormVoteQuestion,
 )
+from .form_responses import FormResponse
+from .forms import Form, FormEditor, FormFeatures
 
 __all__ = (
     "Admin",
@@ -29,6 +30,7 @@ __all__ = (
     "FormQuestion",
     "FormRadioQuestion",
     "FormRangeQuestion",
+    "FormResponse",
     "FormSectionQuestion",
     "FormSelectQuestion",
     "FormTextQuestion",

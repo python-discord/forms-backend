@@ -12,7 +12,7 @@ from backend.constants import FormFeatures
 from .base import Base
 
 if TYPE_CHECKING:
-    from . import FormQuestion
+    from . import FormQuestion, FormResponse
 
 
 class Form(Base):
@@ -28,6 +28,10 @@ class Form(Base):
     submission_text: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     form_questions: Mapped[list["FormQuestion"]] = relationship(
+        cascade="all, delete",
+        passive_deletes=True,
+    )
+    form_responses: Mapped[list["FormResponse"]] = relationship(
         cascade="all, delete",
         passive_deletes=True,
     )
