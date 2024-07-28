@@ -151,15 +151,14 @@ async def _verify_access_helper(
         return
 
     form = models.Form(**form)
+    role_id_lookup = {role.id: role for role in await get_roles()}
 
-    for role_id in getattr(form, attribute, None) or []:
-        role = await request.state.db.roles.find_one({"id": role_id})
-        if not role:
-            continue
+    for role_name_or_id in getattr(form, attribute, None) or []:
+        if role_name_or_id in request.auth.scopes:
+            return
 
-        role = models.DiscordRole(**json.loads(role["data"]))
-
-        if role.name in request.auth.scopes:
+        role = role_id_lookup.get(role_name_or_id)
+        if role and role.name in request.auth.scopes:
             return
 
     raise UnauthorizedError(status_code=401)
