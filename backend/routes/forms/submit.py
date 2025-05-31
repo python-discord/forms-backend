@@ -334,6 +334,9 @@ class SubmitForm(Route):
             "username": form.name or "Python Discord Forms",
         }
 
+        if form.webhook.thread_id:
+            hook["thread_id"] = form.webhook.thread_id
+
         # Set hook message
         message = form.webhook.message
         if message:
