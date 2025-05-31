@@ -41,10 +41,11 @@ In this document:
 ### Webhooks
 Discord webhooks to send information upon form submission.
 
-| Field     | Type   | Description                                                                                               |
-|-----------|--------|-----------------------------------------------------------------------------------------------------------|
-| `url`     | String | Discord webhook URL.                                                                                      |
-| `message` | String | An optional message to include before the embed. Can use certain [context variables](#webhook-variables). |
+| Field       | Type   | Description                                                                                                 |
+|-------------|--------|-------------------------------------------------------------------------------------------------------------|
+| `url`       | String | Discord webhook URL.                                                                                        |
+| `message`   | String | An optional message to include before the embed. Can use certain [context variables](#webhook-variables).   |
+| `thread_id` | String | An optional thread ID to post the webhook into. If not provided, the webhook will be posted in the channel. |
 
 
 #### Webhook Variables
