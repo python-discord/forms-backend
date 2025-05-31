@@ -370,7 +370,7 @@ class SubmitForm(Route):
 
         url = (
             f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
-            f"/members/{request_user.payload['id']}/roles/{form.discord_role}"
+            f"/members/{request_user.payload["id"]}/roles/{form.discord_role}"
         )
 
         async with httpx.AsyncClient() as client:
