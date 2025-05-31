@@ -334,9 +334,6 @@ class SubmitForm(Route):
             "username": form.name or "Python Discord Forms",
         }
 
-        if form.webhook.thread_id:
-            hook["thread_id"] = form.webhook.thread_id
-
         # Set hook message
         message = form.webhook.message
         if message:
@@ -354,9 +351,14 @@ class SubmitForm(Route):
 
             hook["content"] = message.replace("_USER_MENTION_", mention)
 
+        params = {}
+
+        if form.webhook.thread_id:
+            params["thread_id"] = form.webhook.thread_id
+
         # Post hook
         async with httpx.AsyncClient() as client:
-            r = await client.post(form.webhook.url, json=hook)
+            r = await client.post(form.webhook.url, json=hook, params=params)
             r.raise_for_status()
 
     @staticmethod
@@ -368,7 +370,7 @@ class SubmitForm(Route):
 
         url = (
             f"{constants.DISCORD_API_BASE_URL}/guilds/{constants.DISCORD_GUILD}"
-            f"/members/{request_user.payload["id"]}/roles/{form.discord_role}"
+            f"/members/{request_user.payload['id']}/roles/{form.discord_role}"
         )
 
         async with httpx.AsyncClient() as client:
