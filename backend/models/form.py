@@ -24,6 +24,7 @@ class _WebHook(BaseModel):
 
     url: str
     message: str | None
+    thread_id: str | None = None
 
     @validator("url")
     def validate_url(cls, url: str) -> str:
@@ -33,6 +34,15 @@ class _WebHook(BaseModel):
             raise ValueError(msg)
 
         return url
+
+    @validator("thread_id")
+    def validate_thread_id(cls, thread_id: str | None) -> str | None:
+        """Validates thread_id parameter."""
+        if thread_id is not None and not thread_id.isdigit():
+            msg = "Thread ID must be a string of digits."
+            raise ValueError(msg)
+
+        return thread_id
 
 
 class Form(BaseModel):
