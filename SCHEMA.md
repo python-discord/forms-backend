@@ -162,8 +162,10 @@ Textareas require no additional configuration.
 
 ```js
 {
-    // OPTIONAL: Additional text to place below the section header
+    // REQUIRED: Additional text to place below the section header
     "text": "This section will quiz you on A, B and C"
+    // OPTIONAL: Alignment of the section text (default: center, other options: left)
+    "align": "center"
 }
 ```
 
