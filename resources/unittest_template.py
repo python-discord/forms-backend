@@ -52,6 +52,12 @@ def _load_user_module(result_writer, exit_wrapper: _EXIT_WRAPPER_TYPE) -> Module
         exit_wrapper(5)
 
     _module = ModuleType("module")
+    # It's necessary to manually add the module to the sys modules
+    # Dataclasses do not add themselves which causes issues for us with this type of dynamic loading
+    # if from __future__ import annotations is also used
+    # See: https://github.com/mkdocs/mkdocs/issues/3141 and https://github.com/sqlalchemy/alembic/issues/1419
+    sys.modules[_module.__name__] = _module
+    
     exec(code, _module.__dict__)
 
     return _module
