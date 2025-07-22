@@ -57,7 +57,7 @@ def _load_user_module(result_writer, exit_wrapper: _EXIT_WRAPPER_TYPE) -> Module
     # if from __future__ import annotations is also used
     # See: https://github.com/mkdocs/mkdocs/issues/3141 and https://github.com/sqlalchemy/alembic/issues/1419
     sys.modules[_module.__name__] = _module
-    
+
     exec(code, _module.__dict__)
 
     return _module
