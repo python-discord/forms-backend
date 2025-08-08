@@ -170,6 +170,22 @@ class SubmitForm(Route):
                 else:
                     return JSONResponse({"error": "missing_discord_data"}, status_code=400)
 
+            if constants.FormFeatures.UNIQUE_RESPONDER.value in form.features:
+                if not request.user.is_authenticated:
+                    return JSONResponse({"error": "missing_discord_data"}, status_code=400)
+
+                existing_response = await request.state.db.responses.find_one(
+                    {
+                        "form_id": form.id,
+                        "user.id": request.user.payload["id"],
+                    },
+                )
+                if existing_response:
+                    return JSONResponse(
+                        {"error": "unique_responder", "message": "You have already submitted this form."},
+                        status_code=400,
+                    )
+
             missing_fields = []
             for question in form.questions:
                 if question.id not in response["response"]:
