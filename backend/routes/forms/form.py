@@ -56,7 +56,9 @@ class SingleForm(Route):
     name = "form"
     path = "/{form_id:str}"
 
-    @api.validate(resp=Response(HTTP_200=FormWithAncillaryData, HTTP_404=ErrorMessage), tags=["forms"])
+    @api.validate(
+        resp=Response(HTTP_200=FormWithAncillaryData, HTTP_404=ErrorMessage), tags=["forms"]
+    )
     async def get(self, request: Request) -> JSONResponse:
         """Returns single form information by ID."""
         form_id = request.path_params["form_id"].lower()
@@ -92,21 +94,22 @@ class SingleForm(Route):
             form.submission_precheck.problems.append(
                 SubmissionProblem(
                     severity=SubmissionPrecheckSeverity.DANGER,
-                    message="This form is not open for submissions at the moment."
+                    message="This form is not open for submissions at the moment.",
                 )
             )
             form.submission_precheck.can_submit = False
         elif constants.FormFeatures.UNIQUE_RESPONDER.value in form.features:
             user_id = request.user.payload["id"] if request.user.is_authenticated else None
             if user_id:
-                existing_response = await request.state.db.responses.find_one(
-                    {"form_id": form_id, "user.id": user_id}
-                )
+                existing_response = await request.state.db.responses.find_one({
+                    "form_id": form_id,
+                    "user.id": user_id,
+                })
                 if existing_response:
                     form.submission_precheck.problems.append(
                         SubmissionProblem(
                             severity=SubmissionPrecheckSeverity.DANGER,
-                            message="You have already submitted a response to this form."
+                            message="You have already submitted a response to this form.",
                         )
                     )
                     form.submission_precheck.can_submit = False
@@ -114,7 +117,7 @@ class SingleForm(Route):
                 form.submission_precheck.problems.append(
                     SubmissionProblem(
                         severity=SubmissionPrecheckSeverity.SECONDARY,
-                        message="You must login at the bottom of the page before submitting this form."
+                        message="You must login at the bottom of the page before submitting this form.",
                     )
                 )
 

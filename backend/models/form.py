@@ -75,7 +75,11 @@ class Form(BaseModel):
             raise ValueError(msg)
 
         if FormFeatures.REQUIRES_LOGIN.value not in value:
-            require_login_feature = [FormFeatures.COLLECT_EMAIL, FormFeatures.ASSIGN_ROLE, FormFeatures.UNIQUE_RESPONDER]
+            require_login_feature = [
+                FormFeatures.COLLECT_EMAIL,
+                FormFeatures.ASSIGN_ROLE,
+                FormFeatures.UNIQUE_RESPONDER,
+            ]
 
             for feature in require_login_feature:
                 if feature.value in value:

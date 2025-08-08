@@ -182,7 +182,10 @@ class SubmitForm(Route):
                 )
                 if existing_response:
                     return JSONResponse(
-                        {"error": "unique_responder", "message": "You have already submitted this form."},
+                        {
+                            "error": "unique_responder",
+                            "message": "You have already submitted this form.",
+                        },
                         status_code=400,
                     )
 
