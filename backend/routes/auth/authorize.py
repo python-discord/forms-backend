@@ -54,7 +54,10 @@ async def process_token(
         "refresh": bearer_token["refresh_token"],
         "user_details": user_details,
         "in_guild": bool(member),
+        # Legacy key, we should use exp and use JWT expiry as below it.
         "expiry": token_expiry.isoformat(),
+        # Correct JWT expiry key:
+        "exp": token_expiry
     }
 
     token = jwt.encode(data, SECRET_KEY, algorithm="HS256")
