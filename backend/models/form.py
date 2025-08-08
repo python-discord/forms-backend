@@ -16,6 +16,8 @@ PUBLIC_FIELDS = [
     "description",
     "submitted_text",
     "discord_role",
+    # Member of the FormWithAncillaryData subclass
+    "submission_precheck",
 ]
 
 
@@ -73,13 +75,12 @@ class Form(BaseModel):
             raise ValueError(msg)
 
         if FormFeatures.REQUIRES_LOGIN.value not in value:
-            if FormFeatures.COLLECT_EMAIL.value in value:
-                msg = "COLLECT_EMAIL feature require REQUIRES_LOGIN feature."
-                raise ValueError(msg)
+            require_login_feature = [FormFeatures.COLLECT_EMAIL, FormFeatures.ASSIGN_ROLE, FormFeatures.UNIQUE_RESPONDER]
 
-            if FormFeatures.ASSIGN_ROLE.value in value:
-                msg = "ASSIGN_ROLE feature require REQUIRES_LOGIN feature."
-                raise ValueError(msg)
+            for feature in require_login_feature:
+                if feature.value in value:
+                    msg = f"{feature.value} feature requires REQUIRES_LOGIN feature."
+                    raise ValueError(msg)
 
         return value
 
@@ -110,6 +111,8 @@ class Form(BaseModel):
         returned_data = {}
 
         for field in PUBLIC_FIELDS:
+            if field not in data:
+                continue
             fetch_field = "_id" if field == "id" and kwargs.get("by_alias") else field
             returned_data[field] = data[fetch_field]
 
