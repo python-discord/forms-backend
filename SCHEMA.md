@@ -37,6 +37,7 @@ In this document:
 | `DISABLE_ANTISPAM` | Disable the anti-spam checks from running on a form submission.               |
 | `WEBHOOK_ENABLED`  | The form should notify the webhook. Has no effect if no webhook is set.       |
 | `ASSIGN_ROLE`      | The form should assign role to user. Requires `REQUIRES_LOGIN`.               |
+| `UNIQUE_RESPONDER` | Only one response allowed per Discord ID. Requires `REQUIRES_LOGIN`.          |
 
 ### Webhooks
 Discord webhooks to send information upon form submission.
