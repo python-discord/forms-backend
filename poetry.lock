@@ -877,26 +877,24 @@ files = [
 
 [[package]]
 name = "spectree"
-version = "1.2.10"
-description = "generate OpenAPI document and validate request&response with Python annotations."
+version = "1.4.11"
+description = "Generate OpenAPI document and validate request & response with Python annotations."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "spectree-1.2.10-py3-none-any.whl", hash = "sha256:45ef228c02d9eec413a4d2056ef4d3b8e530d3e075c2c69f92b1f86f3a9c003e"},
-    {file = "spectree-1.2.10.tar.gz", hash = "sha256:b826f7738f23ab679e83ee5061369f15c53f798ac093e0efbe8f8b66e9943594"},
+    {file = "spectree-1.4.11-py3-none-any.whl", hash = "sha256:1603f1985db2641e8ee10b893fbb22515f0dc4fa199a7133ed63793d850bc5d2"},
+    {file = "spectree-1.4.11.tar.gz", hash = "sha256:e26e6b7da602856f96ad1ffd59a6b8235ab444fe31689162f45e15e9f06c9c6c"},
 ]
 
 [package.dependencies]
 pydantic = ">=1.2,<3"
 
 [package.extras]
-dev = ["mypy (>=0.971)", "pre-commit", "pytest (>=7.1,<9.0)", "ruff (>=0.1.3)", "syrupy (>=4.0)"]
-docs = ["Sphinx", "myst-parser", "shibuya"]
-email = ["pydantic[email] (>=1.2,<3)"]
-falcon = ["falcon (>=3.0.0)"]
-flask = ["flask"]
-quart = ["quart"]
-starlette = ["starlette[full]"]
+falcon = ["falcon (>=3)"]
+flask = ["flask (>=2)"]
+offline = ["offapi (>=0.1.0)"]
+quart = ["quart (>=0.16)"]
+starlette = ["starlette[full] (>=0.16)"]
 
 [[package]]
 name = "starlette"
